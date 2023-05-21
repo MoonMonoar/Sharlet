@@ -1,0 +1,47 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.Sharlet" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryVariant">@color/primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/primary_semi</item>
+        <item name="colorSecondaryVariant">@color/dark_primary</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/purple_500</item>
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="MyToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Dark">
+        <item name="colorControlNormal">@color/white</item>
+        <item name="titleTextColor">@color/white</item>
+    </style>
+
+    <style name="Theme.Sharlet.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Sharlet.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Sharlet.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="TabFont" parent="TextAppearance.Design.Tab">
+        <item name="android:fontFamily">@font/trebuc</item>
+        <item name="android:textSize">16sp</item>
+        <item name="textAllCaps">false</item>
+    </style>
+
+    <style name="Theme.Sharlet.Fullscreen" parent="Theme.Sharlet">
+        <item name="android:actionBarStyle">@style/Widget.Theme.Sharlet.ActionBar.Fullscreen</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
+    </style>
+
+    <style name="ThemeOverlay.Sharlet.FullscreenContainer" parent="">
+        <item name="fullscreenBackgroundColor">@color/light_blue_600</item>
+        <item name="fullscreenTextColor">@color/light_blue_A200</item>
+    </style>
+</resources>

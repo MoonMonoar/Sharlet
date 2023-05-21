@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Send">
+
+    <RelativeLayout
+        android:background="@color/primary"
+        android:id="@+id/relativeLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:id="@+id/back_button"
+            android:layout_width="58dp"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/font_awesome_regular"
+            android:gravity="center"
+            android:text="\uf00d"
+            android:textColor="@color/white"
+            android:textSize="30sp"/>
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:id="@+id/top_title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="60dp"
+            android:layout_marginEnd="150dp"
+            android:gravity="center"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="Waiting for receiver..."
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="20sp"/>
+
+        <LinearLayout
+            android:visibility="gone"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/button"
+            android:layout_marginEnd="122dp"
+            android:id="@+id/qr_prompt"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:orientation="horizontal">
+            <TextView
+                android:singleLine="true"
+                android:ellipsize="middle"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/trebuc"
+                android:text="QR"/>
+            <TextView
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:layout_marginStart="7dp"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/font_awesome_regular"
+                android:text="\uf029"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:gravity="center"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/button"
+            android:layout_marginEnd="15dp"
+            android:visibility="visible"
+            android:id="@+id/pc_button1"
+            android:layout_alignParentEnd="true"
+            android:layout_width="100dp"
+            android:layout_height="40dp"
+            android:orientation="horizontal">
+            <TextView
+                android:singleLine="true"
+                android:ellipsize="middle"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/trebuc"
+                android:text="PC/iOS"/>
+            <TextView
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:layout_marginStart="7dp"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/font_awesome_regular"
+                android:text="\uf108"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+    android:id="@+id/waiting_view"
+    android:gravity="center"
+    android:layout_marginTop="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:fontFamily="@font/trebuc"
+        android:id="@+id/main_title_top"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textColor="@color/primary"
+        android:layout_marginTop="90dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Waiting for receiver"/>
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:layout_marginTop="125dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Wait for receiver to discover or just tell to scan QR quickly."/>
+
+        <ImageView
+            android:id="@+id/waiting_design"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="50dp"
+            android:layout_marginBottom="50dp"
+            android:src="@drawable/logo_main" />
+
+        <ProgressBar
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="30dp"
+            android:id="@+id/waiting_progress"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"/>
+
+    <TextView
+        android:fontFamily="@font/trebuc"
+        android:id="@+id/file_update"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="120dp"
+        android:text="Please wait..."
+        android:textSize="18sp" />
+</RelativeLayout>
+
+    <RelativeLayout
+        android:visibility="gone"
+        android:id="@+id/sending_view"
+        android:layout_marginTop="55dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+      <LinearLayout
+          android:background="@color/primary"
+          android:id="@+id/update_panel"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="vertical">
+            <TextView
+                android:singleLine="true"
+                android:ellipsize="middle"
+                android:id="@+id/portal_summary"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:fontFamily="@font/trebuc"
+                android:textColor="@color/white"
+                android:padding="10dp"
+                android:gravity="center"
+                android:text="0B sent in 0ms - 0B/S"
+                android:layout_width="match_parent"
+                android:layout_height="45dp">
+            </TextView>
+          <TextView
+              android:foreground="?android:attr/selectableItemBackground"
+              android:clickable="true"
+              android:focusable="true"
+              android:singleLine="true"
+              android:visibility="gone"
+              android:id="@+id/unusual"
+              android:layout_marginBottom="10dp"
+              android:textSize="15sp"
+              android:textColor="@color/white"
+              android:gravity="center"
+              android:fontFamily="@font/trebuc"
+              android:padding="5dp"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="Receiver device requiring more data then usual!" />
+      </LinearLayout>
+        <LinearLayout
+            android:id="@+id/l2"
+            android:gravity="center"
+            android:layout_below="@id/update_panel"
+            android:background="@drawable/line"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="37dp">
+            <TextView
+                android:paddingStart="10dp"
+                android:textColor="@color/grey"
+                android:paddingTop="10dp"
+                android:text="\uf07c"
+                android:fontFamily="@font/font_awesome_regular"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:id="@+id/total_bucket_size"
+                android:singleLine="true"
+                android:ellipsize="middle"
+                android:textSize="15sp"
+                android:fontFamily="@font/trebuc"
+                android:text="Total: 0B"
+                android:padding="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:layout_marginStart="5dp"
+                android:id="@+id/total_packages"
+                android:textColor="@color/grey"
+                android:text="\uf058"
+                android:fontFamily="@font/font_awesome_regular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/pack_sent"
+                android:singleLine="true"
+                android:ellipsize="middle"
+                android:textSize="15sp"
+                android:fontFamily="@font/trebuc"
+                android:text="Sent: 0 file"
+                android:padding="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+        <ScrollView
+            android:layout_below="@id/l2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TableLayout
+                android:id="@+id/files_table"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_marginTop="50dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    tools:ignore="UselessParent">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="\uf07b"
+                        android:fontFamily="@font/font_awesome_regular"
+                        android:textColor="@color/grey_semi"
+                        android:textSize="18sp"/>
+                    <TextView
+                        android:id="@+id/text"
+                        android:layout_marginTop="2dp"
+                        android:textColor="@color/grey_semi"
+                        android:fontFamily="@font/trebuc"
+                        android:layout_marginLeft="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="15sp"
+                        android:text="Loading..."/>
+                </LinearLayout>
+
+            </TableLayout>
+        </ScrollView>
+
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints"
+        android:orientation="horizontal">
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:maxWidth="300dp"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:padding="10dp"
+            android:text="Explorer settings"
+            android:textColor="@color/primary"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            tools:ignore="MissingConstraints" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/l1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        tools:ignore="MissingConstraints">
+
+        <CheckBox
+            android:clickable="true"
+            android:focusable="true"
+            android:id="@+id/show_hidden_files"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:button="@drawable/custom_checkbox"/>
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:id="@+id/show_hidden_files_text"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:layout_marginEnd="20dp"
+            android:textColor="@color/black"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Show hidden files"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/l2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/l1"
+        tools:ignore="MissingConstraints">
+
+        <CheckBox
+            android:checked="true"
+            android:clickable="true"
+            android:focusable="true"
+            android:id="@+id/latest_first"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:button="@drawable/custom_checkbox"/>
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:id="@+id/latest_first_text"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:layout_marginEnd="20dp"
+            android:textColor="@color/black"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Latest first"/>
+    </LinearLayout>
+
+
+    <RelativeLayout
+        app:layout_constraintTop_toBottomOf="@+id/l2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:gravity="right"
+        tools:ignore="MissingConstraints">
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:id="@+id/close"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textColor="@color/primary"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:text="Close"/>
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

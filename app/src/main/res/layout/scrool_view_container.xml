@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/main_scroll">
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/main_table">
+        <LinearLayout
+            android:id="@+id/empty"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="300dp">
+            <TextView
+                android:textSize="16sp"
+                android:textColor="@color/grey_semi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font_awesome_regular"
+                android:text="\uf2f1"/>
+            <TextView
+                android:textSize="16sp"
+                android:layout_marginStart="8dp"
+                android:fontFamily="@font/trebuc"
+                android:textColor="@color/grey_semi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loading..."/>
+        </LinearLayout>
+    </TableLayout>
+</ScrollView>

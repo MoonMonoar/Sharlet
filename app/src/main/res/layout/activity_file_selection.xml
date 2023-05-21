@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".File_selection">
+
+    <RelativeLayout
+        android:background="@color/primary"
+        android:id="@+id/main_title"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="20dp"
+            android:fontFamily="@font/font_awesome_regular"
+            android:gravity="center"
+            android:text="\uf060"
+            android:textColor="@color/white"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:textSize="25sp"/>
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:textStyle="bold"
+            android:id="@+id/select_file_title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="60dp"
+            android:gravity="center"
+            android:text="Select files"
+            android:textColor="@color/white"
+            android:textSize="20sp"/>
+
+        <LinearLayout
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/button"
+            android:layout_marginEnd="15dp"
+            android:visibility="visible"
+            android:id="@+id/done_button"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:orientation="horizontal">
+            <TextView
+                android:textSize="18sp"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/trebuc"
+                android:text="Done"/>
+            <TextView
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:layout_marginStart="7dp"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/font_awesome_regular"
+                android:text="\uf00c"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+    <ProgressBar
+        android:visibility="invisible"
+        android:id="@+id/files_loading"
+        android:layout_marginBottom="-10dp"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/main_title"
+        android:indeterminate="false"
+        android:progress="0"
+        android:progressTint="@color/home_loader"
+        app:layout_constraintBottom_toBottomOf="@+id/main_title"
+        tools:ignore="MissingConstraints"/>
+
+
+    <com.google.android.material.tabs.TabLayout
+        app:tabTextAppearance="@style/TabFont"
+        android:background="@drawable/line"
+        android:id="@+id/tabs_layout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        app:layout_constraintTop_toBottomOf="@+id/main_title"
+        tools:ignore="MissingConstraints"
+        app:tabGravity="center"
+        app:tabMode="scrollable">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Files" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Apps" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Audio" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Photos" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Videos" />
+
+    </com.google.android.material.tabs.TabLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/file_selection_fragment_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="105dp"
+        tools:ignore="MissingConstraints"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

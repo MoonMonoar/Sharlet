@@ -1,0 +1,45 @@
+<LinearLayout
+    android:padding="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBox
+        android:gravity="center"
+        android:id="@+id/select_all"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:button="@drawable/custom_checkbox"/>
+
+    <TextView
+        android:ellipsize="middle"
+        android:singleLine="true"
+        android:gravity="center|left"
+        android:fontFamily="@font/trebuc"
+        android:layout_marginEnd="75dp"
+        android:textStyle="bold"
+        android:textColor="@color/primary"
+        android:id="@+id/album_name"
+        android:textSize="17sp"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="Unknown album"/>
+
+    <TextView
+        android:fontFamily="@font/trebuc"
+        android:gravity="center"
+        android:id="@+id/see_all"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:textSize="17sp"
+        android:padding="10dp"
+        android:textColor="@color/grey"
+        android:layout_marginStart="-75dp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="See all"/>
+
+</LinearLayout>

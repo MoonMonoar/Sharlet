@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Settings_page">
+
+    <RelativeLayout
+        android:background="@color/primary"
+        android:id="@+id/main_title"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="20dp"
+            android:fontFamily="@font/font_awesome_regular"
+            android:gravity="center"
+            android:text="\uf060"
+            android:textColor="@color/white"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:textSize="25sp"/>
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:textStyle="bold"
+            android:id="@+id/select_file_title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="60dp"
+            android:gravity="center"
+            android:text="Settings"
+            android:textColor="@color/white"
+            android:textSize="20sp"/>
+
+        <LinearLayout
+            android:gravity="center"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="5dp"
+            android:visibility="visible"
+            android:id="@+id/reset_button"
+            android:layout_alignParentEnd="true"
+            android:layout_width="48dp"
+            android:layout_height="40dp"
+            android:orientation="horizontal">
+            <TextView
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/font_awesome_regular"
+                android:text="\uf2ea"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_marginTop="55dp"
+        android:id="@+id/main_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TableLayout
+            android:id="@+id/settings_table"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:background="@drawable/line"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="65dp">
+                <TextView
+                    android:textStyle="bold"
+                    android:layout_marginStart="15dp"
+                    android:fontFamily="@font/trebuc"
+                    android:gravity="center|left"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="General settings"
+                    android:textSize="18sp"
+                    android:textColor="@color/primary"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="55dp">
+
+                <TextView
+                    android:textSize="20sp"
+                    android:textColor="@color/primary"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:gravity="center"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:text="\uf884"/>
+
+                <TextView
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:singleLine="true"
+                    android:ellipsize="middle"
+                    android:fontFamily="@font/trebuc"
+                    android:layout_marginEnd="60dp"
+                    android:id="@+id/sort_text"
+                    android:gravity="center|left"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Latest files first"
+                    android:textSize="15sp"
+                    android:textColor="@color/primary"/>
+
+                <Switch
+                    android:checked="true"
+                    android:layout_marginStart="-60dp"
+                    android:id="@+id/sort_button"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+            </LinearLayout>
+            <RelativeLayout
+                android:paddingBottom="1dp"
+                android:background="@drawable/line"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+                <TextView
+                    android:fontFamily="@font/trebuc"
+                    android:background="@color/app_back"
+                    android:padding="20dp"
+                    android:textSize="13sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/grey"
+                    android:text="If enabled, latest files will appear first everywhere."/>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="55dp">
+
+                <TextView
+                    android:textSize="20sp"
+                    android:textColor="@color/primary"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:gravity="center"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:text="\uf06e"/>
+
+                <TextView
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:singleLine="true"
+                    android:ellipsize="middle"
+                    android:fontFamily="@font/trebuc"
+                    android:layout_marginEnd="60dp"
+                    android:id="@+id/hidden_text"
+                    android:gravity="center|left"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Show hidden files"
+                    android:textSize="15sp"
+                    android:textColor="@color/primary"/>
+
+                <Switch
+                    android:layout_marginStart="-60dp"
+                    android:id="@+id/hidden_button"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+            </LinearLayout>
+            <RelativeLayout
+                android:paddingBottom="1dp"
+                android:background="@drawable/line"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+                <TextView
+                    android:fontFamily="@font/trebuc"
+                    android:background="@color/app_back"
+                    android:padding="20dp"
+                    android:textSize="13sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/grey"
+                    android:text="If disabled, system files and files starting with dot in name will be hidden."/>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="55dp">
+
+                <TextView
+                    android:textSize="20sp"
+                    android:textColor="@color/primary"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:gravity="center"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:text="\uf1c1"/>
+
+                <EditText
+                    android:fontFamily="@font/trebuc"
+                    android:background="@color/light_grey"
+                    android:visibility="gone"
+                    android:id="@+id/doc_input"
+                    android:text="Documents path: /Download"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="60dp"
+                    android:textSize="15sp"
+                    android:textColor="@color/primary"
+                    />
+
+                <TextView
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="@font/trebuc"
+                    android:singleLine="true"
+                    android:ellipsize="middle"
+                    android:layout_marginEnd="60dp"
+                    android:id="@+id/doc_path"
+                    android:gravity="center|left"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Documents path: /Download"
+                    android:textSize="15sp"
+                    android:textColor="@color/primary"/>
+
+                <TextView
+                    android:id="@+id/doc_done"
+                    android:layout_marginStart="-60dp"
+                    android:textSize="20sp"
+                    android:textColor="@color/primary"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:gravity="center"
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:text="\uf044"/>
+
+            </LinearLayout>
+            <RelativeLayout
+                android:paddingBottom="1dp"
+                android:background="@drawable/line"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+                <TextView
+                    android:fontFamily="@font/trebuc"
+                    android:background="@color/app_back"
+                    android:padding="20dp"
+                    android:textSize="13sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/grey"
+                    android:text="This location will be scanned for documents in this device. For example pdf, doc, txt etc files."/>
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="55dp">
+
+                <TextView
+                    android:textSize="20sp"
+                    android:textColor="@color/primary"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:gravity="center"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:text="\uf544"/>
+
+                <TextView
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:singleLine="true"
+                    android:ellipsize="middle"
+                    android:fontFamily="@font/trebuc"
+                    android:layout_marginEnd="60dp"
+                    android:id="@+id/system_apps_text"
+                    android:gravity="center|left"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Hide system apps"
+                    android:textSize="15sp"
+                    android:textColor="@color/primary"/>
+
+                <Switch
+                    android:layout_marginStart="-60dp"
+                    android:id="@+id/system_apps_button"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:checked="true"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+            </LinearLayout>
+            <RelativeLayout
+                android:paddingBottom="1dp"
+                android:background="@drawable/line"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+                <TextView
+                    android:fontFamily="@font/trebuc"
+                    android:background="@color/app_back"
+                    android:padding="20dp"
+                    android:textSize="13sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/grey"
+                    android:text="If enabled, system apps will not be listed under Apps category."/>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:background="@drawable/line"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="65dp">
+                <TextView
+                    android:singleLine="true"
+                    android:ellipsize="middle"
+                    android:textStyle="bold"
+                    android:layout_marginStart="15dp"
+                    android:fontFamily="@font/trebuc"
+                    android:gravity="center|left"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Security settings"
+                    android:textSize="18sp"
+                    android:textColor="@color/primary"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="55dp">
+
+                <TextView
+                    android:textSize="20sp"
+                    android:textColor="@color/primary"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:gravity="center"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:text="\uf3ed"/>
+
+                <TextView
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:singleLine="true"
+                    android:ellipsize="middle"
+                    android:fontFamily="@font/trebuc"
+                    android:layout_marginEnd="60dp"
+                    android:id="@+id/https_text"
+                    android:gravity="center|left"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Use HTTPS for PC/iOS sender"
+                    android:textSize="15sp"
+                    android:textColor="@color/primary"/>
+
+                <Switch
+                    android:layout_marginStart="-60dp"
+                    android:id="@+id/https_button"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:checked="false"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+            </LinearLayout>
+            <RelativeLayout
+                android:paddingBottom="1dp"
+                android:background="@drawable/line"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+                <TextView
+                    android:fontFamily="@font/trebuc"
+                    android:background="@color/app_back"
+                    android:padding="20dp"
+                    android:textSize="13sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/grey"
+                    android:text="Please note as a static certificate, the HTTPS connection may show insecure by the browser. Please ignore this warning and proceed if occurs."/>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="55dp">
+
+                <TextView
+                    android:textSize="20sp"
+                    android:textColor="@color/primary"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:gravity="center"
+                    android:layout_width="50dp"
+                    android:layout_height="match_parent"
+                    android:text="\uf502"/>
+
+                <TextView
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:id="@+id/enc_all_text"
+                    android:singleLine="true"
+                    android:ellipsize="middle"
+                    android:fontFamily="@font/trebuc"
+                    android:layout_marginEnd="60dp"
+                    android:gravity="center|left"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Use encryption for all files"
+                    android:textSize="15sp"
+                    android:textColor="@color/primary"/>
+
+                <Switch
+                    android:id="@+id/all_secure"
+                    android:layout_marginStart="-60dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:checked="true"
+                    tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+            </LinearLayout>
+            <RelativeLayout
+                android:paddingBottom="1dp"
+                android:background="@drawable/line"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent">
+                <TextView
+                    android:fontFamily="@font/trebuc"
+                    android:background="@color/app_back"
+                    android:padding="20dp"
+                    android:textSize="13sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/grey"
+                    android:text="Send every file encrypted through default sender with any network."/>
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_marginTop="15dp"
+                android:layout_height="35dp"
+                android:layout_width="match_parent"
+                android:gravity="center">
+                <TextView
+                    android:id="@+id/link_privacy"
+                    android:ellipsize="middle"
+                    android:singleLine="true"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/trebuc"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Privacy"/>
+                <TextView
+                    android:id="@+id/link_disclaimer"
+                    android:ellipsize="middle"
+                    android:singleLine="true"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/trebuc"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Disclaimer"/>
+                <TextView
+                    android:id="@+id/link_legal"
+                    android:ellipsize="middle"
+                    android:singleLine="true"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/trebuc"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Legal"/>
+                <TextView
+                    android:id="@+id/link_feedback"
+                    android:ellipsize="middle"
+                    android:singleLine="true"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/trebuc"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Feedback"/>
+                <TextView
+                    android:id="@+id/link_about"
+                    android:ellipsize="middle"
+                    android:singleLine="true"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/trebuc"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="About"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/trebuc"
+                android:textSize="15sp"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:text="Sharlet(V1.0) - by MoonsLab"/>
+
+        </TableLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

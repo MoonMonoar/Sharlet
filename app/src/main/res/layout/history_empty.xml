@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/empty"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:ignore="MissingConstraints">
+        <TextView
+            android:textSize="16sp"
+            android:textColor="@color/grey_semi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_regular"
+            android:text="\uf6e2"/>
+        <TextView
+            android:textSize="16sp"
+            android:layout_marginStart="8dp"
+            android:fontFamily="@font/trebuc"
+            android:textColor="@color/grey_semi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No files sent or received!"/>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

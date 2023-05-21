@@ -1,0 +1,76 @@
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:background="@drawable/line"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:layout_gravity="center"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:id="@+id/select_all"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:button="@drawable/custom_checkbox"/>
+
+        <TextView
+            android:layout_marginStart="5dp"
+            android:id="@+id/folder_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/font_awesome_regular"
+            android:gravity="center|left"
+            android:text="\uf07b"
+            android:textColor="@color/primary"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:gravity="center|left"
+            android:id="@+id/folder_name"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="65dp"
+            android:ellipsize="middle"
+            android:maxLines="1"
+            android:text="Folder name"
+            android:textColor="@color/primary"
+            android:textSize="17sp" />
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:id="@+id/see_all"
+            android:layout_marginStart="-60dp"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="See all"
+            android:textColor="@color/primary"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:textSize="17sp"
+            android:focusable="true" />
+
+    </LinearLayout>
+    <GridView
+        android:scrollbars="none"
+        android:listSelector="#00000000"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="135dp"
+        android:id="@+id/files_grid"
+        android:numColumns="4">
+    </GridView>
+
+</RelativeLayout>

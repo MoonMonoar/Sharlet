@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".localfiles.media">
+    <LinearLayout
+        android:background="@drawable/line"
+        android:orientation="horizontal"
+        android:gravity="center|left"
+        android:layout_width="match_parent"
+        android:layout_height="65dp">
+
+        <TextView
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:id="@+id/sort_all"
+            android:background="@color/primary"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:padding="10dp"
+            android:gravity="center"
+            android:layout_marginStart="5dp"
+            android:fontFamily="@font/trebuc"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="All time"/>
+
+        <TextView
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:id="@+id/sort_today"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:background="@color/tab_inactive"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="@font/trebuc"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="Today"
+            android:textColor="@color/white"
+            android:textSize="17sp" />
+
+        <TextView
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:id="@+id/sort_week"
+            android:background="@color/tab_inactive"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:padding="10dp"
+            android:gravity="center"
+            android:layout_marginEnd="5dp"
+            android:fontFamily="@font/trebuc"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="This week"/>
+
+        <TextView
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:id="@+id/sort_month"
+            android:background="@color/tab_inactive"
+            android:textColor="@color/white"
+            android:textSize="17sp"
+            android:padding="10dp"
+            android:gravity="center"
+            android:layout_marginEnd="5dp"
+            android:fontFamily="@font/trebuc"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:text="This month"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+
+        android:id="@+id/folder_navigator"
+        android:layout_marginTop="65dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/line"
+        android:gravity="center|left">
+
+        <TextView
+            android:id="@+id/folder_prev"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:focusable="true"
+            android:fontFamily="@font/font_awesome_regular"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:gravity="center|left"
+            android:padding="15dp"
+            android:text="\uf060"
+            android:textColor="@color/primary"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            tools:ignore="RtlHardcoded" />
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:id="@+id/current_folder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:ellipsize="middle"
+            android:gravity="center|left"
+            android:padding="10dp"
+            android:singleLine="true"
+            android:text="Folder"
+            android:textColor="@color/primary"
+            android:textSize="17sp"
+            tools:ignore="RtlHardcoded" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/main_scroll"
+        android:layout_marginTop="65dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TableLayout
+            android:id="@+id/files_table"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </ScrollView>
+
+</FrameLayout>

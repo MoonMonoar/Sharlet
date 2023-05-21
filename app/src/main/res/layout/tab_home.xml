@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/main_scroll"
+    android:background="@drawable/background"
+    xmlns:tools="http://schemas.android.com/tools">
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_margin="20dp"
+            android:id="@+id/ll1"
+            android:background="@drawable/card_background"
+            android:orientation="vertical"
+            android:layout_height="270dp"
+            android:layout_width="match_parent">
+
+            <TextView
+                android:id="@+id/heading"
+                android:letterSpacing="0.03"
+                android:textStyle="bold"
+                android:fontFamily="@font/trebuc"
+                android:layout_marginTop="30dp"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:gravity="center"
+                android:textSize="17sp"
+                android:textColor="@color/white"
+                android:text="Share faster, easier, to any device!"/>
+
+            <LinearLayout
+                android:layout_marginTop="30dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+
+                <TextView
+                    android:textColor="@color/primary"
+                    android:gravity="center"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:layout_marginEnd="30dp"
+                    android:background="@drawable/home_buttons"
+                    android:id="@+id/send_button"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:text="\uf1d8"
+                    android:textSize="35sp"
+                    tools:ignore="MissingConstraints"/>
+
+                <TextView
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:textColor="@color/primary"
+                    android:gravity="center"
+                    android:layout_marginStart="30dp"
+                    android:background="@drawable/home_buttons"
+                    android:id="@+id/scan_button"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:text="\uf063"
+                    android:textSize="35dp"
+                    tools:ignore="MissingConstraints"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+                <TextView
+                    android:fontFamily="@font/trebuc"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:layout_marginEnd="30dp"
+                    android:width="80dp"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send"/>
+                <TextView
+                    android:fontFamily="@font/trebuc"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:layout_marginStart="30dp"
+                    android:width="80dp"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Receive"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="25dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center">
+                <TextView
+                    android:textColor="@color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:text="\uf1eb"/>
+                <TextView
+                    android:fontFamily="@font/trebuc"
+                    android:id="@+id/connection_tip"
+                    android:layout_marginStart="7dp"
+                    android:textColor="@color/white"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Connect to any wifi or create hotspot"/>
+            </LinearLayout>
+
+        </LinearLayout>
+        <RelativeLayout
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_below="@id/ll1"
+        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+    <FrameLayout
+        android:id="@+id/ad_frame_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+    </TableLayout>
+</ScrollView>

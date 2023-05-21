@@ -1,0 +1,41 @@
+<LinearLayout android:background="@drawable/line"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ImageView
+        android:layout_marginStart="10dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_baseline_android_24"
+        android:layout_width="22dp"
+        android:layout_height="match_parent"/>
+
+    <TextView
+        android:fontFamily="@font/trebuc"
+        android:layout_marginEnd="60dp"
+        android:textStyle="bold"
+        android:textColor="@color/primary"
+        android:id="@+id/title"
+        android:textSize="17sp"
+        android:padding="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Installed apps"/>
+
+    <TextView
+        android:gravity="center"
+        android:id="@+id/info"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:textSize="17sp"
+        android:padding="10dp"
+        android:textColor="@color/primary"
+        android:fontFamily="@font/font_awesome_regular"
+        android:layout_marginStart="-48dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:text="\uf05a"/>
+
+</LinearLayout>

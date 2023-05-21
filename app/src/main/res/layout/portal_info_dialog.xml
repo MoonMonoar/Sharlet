@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:ignore="MissingConstraints"
+        android:orientation="horizontal">
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:layout_marginEnd="80dp"
+            android:maxWidth="300dp"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:padding="10dp"
+            android:text="Portal information"
+            android:textColor="@color/primary"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            tools:ignore="MissingConstraints" />
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginStart="-80dp"
+            android:id="@+id/refresh"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:text="Refresh"
+            android:textColor="@color/primary"
+            tools:ignore="RtlHardcoded" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/l1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_regular"
+            android:padding="10dp"
+            android:text="\uf534" />
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:layout_marginEnd="20dp"
+            android:id="@+id/max_speed"
+            android:textColor="@color/black"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Maximum speed: 0BPS"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/l2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/l1"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_regular"
+            android:padding="10dp"
+            android:text="\uf362" />
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:layout_marginEnd="20dp"
+            android:id="@+id/total_transfer"
+            android:textColor="@color/black"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Total bandwidth: 0B"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/l3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/l2"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_regular"
+            android:padding="10dp"
+            android:text="\uf468" />
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:layout_marginEnd="20dp"
+            android:id="@+id/total_packages"
+            android:textColor="@color/black"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Total packages: 0"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/l4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/l3"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_regular"
+            android:padding="10dp"
+            android:text="\uf6ff" />
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:layout_marginEnd="20dp"
+            android:id="@+id/ssid"
+            android:textColor="@color/black"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Network: Detecting..."/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/l5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/l4"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_regular"
+            android:padding="10dp"
+            android:text="\uf2f1" />
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:layout_marginEnd="20dp"
+            android:id="@+id/link_speed"
+            android:textColor="@color/black"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Link speed: 0MBPS"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/l6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/l5"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_regular"
+            android:padding="10dp"
+            android:text="\uf108" />
+
+        <TextView
+            android:gravity="center|left"
+            android:fontFamily="@font/trebuc"
+            android:layout_marginEnd="20dp"
+            android:id="@+id/http_address"
+            android:textColor="@color/black"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:text="iOs/PC link: Detecting..."/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/l7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/l6"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:gravity="center"
+            android:textColor="@color/black"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/font_awesome_regular"
+            android:padding="10dp"
+            android:text="\uf084" />
+
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:ellipsize="middle"
+            android:singleLine="true"
+            android:layout_marginEnd="20dp"
+            android:id="@+id/http_pin"
+            android:textColor="@color/black"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Pin(iOs/PC): Detecting..."/>
+    </LinearLayout>
+
+    <RelativeLayout
+        app:layout_constraintTop_toBottomOf="@+id/l7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:gravity="right"
+        tools:ignore="MissingConstraints">
+        <TextView
+            android:fontFamily="@font/trebuc"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:id="@+id/close"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textColor="@color/primary"
+            android:layout_width="60dp"
+            android:layout_height="wrap_content"
+            android:text="Close"/>
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

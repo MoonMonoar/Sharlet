@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_gravity="center"
+    android:orientation="vertical"
+    android:padding="5dp"
+    android:id="@+id/main_layout"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:layout_height="wrap_content">
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:layout_gravity="center"
+        android:id="@+id/grid_image"
+        android:src="@drawable/ic_baseline_photo_24"/>
+    <TextView
+        android:gravity="center"
+        android:textSize="13sp"
+        android:fontFamily="@font/trebuc"
+        android:id="@+id/file_name"
+        android:layout_width="match_parent"
+        android:singleLine="true"
+        android:ellipsize="middle"
+        android:text="Unknown file"
+        android:textColor="@color/primary"
+        android:layout_height="30dp"/>
+</LinearLayout>
