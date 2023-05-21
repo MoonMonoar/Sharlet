@@ -176,6 +176,7 @@ public class Home extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        //Vibration should last less long
         if(null != current_tab){
             vibrate(100, this);
             if(current_tab.equals("local")){
