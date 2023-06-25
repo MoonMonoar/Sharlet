@@ -1,13 +1,7 @@
 package com.moonslab.sharlet;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.viewpager2.widget.ViewPager2;
-
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,18 +13,14 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.viewpager2.widget.ViewPager2;
+
 import com.google.android.material.tabs.TabLayout;
 
-import org.apache.commons.io.FileUtils;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 public class File_selection extends AppCompatActivity{
     TabLayout tabs;
@@ -178,56 +168,12 @@ public class File_selection extends AppCompatActivity{
         return true;
     }
 
-    //Night mode detection
-    public boolean is_night(){
-        boolean r = false;
-        int nightModeFlags =
-                this.getResources().getConfiguration().uiMode &
-                        Configuration.UI_MODE_NIGHT_MASK;
-        switch (nightModeFlags) {
-            case Configuration.UI_MODE_NIGHT_YES:
-                r = true;
-                break;
-
-            case Configuration.UI_MODE_NIGHT_NO:
-                r = false;
-                break;
-
-            case Configuration.UI_MODE_NIGHT_UNDEFINED:
-                r = false;
-                break;
-        }
-        return r;
-    }
-    private void store_as_file(String file_name, String data , Context context) {
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(file_name, Context.MODE_PRIVATE));
-            outputStreamWriter.write(data);
-            outputStreamWriter.close();
-        }
-        catch (IOException e) {
-            //Write error,
-            //DO NOTHING
-            Toast.makeText(context, "Error loading file!", Toast.LENGTH_SHORT).show();
-        }
-    }
-    private String read_from_file(String file_name, Context context) {
-        try {
-            String location = context.getFilesDir().getAbsolutePath()+"/"+file_name;
-            return FileUtils.readFileToString(new File(location), StandardCharsets.UTF_8);
-        }
-        catch (IOException e){
-            return null;
-        }
-    }
-
     public static void selection_update(){
         Home.selection_update_main();
     }
 
     public static File[] get_files(String path){
         File directory = new File(path);
-        File[] files = directory.listFiles();
-        return files;
+        return directory.listFiles();
     }
 }

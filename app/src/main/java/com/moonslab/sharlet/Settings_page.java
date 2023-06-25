@@ -192,34 +192,6 @@ public class Settings_page extends AppCompatActivity {
             }
         });
 
-
-        //HTTPS
-        TextView https_text = findViewById(R.id.https_text);
-        Switch https_button = findViewById(R.id.https_button);
-        tester = dbHandler.get_settings("use_https");
-        if(null != tester && tester.equals("true")){
-            https_button.setChecked(true);
-        }
-        https_text.setOnClickListener(v-> https_button.toggle());
-        https_button.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if(isChecked){
-                //Unset
-                dbHandler.add_setting("use_https", "true");
-            }
-            else {
-                dbHandler.add_setting("use_https", "false");
-            }
-        });
-
-        Switch all_secure = findViewById(R.id.all_secure);
-        TextView enc_all = findViewById(R.id.enc_all_text);
-        enc_all.setOnClickListener(v-> all_secure.toggle());
-        all_secure.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Toast.makeText(context,"For security over public networks, you can't turn this feature off!", Toast.LENGTH_LONG).show();
-            all_secure.setChecked(true);
-        });
-
-
         LinearLayout reset = findViewById(R.id.reset_button);
         reset.setOnClickListener(v -> {
             AlertDialog.Builder alert = new AlertDialog.Builder(context);
@@ -232,7 +204,6 @@ public class Settings_page extends AppCompatActivity {
                 store_as_file("set_show_hidden.txt", "no", context);
                 store_as_file("doc_path.txt", def_doc, context);
                 dbHandler.add_setting("hide_system_apps", "true");
-                dbHandler.add_setting("use_https", "false");
 
                 //Visual
                 sort_button.setChecked(true);
@@ -240,7 +211,6 @@ public class Settings_page extends AppCompatActivity {
                 doc_path.setText(def_doc);
                 doc_input.setText(def_doc);
                 hidden_button.setChecked(false);
-                https_button.setChecked(false);
                 system_apps_button.setChecked(true);
 
                 //Confirm
@@ -251,6 +221,14 @@ public class Settings_page extends AppCompatActivity {
                         //Do nothing
                     });
             alert.show();
+        });
+
+        //Intro page
+        findViewById(R.id.intro).setOnClickListener(v-> {
+            Intent intent = new Intent(getApplicationContext(), Welcome.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            this.finish();
         });
 
     }

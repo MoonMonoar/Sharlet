@@ -4,6 +4,7 @@
     <color name="primary_semi">#F49657</color>
     <color name="button_back">#EC6E19</color>
     <color name="dark_primary">#dc6515</color>
+    <color name="very_dark_primary">#C55104</color>
     <color name="tab_inactive">#F8C29E</color>
     <color name="selection">#F7C09D</color>
     <color name="purple_200">#DF620E</color>
@@ -11,7 +12,7 @@
     <color name="black">#FF000000</color>
     <color name="night_black">#121212</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="grey">#ACACAC</color>
+    <color name="grey">#939393</color>
     <color name="light_grey">#E3E3E3</color>
     <color name="transparent">#00000000</color>
     <color name="grey_semi">#bbbbbb</color>
@@ -28,4 +29,12 @@
     <color name="info">#2196F3</color>
     <color name="gradient_1">#ff203f</color>
     <color name="gradient_2">#ffa800</color>
+
+    <color name="slide1">#057C53</color>
+    <color name="slide2">#535353</color>
+    <color name="slide3">#0E647C</color>
+    <color name="slide4">#068A17</color>
+    <color name="slide4_button">#075E12</color>
+    <color name="turbo_button">#06BC7E</color>
+    <color name="turbo_color">#0AC083</color>
 </resources>

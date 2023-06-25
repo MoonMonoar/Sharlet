@@ -2,18 +2,6 @@ package com.moonslab.sharlet;
 
 import static com.moonslab.sharlet.Music_application_class.CHANNEL_DEFAULT;
 import static com.moonslab.sharlet.Music_player_service.folderFromPath;
-import static com.moonslab.sharlet.Scan.QR_DECODER_KEY;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -24,21 +12,17 @@ import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
@@ -48,6 +32,7 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.MediaStore;
@@ -56,7 +41,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,7 +48,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.GridView;
@@ -77,6 +60,17 @@ import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdListener;
@@ -92,7 +86,11 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.android.gms.ads.nativead.NativeAdOptions;
 import com.google.android.gms.ads.nativead.NativeAdView;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.material.tabs.TabLayout;
+import com.moonslab.sharlet.custom.Global;
+import com.moonslab.sharlet.custom.Sender;
 import com.moonslab.sharlet.musiclibrary.adapter;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
@@ -104,42 +102,36 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.nio.file.Files;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import androidmads.library.qrgenearator.QRGContents;
 import androidmads.library.qrgenearator.QRGEncoder;
 
 public class Home extends AppCompatActivity {
+    private boolean update_daily_token = false;
+    private Global global_class;
     public static int clicks = 0;
     private boolean direct_to_sender = false;
     private int total_child_history = 0;
@@ -148,37 +140,48 @@ public class Home extends AppCompatActivity {
     private static Boolean query_busy = false;
     private RelativeLayout last_player_tag = null;
     private Context context;
-    TextView title;
-    TextView home, files, history, music;
-    FrameLayout home_frame;
-    LayoutInflater inflater;
-    private String current_tab = null;
-    private TextView send_button;
+    private TextView title;
+    private TextView home, files, history, music, ad_icon;
+    private FrameLayout home_frame;
+    private LayoutInflater inflater;
+    public static String current_tab = null;
+    //Ignorable filed leak
+    @SuppressLint("StaticFieldLeak")
+    public static TextView send_button;
     public static String default_username = android.os.Build.MODEL;
+    //Ignorable filed leak
+    @SuppressLint("StaticFieldLeak")
     public static ProgressBar loading_state;
     private DBHandler dbHandler;
     ImageView user_profile_image = null;
     private String user_image_path;
     private TextView reset_l;
+    private Dialog token_info;
     //Ads -- native ad
-    private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110";
-    private static final String AD_UNIT_ID2 = "ca-app-pub-3940256099942544/1033173712";
+    private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"; //NATIVE
+    private static final String AD_UNIT_ID2 = "ca-app-pub-3940256099942544/1033173712"; //NATIVE
+    private static final String REWARD_AD_UNIT_TURBO_TOKEN = "ca-app-pub-3940256099942544/5224354917"; //Reward
     private NativeAd nativeAd;
+    private RewardedAd rewardedAd;
+    AdRequest adRequest;
     public static InterstitialAd interstitialAd;
     //Push screen dimens
     DisplayMetrics displayMetrics = new DisplayMetrics();
     private int display_height, display_width;
     private PackageManager pm;
-
+    private ProgressBar ad_loading;
+    //Ignorable filed leak
     //Selection update
-    static TextView send_now_count = null;
-    static RelativeLayout send_now = null;
+    @SuppressLint("StaticFieldLeak")
+    public static TextView send_now_count = null;
+    //Ignorable filed leak
+    @SuppressLint("StaticFieldLeak")
+    public static RelativeLayout send_now = null;
 
     @Override
     public void onBackPressed() {
-        //Vibration should last less long
+        vibrate(70, this);
         if(null != current_tab){
-            vibrate(100, this);
             if(current_tab.equals("local")){
                 findViewById(R.id.button_home).performClick();
                 return;
@@ -207,10 +210,12 @@ public class Home extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setContentView(R.layout.activity_home);
+        global_class = new Global(this);
         context = this;
         inflater = LayoutInflater.from(context);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        adRequest = new AdRequest.Builder().build();
         user_image_path = get_appdata_location_root(context)+"/user_image.png";
         pm = context.getPackageManager();
         //Ready ad
@@ -228,6 +233,13 @@ public class Home extends AppCompatActivity {
         String install_timestamp = dbHandler.get_settings("install_timestamp");
         if(null == install_timestamp){
             //New user
+            //GIVE 1 Turbo token for free
+            String turbo_token = global_class.encrypt("1", global_class.getDeviceEncryptionKey());
+            //Save it
+            dbHandler.add_setting("turbo_token", turbo_token);
+            //Daily timer
+            //dbHandler.add_setting("last_turbo_daily", global_class.encrypt(String.valueOf(System.currentTimeMillis()+24*60*60*1000), global_class.getDeviceEncryptionKey()));
+
             //turn on loop playlist for music player(default setting)
             dbHandler.add_setting("music_loop", "on");
 
@@ -294,22 +306,63 @@ public class Home extends AppCompatActivity {
         //Profile picture
         update_user_pic_view();
 
-        //Preview application message
-        Dialog dialog = new Dialog(context);
-        dialog.setContentView(R.layout.demo_app_notice);
-        dialog.setCanceledOnTouchOutside(false);
-        Window d_window = dialog.getWindow();
-        d_window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        d_window.findViewById(R.id.pm_dismiss).setOnClickListener(v-> dialog.dismiss());
-        dialog.show();
-    }
+        //Turbo info dialogue
+        token_info = new Dialog(this);
+        token_info.setContentView(R.layout.no_token_dialogue);
+        token_info.getWindow().setBackgroundDrawable(ContextCompat.getDrawable(this, R.drawable.token_alert_back));
+        token_info.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        token_info.setCanceledOnTouchOutside(true);
+        TextView title = token_info.findViewById(R.id.title),
+                desc = token_info.findViewById(R.id.description);
+        title.setText(R.string.turbo_tokens);
+        desc.setText(R.string.turbo_tokens_lets_you_to_use_turbo_mode_while_sending_files_you_can_get_tokens_by_claiming_daily_reward_or_watching_ads);
 
+        LinearLayout got_it = token_info.findViewById(R.id.btn_got_it);
+        got_it.setOnClickListener(v -> token_info.dismiss());
+    }
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        //Tab reload
+        if(null != current_tab && current_tab.equals("music")){
+            music.performClick();
+        }
+        if(null != current_tab && current_tab.equals("home")){
+            home.performClick();
+        }
+        all_permission_once();
+        if(receive_prompt){
+            scan_network();
+        }
+        if(sender_prompt){
+            if(direct_to_sender){
+                sender_prompt = false;
+                if(null != send_now_button2){
+                    send_now_button2.performClick();
+                }
+                return;
+            }
+            if(null != send_button){
+                send_button.performClick();
+            }
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        if (nativeAd != null) {
+            nativeAd.destroy();
+        }
+        super.onDestroy();
+    }
     @Override
     protected void onResume() {
         super.onResume();
-        //if in music tab reload latest
+        //tab reload latest
         if(null != current_tab && current_tab.equals("music")){
             music.performClick();
+        }
+        if(null != current_tab && current_tab.equals("home")){
+            home.performClick();
         }
     }
 
@@ -329,7 +382,8 @@ public class Home extends AppCompatActivity {
     }
 
     //Main click listener
-    private View.OnClickListener Listener = v -> {
+    @SuppressLint("NonConstantResourceId")
+    private final View.OnClickListener Listener = v -> {
         switch (v.getId()) {
             case R.id.button_home:
                 showInterstitial(this);
@@ -375,16 +429,21 @@ public class Home extends AppCompatActivity {
                 //Check ip
                 showInterstitial(context);
                 direct_to_sender = false;
-                if(getIpAddress() == null){
+                if(global_class.getIpAddress() == null){
                     //Redirect to sender steps
                     sender_prompt();
                     return;
                 }
                 sender_prompt = false;
                 //Setup activity -- Should go to select files first
-                startActivity(new Intent(Home.this, File_selection.class));
-                //Then
-                //startActivity(new Intent(Home.this, Setup.class));
+                //Check if already a portal open
+                String portal_open_already = dbHandler.get_settings("portal_open");
+                if(null != portal_open_already && portal_open_already.equals("true")){
+                    startActivity(new Intent(Home.this, Send.class));
+                }
+                else {
+                    startActivity(new Intent(Home.this, File_selection.class));
+                }
                 break;
             case R.id.scan_button:
                 scan_network();
@@ -415,7 +474,7 @@ public class Home extends AppCompatActivity {
                 if(photo.exists()){
                     //New thread
                     new Thread(()-> runOnUiThread(()-> Picasso.get().load(photo).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).placeholder(R.drawable.ic_baseline_supervised_user_circle_24).resize(250, 250).centerCrop().into(user_image))).start();
-                    change_image.setText("Change photo");
+                    change_image.setText(R.string.change_photo);
                     reset_need = true;
                     user_image.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -436,7 +495,7 @@ public class Home extends AppCompatActivity {
                 }
                 else {
                     user.setText(user_name);
-                    change_name.setText("Change name");
+                    change_name.setText(R.string.change_name);
                     reset_need = true;
                 }
 
@@ -453,24 +512,18 @@ public class Home extends AppCompatActivity {
                         builder.setView(input);
                         builder.setPositiveButton("Save", (dialog12, which) -> {
                             String m_Text = input.getText().toString();
-                            if(m_Text != null){
-                                if(m_Text.isEmpty()){
-                                    change_name.performClick();
-                                    Toast.makeText(context, "Please enter name!", Toast.LENGTH_SHORT).show();
-                                    return;
-                                }
-                                if(m_Text.length() > 32) {
-                                    m_Text = m_Text.substring(0, 32);
-                                }
-                                dbHandler.add_profile_data("user_name", m_Text);
-                                user.setText(m_Text);
-                                Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
-                                reset_button.setVisibility(View.VISIBLE);
-                            }
-                            else {
+                            if(m_Text.isEmpty()){
                                 change_name.performClick();
-                                Toast.makeText(context, "Try again", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(context, "Please enter name!", Toast.LENGTH_SHORT).show();
+                                return;
                             }
+                            if(m_Text.length() > 32) {
+                                m_Text = m_Text.substring(0, 32);
+                            }
+                            dbHandler.add_profile_data("user_name", m_Text);
+                            user.setText(m_Text);
+                            Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
+                            reset_button.setVisibility(View.VISIBLE);
                         });
                         builder.setNegativeButton("Cancel", (dialog1, which) -> dialog1.cancel());
                         builder.show();
@@ -485,12 +538,14 @@ public class Home extends AppCompatActivity {
                      public void onClick(View v) {
                          dbHandler.delete_profile_data("user_name");
                          if(photo.exists()){
-                             photo.delete();
+                             if(!photo.delete()){
+                                 Toast.makeText(Home.this, "Can't remove old photo!", Toast.LENGTH_SHORT).show();
+                             }
                              user_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_supervised_user_circle_24));
                              update_user_pic_view();
                          }
-                         change_name.setText("Set name");
-                         change_image.setText("Set photo");
+                         change_name.setText(R.string.set_name);
+                         change_image.setText(R.string.set_photo);
                          user.setText(default_username);
                          Toast.makeText(context, "Profile reset", Toast.LENGTH_SHORT).show();
                          reset_button.setVisibility(View.GONE);
@@ -498,7 +553,7 @@ public class Home extends AppCompatActivity {
                  });
 
                 //Get wifi data
-                if(null != getIpAddress()){
+                if(null != global_class.getIpAddress()){
                     normal_tip.setVisibility(View.GONE);
                     //We have connection
                     WifiInfo wifi = get_wifi_info(this);
@@ -522,7 +577,7 @@ public class Home extends AppCompatActivity {
                     else {
                         //Hotspot
                         hotspot_tip.setVisibility(View.VISIBLE);
-                        net_name.setText("Hotspot(this device, tap to setup/edit)");
+                        net_name.setText(R.string.hotspot_this_device_tap_to_setup_edit);
                         net_name.setOnClickListener(v1 -> {
                             final Intent intent = new Intent(Intent.ACTION_MAIN, null);
                             intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -583,6 +638,7 @@ public class Home extends AppCompatActivity {
         dialog.show();
     }
 
+    //Home code of sender
     Boolean receive_prompt = false;
     List<String> processed;
     Thread cache_thread;
@@ -591,7 +647,7 @@ public class Home extends AppCompatActivity {
         if (null != cache_thread && cache_thread.isAlive()) {
             cache_thread.interrupt();
         }
-        String main_ip = getIpAddress();
+        String main_ip = global_class.getIpAddress();
         if (main_ip == null) {
             Dialog dialog = new Dialog(context);
             dialog.setContentView(R.layout.network_notice);
@@ -651,7 +707,7 @@ public class Home extends AppCompatActivity {
             //Wifi
             String ssid = wifi.getSSID().replace("\"", "");
             if (!ssid.equals("<unknown ssid>")) {
-                load_text.setText("Scanning " + ssid + "...");
+                load_text.setText(String.format("%s%s...", getString(R.string.scanning), ssid));
                 ssid1 = ssid;
             }
         }
@@ -756,7 +812,7 @@ public class Home extends AppCompatActivity {
             conn = url.openConnection();
             StringBuilder textBuilder = new StringBuilder();
             try (Reader reader = new BufferedReader(new InputStreamReader
-                    (conn.getInputStream(), Charset.forName(StandardCharsets.UTF_8.name())))) {
+                    (conn.getInputStream(), StandardCharsets.UTF_8))) {
                 int c;
                 while ((c = reader.read()) != -1) {
                     textBuilder.append((char) c);
@@ -766,10 +822,10 @@ public class Home extends AppCompatActivity {
             String p = textBuilder.toString();
             String user_name, payload_main, image;
             user_name = p.substring(p.indexOf("user: ")+6, p.indexOf("photo: ")).replace(System.lineSeparator(), "");
-            image = p.substring(p.indexOf("photo: ")+7, p.indexOf("payload: ")).replace(System.lineSeparator(), "");;
-            payload_main = p.substring(p.indexOf("payload: ")+9).replace(System.lineSeparator(), "");;
+            image = p.substring(p.indexOf("photo: ")+7, p.indexOf("payload: ")).replace(System.lineSeparator(), "");
+            payload_main = p.substring(p.indexOf("payload: ")+9).replace(System.lineSeparator(), "");
 
-            View child = inflater.inflate(R.layout.sender_child, null);
+            @SuppressLint("InflateParams") View child = inflater.inflate(R.layout.sender_child, null);
             ImageView imageView = child.findViewById(R.id.user_image);
             TextView user = child.findViewById(R.id.user_name), net_name = child.findViewById(R.id.net_info);
 
@@ -789,7 +845,7 @@ public class Home extends AppCompatActivity {
                 });
             }
             child.setOnClickListener(v -> {
-                String payload = Scan.decrypt(payload_main, QR_DECODER_KEY);
+                String payload = null;
                 if(null != payload){
                     runOnUiThread(()-> {
                         Intent intent = new Intent(context, Receiver_initiator.class);
@@ -856,9 +912,11 @@ public class Home extends AppCompatActivity {
                 }
             });
 
+
+    //Tabs -- HOME
     private void load_music() {
-        title.setText("by MoonsLab · Music");
-        View music_view = inflater.inflate(R.layout.home_music_tabs, null);
+        title.setText(R.string.by_moonslab_music);
+        @SuppressLint("InflateParams") View music_view = inflater.inflate(R.layout.home_music_tabs, null);
         ViewPager2 tabs_view = music_view.findViewById(R.id.music_tabs);
         adapter music_adapter = new adapter(this);
         music_adapter.set_Context(context);
@@ -872,9 +930,9 @@ public class Home extends AppCompatActivity {
         TableLayout search_table = music_view.findViewById(R.id.search_table);
 
         //Empty
-        View no_result = inflater.inflate(R.layout.no_files, null);
+        @SuppressLint("InflateParams") View no_result = inflater.inflate(R.layout.no_files, null);
         TextView text = no_result.findViewById(R.id.text), icon = no_result.findViewById(R.id.icon);
-        text.setText("No result");
+        text.setText(R.string.no_result);
         icon.setText("\\\uf002");
 
         //Search panel
@@ -884,21 +942,21 @@ public class Home extends AppCompatActivity {
                  search_close = music_view.findViewById(R.id.search_close);
         EditText search_input = music_view.findViewById(R.id.search_input);
 
-        search_button.setOnClickListener(v->{
-            if(null != search_thread && !search_thread.isInterrupted()){
-                search_thread.interrupt();
-            }
-            main_panel.setVisibility(View.GONE);
-            search_panel.setVisibility(View.VISIBLE);
-            search_input.requestFocus();
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(search_input, InputMethodManager.SHOW_IMPLICIT);
-            //Ready the table - hide tab
-            tabs_view.setVisibility(View.GONE);
-            search_scroll.setVisibility(View.VISIBLE);
-            search_table.removeAllViews();
-            search_table.addView(no_result);
-        });
+            search_button.setOnClickListener(v->{
+                if(null != search_thread && !search_thread.isInterrupted()){
+                    search_thread.interrupt();
+                }
+                main_panel.setVisibility(View.GONE);
+                search_panel.setVisibility(View.VISIBLE);
+                search_input.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(search_input, InputMethodManager.SHOW_IMPLICIT);
+                //Ready the table - hide tab
+                tabs_view.setVisibility(View.GONE);
+                search_scroll.setVisibility(View.VISIBLE);
+                search_table.removeAllViews();
+                search_table.addView(no_result);
+            });
 
             final TextWatcher search_watcher = new TextWatcher() {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -910,7 +968,7 @@ public class Home extends AppCompatActivity {
                 }
                 String query = s.toString();
                 //Main searcher
-                View empty = inflater.inflate(R.layout.no_files, null);
+                @SuppressLint("InflateParams") View empty = inflater.inflate(R.layout.no_files, null);
                 TextView text = empty.findViewById(R.id.text), icon = empty.findViewById(R.id.icon);
                 text.setText("Searching...");
                 icon.setText("\\\uf002");
@@ -922,11 +980,11 @@ public class Home extends AppCompatActivity {
                 search_thread = new Thread(()-> {
                     List<String> s_list = dbHandler.search_music_all(query);
                     if (s_list.size() > 0) {
-                        runOnUiThread(()->search_table.removeAllViews());
+                        runOnUiThread(search_table::removeAllViews);
                         for (String path : s_list) {
                             File target_file = new File(path);
                             if (target_file.exists()) {
-                                View child = inflater.inflate(R.layout.audio_library_child, null);
+                                @SuppressLint("InflateParams") View child = inflater.inflate(R.layout.audio_library_child, null);
                                 TextView name = child.findViewById(R.id.file_name);
                                 TextView info = child.findViewById(R.id.file_info);
                                 ImageView image = child.findViewById(R.id.file_image);
@@ -943,14 +1001,19 @@ public class Home extends AppCompatActivity {
                                     fav_tag.setVisibility(View.VISIBLE);
                                 }
                                 //Try getting the cover
-                                android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                                mmr.setDataSource(target_file.getPath());
-                                byte[] data = mmr.getEmbeddedPicture();
-                                if (data != null) {
-                                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                    Drawable m = new BitmapDrawable(getResources(), bitmap);
-                                    image.setImageDrawable(m);
-                                    image.setBackground(null);
+                                try {
+                                    android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+                                    mmr.setDataSource(target_file.getPath());
+                                    byte[] data = mmr.getEmbeddedPicture();
+                                    if (data != null) {
+                                        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                                        Drawable m = new BitmapDrawable(getResources(), bitmap);
+                                        image.setImageDrawable(m);
+                                        image.setBackground(null);
+                                    }
+                                }
+                                catch (Exception e){
+                                    //No action needed
                                 }
                                 name.setText(target_file.getName());
                                 info.setText(folderFromPath(target_file.getPath(), target_file.getName()) + " - " + Home.convertTime(target_file.lastModified()));
@@ -1026,9 +1089,7 @@ public class Home extends AppCompatActivity {
                        //Do nothing
                 }
             }
-            music_card.setOnClickListener(v->{
-                startActivity(new Intent(this, Music_player.class));
-            });
+            music_card.setOnClickListener(v-> startActivity(new Intent(this, Music_player.class)));
         }
         else {
             music_card.setVisibility(View.GONE);
@@ -1072,7 +1133,7 @@ public class Home extends AppCompatActivity {
     private void load_history() {
         title.setText("by MoonsLab · History");
         loading_state.setVisibility(View.VISIBLE);
-        View history_view = inflater.inflate(R.layout.scrool_view_container, null);
+        View history_view = inflater.inflate(R.layout.scrool_view_container,null);
         TableLayout history_table = history_view.findViewById(R.id.main_table);
         ScrollView history_scroll = history_view.findViewById(R.id.main_scroll);
 
@@ -1115,7 +1176,7 @@ public class Home extends AppCompatActivity {
                             continue;
                         }
                         //Single child
-                        View child = inflater.inflate(R.layout.history_child, null);
+                        @SuppressLint("InflateParams") View child = inflater.inflate(R.layout.history_child, null);
                         TextView file_name = child.findViewById(R.id.file_name);
                         TextView file_path = child.findViewById(R.id.file_path);
                         TextView file_info = child.findViewById(R.id.file_info); //format: Dec 12, 2022 - 0B - received by Android
@@ -1139,7 +1200,7 @@ public class Home extends AppCompatActivity {
                             total_child_history--;
                             if(total_child_history <= 0){
                                 //Empty!!
-                                View empty = inflater.inflate(R.layout.history_empty, null);
+                                @SuppressLint("InflateParams") View empty = inflater.inflate(R.layout.history_empty, null);
                                 runOnUiThread(()-> replace_view(home_frame, empty));
                             }
                         });
@@ -1189,36 +1250,34 @@ public class Home extends AppCompatActivity {
                         } else {
                             if(is_app){
                                 //App will always be removed
-                                file_body.setOnClickListener(v-> {
-                                    new Thread(()->{
-                                        runOnUiThread(()->Toast.makeText(context, "Please wait...", Toast.LENGTH_SHORT).show());
-                                        @SuppressLint("QueryPermissionsNeeded") List<ApplicationInfo> packages = pm.getInstalledApplications(0);
-                                        if(null == packages || packages.size() == 0){
-                                            runOnUiThread(()->Toast.makeText(context, "Can't open app from here!", Toast.LENGTH_LONG).show());
-                                            return;
+                                file_body.setOnClickListener(v-> new Thread(()->{
+                                    runOnUiThread(()->Toast.makeText(context, "Please wait...", Toast.LENGTH_SHORT).show());
+                                    @SuppressLint("QueryPermissionsNeeded") List<ApplicationInfo> packages = pm.getInstalledApplications(0);
+                                    if(null == packages || packages.size() == 0){
+                                        runOnUiThread(()->Toast.makeText(context, "Can't open app from here!", Toast.LENGTH_LONG).show());
+                                        return;
+                                    }
+                                    boolean flag2 = true;
+                                    for (ApplicationInfo packageInfo : packages) {
+                                        String temp = pm.getApplicationLabel(packageInfo)+".apk";
+                                        if(temp.equals(name)){
+                                            AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                                            alert.setTitle("Sure open app?");
+                                            alert.setMessage("Do you want to open "+pm.getApplicationLabel(packageInfo)+" now?");
+                                            alert.setPositiveButton("Open", (dialog, whichButton) -> startActivity(pm.getLaunchIntentForPackage(packageInfo.packageName)));
+                                            alert.setNegativeButton("Close",
+                                                    (dialog, whichButton) -> {
+                                                        //Do nothing
+                                                    });
+                                            runOnUiThread(alert::show);
+                                            flag2 = false;
+                                            break;
                                         }
-                                        boolean flag2 = true;
-                                        for (ApplicationInfo packageInfo : packages) {
-                                            String temp = pm.getApplicationLabel(packageInfo)+".apk";
-                                            if(temp.equals(name)){
-                                                AlertDialog.Builder alert = new AlertDialog.Builder(context);
-                                                alert.setTitle("Sure open app?");
-                                                alert.setMessage("Do you want to open "+pm.getApplicationLabel(packageInfo)+" now?");
-                                                alert.setPositiveButton("Open", (dialog, whichButton) -> startActivity(pm.getLaunchIntentForPackage(packageInfo.packageName)));
-                                                alert.setNegativeButton("Close",
-                                                        (dialog, whichButton) -> {
-                                                            //Do nothing
-                                                        });
-                                                runOnUiThread(alert::show);
-                                                flag2 = false;
-                                                break;
-                                            }
-                                        }
-                                        if(flag2) {
-                                            runOnUiThread(() -> Toast.makeText(context, "App is not installed anymore!", Toast.LENGTH_SHORT).show());
-                                        }
-                                    }).start();
-                                });
+                                    }
+                                    if(flag2) {
+                                        runOnUiThread(() -> Toast.makeText(context, "App is not installed anymore!", Toast.LENGTH_SHORT).show());
+                                    }
+                                }).start());
                             }
                             else {
                                 file_name.setTextColor(ContextCompat.getColor(context, R.color.primary));
@@ -1563,6 +1622,7 @@ public class Home extends AppCompatActivity {
         }).start();
     }
 
+    //History helper action
     private void send_again_history(List<String[]> file_list) {
         if(send_again_busy){
             runOnUiThread(() -> Toast.makeText(context, "Loading...please wait", Toast.LENGTH_SHORT).show());
@@ -1605,6 +1665,8 @@ public class Home extends AppCompatActivity {
         }
     }
 
+
+    //Local files
     private void load_local() {
         //Permission check
         if(!all_permission_once()){
@@ -1620,8 +1682,8 @@ public class Home extends AppCompatActivity {
         //Free the selection bucket
         clean_bundle_and_data();
 
-        title.setText("by MoonsLab · Files");
-        View local_view = inflater.inflate(R.layout.tab_files, null);
+        title.setText(R.string.by_moonslab_files);
+        @SuppressLint("InflateParams") View local_view = inflater.inflate(R.layout.tab_files, null);
         ViewPager2 selection_fragment_viewer;
         TabLayout tabs = local_view.findViewById(R.id.files_tabs);
         selection_fragment_viewer = local_view.findViewById(R.id.files_pager);
@@ -1639,7 +1701,7 @@ public class Home extends AppCompatActivity {
 
         send_now_button.setOnClickListener(v->{
             direct_to_sender = true;
-            if(getIpAddress() == null){
+            if(global_class.getIpAddress() == null){
                 //Redirect to sender steps
                 sender_prompt();
                 return;
@@ -1674,28 +1736,250 @@ public class Home extends AppCompatActivity {
         });
         replace_view(home_frame, local_view);
     }
+
     private void load_home() {
-        title.setText("by MoonsLab · Home");
+        title.setText(R.string.by_moonslab_home);
         loading_state.setVisibility(View.INVISIBLE);
         loading_state.setProgress(0);
         View home_view = inflater.inflate(R.layout.tab_home, null);
-        TextView button1 = home_view.findViewById(R.id.send_button),
-                button2 = home_view.findViewById(R.id.scan_button);
-        send_button = button1;
+        send_button = home_view.findViewById(R.id.send_button);
+        home_view.<TextView>findViewById(R.id.send_button).setOnClickListener(Listener);
+        home_view.<TextView>findViewById(R.id.scan_button).setOnClickListener(Listener);
 
         ScrollView main_scroll = home_view.findViewById(R.id.main_scroll);
-        button1.setOnClickListener(Listener);
-        button2.setOnClickListener(Listener);
+
+        //Card 2
+        RelativeLayout already_sending = home_view.findViewById(R.id.already_sending);
+        String portal_open_already = dbHandler.get_settings("portal_open");
+        if(null != portal_open_already && portal_open_already.equals("true")){
+            already_sending.setOnClickListener(v-> {
+                String test = dbHandler.get_settings("portal_open");
+                if(null != test && test.equals("false")){
+                    Toast.makeText(context, "Portal no longer exists", Toast.LENGTH_SHORT).show();
+                    already_sending.setVisibility(View.GONE);
+                    return;
+                }
+                startActivity(new Intent(Home.this, Send.class));
+            });
+            already_sending.setVisibility(View.VISIBLE);
+        }
+
+
+        //CARD 3 - Turbo mode
+        TextView main_title = home_view.findViewById(R.id.tm_s),
+                main_dialogue = home_view.findViewById(R.id.tm_d);
+
+        //Views
+        LinearLayout location_needed = home_view.findViewById(R.id.location_needed),
+                hotspot_needed = home_view.findViewById(R.id.own_hotspot_needed),
+                band_needed = home_view.findViewById(R.id.band_need),
+                turbo_active = home_view.findViewById(R.id.turbo_active);
+
+        //Buttons
+        Button gh_done = home_view.findViewById(R.id.ghz_done),
+                gh_open = home_view.findViewById(R.id.Hotspot_setup),
+                hotspot_open = home_view.findViewById(R.id.Hotspot_open),
+                location_perm = home_view.findViewById(R.id.Location_permission);
+
+        View.OnClickListener open_hotspot = v -> {
+            final Intent intent = new Intent(Intent.ACTION_MAIN, null);
+            intent.addCategory(Intent.CATEGORY_LAUNCHER);
+            final ComponentName cn = new ComponentName("com.android.settings", "com.android.settings.TetherSettings");
+            intent.setComponent(cn);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        };
+
+        /*
+        Logic
+        1. Check if Location permission given
+        2. Check if hotspot is being used or not
+        3. Check if 5GHz band active or not
+        4. All true = Active
+         */
+
+        dbHandler.add_setting("turbo_active", "false");
+
+        if(location_granted()) {
+            //GRANTED -- goto step 2
+            location_needed.setVisibility(View.GONE);
+            //Check if own hotspot
+            WifiInfo wifi = get_wifi_info(this);
+            if(global_class.getIpAddress() != null && wifi.getBSSID() == null){
+                //Not wifi means hotspot
+                //Check if 5GHz band - Can not check this anymore! - JUST advice it
+                hotspot_needed.setVisibility(View.GONE);
+                String band_check = dbHandler.get_settings("gh_5");
+                if(null == band_check || !band_check.equals("true")){
+                    band_needed.setVisibility(View.VISIBLE);
+                    gh_open.setOnClickListener(open_hotspot);
+                    gh_done.setOnClickListener(v -> {
+                        //Need to show an alert
+                        AlertDialog.Builder alert = new AlertDialog.Builder(context);
+                        alert.setTitle("Save 5GHz band?");
+                        alert.setMessage("Sharlet will remember 5GHz band for your hotspot. If you change it, Turbo mode will show active but will not work.");
+                        alert.setPositiveButton("Save", (dialog, whichButton) -> {
+                            dbHandler.add_setting("gh_5", "true");
+                        });
+                        alert.setNegativeButton(R.string.don_t_save,
+                                (dialog, whichButton) -> {
+                                    //Do nothing
+                                });
+                        alert.show();
+                        band_needed.setVisibility(View.GONE);
+                        turbo_active.setVisibility(View.VISIBLE);
+                        dbHandler.add_setting("turbo_active", "true");
+                    });
+                }
+                else {
+                    main_title.setText(R.string.turbo_mode_active);
+                    main_dialogue.setText(R.string.speed_boosted_up_to_32mb_s);
+                    band_needed.setVisibility(View.GONE);
+                    turbo_active.setVisibility(View.VISIBLE);
+                    dbHandler.add_setting("turbo_active", "true");
+                }
+            }
+            else {
+                if(global_class.getIpAddress() != null ){
+                    TextView tv = home_view.findViewById(R.id.tv_on_h);
+                    tv.setText(String.format("%s%s%s", getString(R.string.hint_tow), System.lineSeparator(), getString(R.string.turn_on_your_own_hotspot_set_password_recommended)));
+                }
+                //Need hotspot
+                hotspot_open.setOnClickListener(open_hotspot);
+                hotspot_needed.setVisibility(View.VISIBLE);
+            }
+
+        }
+        else {
+            //SET LOCATION BUTTON
+            location_perm.setOnClickListener(v-> {
+                //Check if granted
+                if(location_granted()){
+                    //Reload
+                    load_home();
+                    return;
+                }
+                if(!shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_FINE_LOCATION) ||
+                        ! shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                    location_perm.setText(R.string.open_settings);
+                    Toast.makeText(this, "Allow from settings", Toast.LENGTH_SHORT).show();
+                    location_perm.setOnClickListener(v2-> {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                        Uri uri = Uri.fromParts("package", getPackageName(), null);
+                        intent.setData(uri);
+                        startActivity(intent);
+                    });
+                    return;
+                }
+                if(this.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) < 0
+                        || this.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) < 0) {
+                    ActivityCompat.requestPermissions(this, new String[]{
+                                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                            },
+                            0);
+                }
+                else {
+                    //Reload
+                    load_home();
+                }
+            });
+        }
+
+        //CART 4, TURBO COUNT
+        TextView turbo_count = home_view.findViewById(R.id.token_count),
+        turbo_info = home_view.findViewById(R.id.turbo_token_info);
+        String token = dbHandler.get_settings("turbo_token");
+        int count_token = 0;
+        if(null != token) {
+            String count = global_class.decrypt(token, global_class.getDeviceEncryptionKey());
+            if (null != count) {
+                count_token = Integer.parseInt(count);
+            }
+        }
+        if(count_token > 1){
+            turbo_count.setText(String.format("%d %s", count_token, getString(R.string.token_multi)));
+        }
+        else {
+            turbo_count.setText(String.format("%d %s", count_token, getString(R.string.token_single)));
+        }
+        turbo_info.setOnClickListener(v->token_info.show());
+
+        ad_icon = home_view.findViewById(R.id.ad_icon);
+        ad_loading = home_view.findViewById(R.id.ad_loading);
+        home_view.findViewById(R.id.watch_ad).setOnClickListener(v-> {
+            if(global_class.getIpAddress() == null){
+                Toast.makeText(context, "No internet!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            ad_icon.setVisibility(View.GONE);
+            ad_loading.setVisibility(View.VISIBLE);
+            Show_token_ad();
+        });
+        TextView timer = home_view.findViewById(R.id.timer);
+
+        LinearLayout watch_ad = home_view.findViewById(R.id.l3),
+                    claim_daily = home_view.findViewById(R.id.l4);
+
+        long startTime = System.currentTimeMillis();
+        String turbo_last = dbHandler.get_settings("last_turbo_daily");
+        if(null != turbo_last){
+            turbo_last = global_class.decrypt(turbo_last, global_class.getDeviceEncryptionKey());
+            if(null != turbo_last){
+                startTime = Long.parseLong(turbo_last);
+            }
+        }
+        watch_ad.setVisibility(View.VISIBLE);
+        timer.setVisibility(View.VISIBLE);
+        claim_daily.setVisibility(View.GONE);
+        Handler handler = new Handler();
+        long finalStartTime = startTime;
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                long remainingTime = finalStartTime - System.currentTimeMillis();
+                if (update_daily_token){
+                    String turbo_last = dbHandler.get_settings("last_turbo_daily");
+                    if(null != turbo_last){
+                        turbo_last = global_class.decrypt(turbo_last, global_class.getDeviceEncryptionKey());
+                        if(null != turbo_last){
+                            remainingTime = Long.parseLong(turbo_last) - System.currentTimeMillis();
+                        }
+                    }
+                    update_daily_token = false;
+                }
+                if (remainingTime <= 0) {
+                    timer.setVisibility(View.GONE);
+                    watch_ad.setVisibility(View.GONE);
+                    //Add token logic
+                    LinearLayout reward_get = home_view.findViewById(R.id.reward_get);
+                    reward_get.setOnClickListener(v-> {
+                        //Save current time
+                        dbHandler.add_setting("last_turbo_daily", global_class.encrypt(String.valueOf(System.currentTimeMillis()+24*60*60*1000), global_class.getDeviceEncryptionKey()));
+                        reward_get.setOnClickListener(null);
+                        add_token(1);
+                    });
+                    claim_daily.setVisibility(View.VISIBLE);
+                } else {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+                    dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    timer.setText(String.format("Daily reward: %s", dateFormat.format(new Date(remainingTime))));
+                    handler.postDelayed(this, 1000);
+                }
+            }
+        }, 1000);
 
         replace_view(home_frame, home_view);
 
         //Ads -- only in home view
         refreshAd(home_view);
     }
+
     private void replace_view(FrameLayout main_frame, View view){
         main_frame.removeAllViews();
         main_frame.addView(view);
     }
+
     //Ads
     private void refreshAd(View main_view){
         AdLoader.Builder builder = new AdLoader.Builder(this, ADMOB_AD_UNIT_ID);
@@ -1704,10 +1988,8 @@ public class Home extends AppCompatActivity {
                 nativeAd -> {
                     // If this callback occurs after the activity is destroyed, you must call
                     // destroy and return or you may get a memory leak.
-                    boolean isDestroyed = false;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                        isDestroyed = isDestroyed();
-                    }
+                    boolean isDestroyed;
+                    isDestroyed = isDestroyed();
                     if (isDestroyed || isFinishing() || isChangingConfigurations()) {
                         nativeAd.destroy();
                         return;
@@ -1843,72 +2125,9 @@ public class Home extends AppCompatActivity {
             });
         }
     }
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        all_permission_once();
-        if(receive_prompt){
-            scan_network();
-        }
-        if(sender_prompt){
-            if(direct_to_sender){
-                sender_prompt = false;
-                if(null != send_now_button2){
-                    send_now_button2.performClick();
-                }
-                return;
-            }
-            if(null != send_button){
-                send_button.performClick();
-            }
-        }
-    }
-    @Override
-    protected void onDestroy() {
-        if (nativeAd != null) {
-            nativeAd.destroy();
-        }
-        super.onDestroy();
-    }
-    public void writeStringAsFile(final String fileContents, String fileName) {
-        Context context = this.getApplicationContext();
-        try {
-            FileWriter out = new FileWriter(new File(context.getFilesDir(), fileName));
-            out.write(fileContents);
-            out.close();
-        } catch (IOException e) {
-            //Cant save
-            Toast.makeText(getBaseContext(), "Failed to save connection", Toast.LENGTH_SHORT).show();
-            this.finish();
-        }
-    }
+
     //Read the ip of wifi, not internet - self
-    public String getIpAddress() {
-        String ip = null;
-        try {
-            Enumeration<NetworkInterface> enumNetworkInterfaces = NetworkInterface
-                    .getNetworkInterfaces();
-            while (enumNetworkInterfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = enumNetworkInterfaces
-                        .nextElement();
-                Enumeration<InetAddress> enumInetAddress = networkInterface
-                        .getInetAddresses();
-                while (enumInetAddress.hasMoreElements()) {
-                    InetAddress inetAddress = enumInetAddress.nextElement();
 
-                    if (inetAddress.isSiteLocalAddress()) {
-                        if(null == ip) {
-                            ip = inetAddress.getHostAddress();
-                        }
-                    }
-                }
-            }
-
-        } catch (SocketException e) {
-            return null;
-        }
-        return ip;
-    }
     //Night mode detection
     public boolean is_night(){
         boolean r = false;
@@ -1959,7 +2178,7 @@ public class Home extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[]{
                                 Manifest.permission.QUERY_ALL_PACKAGES
                         },
-                        01);
+                        1);
             }
         }
             return true;
@@ -1969,21 +2188,15 @@ public class Home extends AppCompatActivity {
         class MyThread extends Thread {
             public void run() {
                 try {
-                    InputStream in = new FileInputStream(src);
-                    try {
-                        OutputStream out = new FileOutputStream(dst);
-                        try {
+                    try (InputStream in = Files.newInputStream(src.toPath())) {
+                        try (OutputStream out = Files.newOutputStream(dst.toPath())) {
                             // Transfer bytes from in to out
                             byte[] buf = new byte[1024];
                             int len;
                             while ((len = in.read(buf)) > 0) {
                                 out.write(buf, 0, len);
                             }
-                        } finally {
-                            out.close();
                         }
-                    } finally {
-                        in.close();
                     }
                 }
                 catch (Exception e){
@@ -2043,7 +2256,7 @@ public class Home extends AppCompatActivity {
         return Environment.getExternalStorageDirectory().toString();
     }
     public static String get_appdata_location_root(Context context){
-        return  context.getFilesDir().getAbsolutePath();
+        return context.getFilesDir().getAbsolutePath();
     }
     public static void clean_bundle_and_data(){
                 String dir_1 = ".Transfer_data";
@@ -2052,7 +2265,7 @@ public class Home extends AppCompatActivity {
 
     public static Integer create_notification(Context context, String title, String body, int id, int priority, Boolean ongoing){
         if(id == 0){
-            id = Integer.parseInt(Send.getRandomPIN(4)); // Random
+            id = Integer.parseInt(Sender.getRandomPIN(4)); // Random
         }
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_DEFAULT)
                 .setSmallIcon(R.drawable.logo_main)
@@ -2070,11 +2283,7 @@ public class Home extends AppCompatActivity {
 
     public static void vibrate(long ms, Context context){
         Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            v.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE));
-        } else {
-            v.vibrate(ms);
-        }
+        v.vibrate(VibrationEffect.createOneShot(ms, VibrationEffect.DEFAULT_AMPLITUDE));
     }
     public static void cancel_notification(int id, Context context){
         String ns = Context.NOTIFICATION_SERVICE;
@@ -2085,24 +2294,19 @@ public class Home extends AppCompatActivity {
         String main_path = get_appdata_location_root(context)+"/http";
         File test = new File(main_path);
         if(test.isDirectory() && test.length() > 0){
-           //return;
+           return;
         }
         new Thread(()-> {
                 //DON'T CHANGE THIS PASSWORD
                 String zip_password = "p9gd72bb-c3q73bc7q3b3fg7bfq9nec023@#$%%^&fwp8b";
                 String plugin_temp = get_appdata_location_root(context) + "/http_plugin.zip";
         try {
-            InputStream in = context.getResources().openRawResource(R.raw.http_plugin);
-            FileOutputStream out = new FileOutputStream(plugin_temp);
             byte[] buff = new byte[1024];
             int read;
-            try {
+            try (InputStream in = context.getResources().openRawResource(R.raw.http_plugin); FileOutputStream out = new FileOutputStream(plugin_temp)) {
                 while ((read = in.read(buff)) > 0) {
                     out.write(buff, 0, read);
                 }
-            } finally {
-                in.close();
-                out.close();
             }
             new ZipFile(plugin_temp, zip_password.toCharArray()).extractAll(main_path);
             store_as_file("http_plugin.txt", "available", context);
@@ -2124,12 +2328,7 @@ public class Home extends AppCompatActivity {
         File test = new File(main_path);
         if(test.isDirectory() && test.length() > 0){
             String test2 = read_from_file("http_plugin.txt", context);
-            if(test2 != null && test2.equals("available")) {
-                return true;
-            }
-            else {
-                return false;
-            }
+            return test2 != null && test2.equals("available");
         }
         return false;
     }
@@ -2168,15 +2367,13 @@ public class Home extends AppCompatActivity {
             }
         }
     }
-
     public static Bitmap make_qr_code(String data, int dimension, int background_color, int main_color){
         QRGEncoder qrgEncoder = new QRGEncoder(data, null, QRGContents.Type.TEXT, dimension);
         qrgEncoder.setColorBlack(background_color);
         qrgEncoder.setColorWhite(main_color);
         // Getting QR-Code as Bitmap
-        Bitmap bitmap = qrgEncoder.getBitmap();
         // Setting Bitmap to ImageView
-        return bitmap;
+        return qrgEncoder.getBitmap();
     }
 
     public static int convertDpToPixels(float dp, Context context){
@@ -2232,52 +2429,54 @@ public class Home extends AppCompatActivity {
     public static String file_type(String file_name){
             String type = "file";
             String File_extension = FilenameUtils.getExtension(file_name).toLowerCase(Locale.ROOT);
-        if (File_extension.equals("png")
-                || File_extension.equals("jpg")
-                || File_extension.equals("gif")
-                || File_extension.equals("jpeg")
-                || File_extension.equals("heic")
-                || File_extension.equals("webp")
-                || File_extension.equals("tiff")
-                || File_extension.equals("raw")){
-            type = "photo";
-        }
-        else if (File_extension.equals("mp3")
-                || File_extension.equals("wav")
-                || File_extension.equals("ogg")
-                || File_extension.equals("m4a")
-                || File_extension.equals("aac")
-                || File_extension.equals("alac")
-                || File_extension.equals("aiff")){
-            type = "audio";
-        }
-        else if (File_extension.equals("mp4")
-                || File_extension.equals("mkv")
-                || File_extension.equals("flv")
-                || File_extension.equals("avi")
-                || File_extension.equals("webm")
-                || File_extension.equals("mov")) {
-            type = "video";
-        }
-        else if (File_extension.equals("pdf")
-                || File_extension.equals("docx")
-                || File_extension.equals("doc")
-                || File_extension.equals("html")
-                || File_extension.equals("htm")
-                || File_extension.equals("xml")
-                || File_extension.equals("svg")
-                || File_extension.equals("txt")
-                || File_extension.equals("xls")
-                || File_extension.equals("xlsx")){
-            type = "document";
-        }
-        else if (File_extension.equals("apk")){
-            type = "app";
+        switch (File_extension) {
+            case "png":
+            case "jpg":
+            case "gif":
+            case "jpeg":
+            case "heic":
+            case "webp":
+            case "tiff":
+            case "raw":
+                type = "photo";
+                break;
+            case "mp3":
+            case "wav":
+            case "ogg":
+            case "m4a":
+            case "aac":
+            case "alac":
+            case "aiff":
+                type = "audio";
+                break;
+            case "mp4":
+            case "mkv":
+            case "flv":
+            case "avi":
+            case "webm":
+            case "mov":
+                type = "video";
+                break;
+            case "pdf":
+            case "docx":
+            case "doc":
+            case "html":
+            case "htm":
+            case "xml":
+            case "svg":
+            case "txt":
+            case "xls":
+            case "xlsx":
+                type = "document";
+                break;
+            case "apk":
+                type = "app";
+                break;
         }
         return type;
     }
     //Ad2
-    public static void loadInterstitialAd(Context context) {
+    private static void loadInterstitialAd(Context context) {
         AdRequest adRequest = new AdRequest.Builder().build();
         InterstitialAd.load(context, AD_UNIT_ID2, adRequest,
                 new InterstitialAdLoadCallback() {
@@ -2328,7 +2527,7 @@ public class Home extends AppCompatActivity {
     }
     public static String convertTime(long time){
         Date date = new Date(time);
-        Format format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") Format format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         return format.format(date);
     }
     public static long get_timestamp(){
@@ -2346,6 +2545,7 @@ public class Home extends AppCompatActivity {
         InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(edit_text_view.getWindowToken(), 0);
     }
+
     public static boolean done_selection(Context context, Boolean from_home){
         //Get bucket count
         //Read the bucket
@@ -2370,7 +2570,6 @@ public class Home extends AppCompatActivity {
                 bucket_list = null;
             }
             if(null != bucket_list && bucket_list.size() > 0) {
-                Toast.makeText(context, "🪄 Starting connection...", Toast.LENGTH_LONG).show();
                 if(!from_home) {
                     context.startActivity(new Intent(context, Send.class));
                 }
@@ -2451,7 +2650,9 @@ public class Home extends AppCompatActivity {
                 String location2 = Home.get_app_home_bundle_data_store()+"/Selection_bucket.txt";
                 File main_file2 = new File(location2);
                 if(main_file2.exists()){
-                    main_file2.delete();
+                    if(!main_file2.delete()){
+                        //No action needed
+                    }
                 }
             }
         }
@@ -2464,7 +2665,7 @@ public class Home extends AppCompatActivity {
         File main_file = new File(location);
         if(!main_file.exists()){
             try {
-                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                 outputStreamWriter.write("");
                 outputStreamWriter.close();
             }
@@ -2553,7 +2754,7 @@ public class Home extends AppCompatActivity {
             else {
                 //Save the string
                 try {
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                     outputStreamWriter.write(new_data.toString());
                     outputStreamWriter.close();
                 }
@@ -2564,7 +2765,7 @@ public class Home extends AppCompatActivity {
         }
         else {
             try {
-                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                 outputStreamWriter.write("");
                 outputStreamWriter.close();
             }
@@ -2573,5 +2774,54 @@ public class Home extends AppCompatActivity {
             }
         }
         File_selection.selection_update();
+    }
+    private boolean location_granted(){
+        return !(this.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) < 0)
+                && !(this.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) < 0);
+    }
+    private void Show_token_ad(){
+        RewardedAd.load(this, REWARD_AD_UNIT_TURBO_TOKEN,
+                adRequest, new RewardedAdLoadCallback() {
+                    @Override
+                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                        // Handle the error.
+                        Toast.makeText(Home.this, "Error loading ad!", Toast.LENGTH_LONG).show();
+                        ad_loading.setVisibility(View.GONE);
+                        ad_icon.setVisibility(View.VISIBLE);
+                        rewardedAd = null;
+                    }
+                    @Override
+                    public void onAdLoaded(@NonNull RewardedAd ad) {
+                        rewardedAd = ad;
+                        Activity activityContext = Home.this;
+                        rewardedAd.show(activityContext, rewardItem -> {
+                            // Handle the reward.
+                            add_token(1);
+                        });
+                    }
+                });
+    }
+    private void add_token(Integer add){
+        update_daily_token = true;
+        int count_token = 0;
+        String token = dbHandler.get_settings("turbo_token");
+        if (null != token) {
+            token = global_class.decrypt(token, global_class.getDeviceEncryptionKey());
+            if(null != token) {
+                count_token = Integer.parseInt(token);
+                count_token+= add;
+            }
+        }
+        String d;
+        if(add <= 1){
+            d = "You got "+add+" token";
+        }
+        else {
+            d = "You got "+add+" tokens";
+        }
+        String turbo_token = global_class.encrypt(String.valueOf(count_token), global_class.getDeviceEncryptionKey());
+        dbHandler.add_setting("turbo_token", turbo_token);
+        Toast.makeText(Home.this, d, Toast.LENGTH_SHORT).show();
+        load_home();
     }
 }

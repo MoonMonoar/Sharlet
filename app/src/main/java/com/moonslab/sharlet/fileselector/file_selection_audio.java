@@ -1,43 +1,39 @@
 package com.moonslab.sharlet.fileselector;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-
 import static com.moonslab.sharlet.Home.grid_select_all_child;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.MergeCursor;
 import android.os.Bundle;
-
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import com.moonslab.sharlet.DBHandler;
 import com.moonslab.sharlet.File_selection;
 import com.moonslab.sharlet.Home;
-import com.moonslab.sharlet.Music_player;
 import com.moonslab.sharlet.R;
 import com.moonslab.sharlet.See_all_files;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,10 +63,7 @@ public class file_selection_audio extends Fragment {
             cursor = new MergeCursor(new Cursor[]{
                     context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, columns, null, null, sort_audio)
             });
-
             cursor.moveToFirst();
-            files.clear();
-            file_paths.clear();
 
             while (!cursor.isAfterLast()){
                 String path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
@@ -85,33 +78,31 @@ public class file_selection_audio extends Fragment {
             //Handle
             return null;
         }
-        if(null == files){
-            Toast.makeText(context, "Failed to load files!", Toast.LENGTH_SHORT).show();
-            return null;
-        }
         return files;
     }
     public String folderFromPath(String path, String name){
-        String r_str = "", r_n_str = "";
+        StringBuilder r_str = new StringBuilder();
+        StringBuilder r_n_str = new StringBuilder();
         char ch;
         path = path.substring(0, path.indexOf(name)-1);
         for (int i=0; i< path.length(); i++)
         {
             ch = path.charAt(i);
-            r_str = ch+r_str;
+            r_str.insert(0, ch);
         }
-        r_str = r_str.substring(0, r_str.indexOf("/"));
+        r_str = new StringBuilder(r_str.substring(0, r_str.indexOf("/")));
         int i = r_str.length()-1;
         while(i >= 0){
             ch = r_str.charAt(i);
-            r_n_str = r_n_str+ch;
+            r_n_str.append(ch);
             i--;
         }
-        return r_n_str;
+        return r_n_str.toString();
     }
     View main_view;
     View empty;
     //Passive code -- ends
+    @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -207,7 +198,7 @@ public class file_selection_audio extends Fragment {
                             File main_file = new File(location);
                             if(!main_file.exists()){
                                 try {
-                                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                                     outputStreamWriter.write("");
                                     outputStreamWriter.close();
                                 }
@@ -271,7 +262,7 @@ public class file_selection_audio extends Fragment {
                                 if(null != new_data){
                                     //Save the string
                                     try {
-                                        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                                        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                                         outputStreamWriter.write(new_data);
                                         outputStreamWriter.close();
                                     }
@@ -310,7 +301,7 @@ public class file_selection_audio extends Fragment {
                                 if(null != new_data){
                                     //Save the string
                                     try {
-                                        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                                        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                                         outputStreamWriter.write(new_data);
                                         outputStreamWriter.close();
                                     }

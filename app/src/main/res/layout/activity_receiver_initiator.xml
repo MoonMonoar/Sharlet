@@ -5,28 +5,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Receiver_initiator">
-
     <RelativeLayout
         android:id="@+id/relativeLayout4"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center">
-
-        <ProgressBar
+        <com.airbnb.lottie.LottieAnimationView
+            android:padding="50dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:ignore="MissingConstraints" />
+            android:layout_height="match_parent"
+            app:lottie_autoPlay="true"
+            app:lottie_fileName="connect.json"
+            app:lottie_loop="true"
+            tools:ignore="MissingConstraints"/>
     </RelativeLayout>
-
     <TextView
         android:fontFamily="@font/trebuc"
         android:layout_marginBottom="30dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Connecting..."
+        android:text="@string/connecting"
         android:textSize="16.5sp"
         app:layout_constraintBottom_toBottomOf="@+id/relativeLayout4"
         tools:ignore="MissingConstraints" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

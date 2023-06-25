@@ -6,6 +6,7 @@
     tools:context=".Settings_page">
 
     <RelativeLayout
+        android:elevation="5dp"
         android:background="@color/primary"
         android:id="@+id/main_title"
         android:layout_width="match_parent"
@@ -325,135 +326,6 @@
             </RelativeLayout>
 
             <LinearLayout
-                android:background="@drawable/line"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="65dp">
-                <TextView
-                    android:singleLine="true"
-                    android:ellipsize="middle"
-                    android:textStyle="bold"
-                    android:layout_marginStart="15dp"
-                    android:fontFamily="@font/trebuc"
-                    android:gravity="center|left"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Security settings"
-                    android:textSize="18sp"
-                    android:textColor="@color/primary"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="55dp">
-
-                <TextView
-                    android:textSize="20sp"
-                    android:textColor="@color/primary"
-                    android:fontFamily="@font/font_awesome_regular"
-                    android:gravity="center"
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
-                    android:text="\uf3ed"/>
-
-                <TextView
-                    android:foreground="?android:attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:singleLine="true"
-                    android:ellipsize="middle"
-                    android:fontFamily="@font/trebuc"
-                    android:layout_marginEnd="60dp"
-                    android:id="@+id/https_text"
-                    android:gravity="center|left"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Use HTTPS for PC/iOS sender"
-                    android:textSize="15sp"
-                    android:textColor="@color/primary"/>
-
-                <Switch
-                    android:layout_marginStart="-60dp"
-                    android:id="@+id/https_button"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:checked="false"
-                    tools:ignore="UseSwitchCompatOrMaterialXml" />
-
-            </LinearLayout>
-            <RelativeLayout
-                android:paddingBottom="1dp"
-                android:background="@drawable/line"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent">
-                <TextView
-                    android:fontFamily="@font/trebuc"
-                    android:background="@color/app_back"
-                    android:padding="20dp"
-                    android:textSize="13sp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/grey"
-                    android:text="Please note as a static certificate, the HTTPS connection may show insecure by the browser. Please ignore this warning and proceed if occurs."/>
-            </RelativeLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="55dp">
-
-                <TextView
-                    android:textSize="20sp"
-                    android:textColor="@color/primary"
-                    android:fontFamily="@font/font_awesome_regular"
-                    android:gravity="center"
-                    android:layout_width="50dp"
-                    android:layout_height="match_parent"
-                    android:text="\uf502"/>
-
-                <TextView
-                    android:foreground="?android:attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:id="@+id/enc_all_text"
-                    android:singleLine="true"
-                    android:ellipsize="middle"
-                    android:fontFamily="@font/trebuc"
-                    android:layout_marginEnd="60dp"
-                    android:gravity="center|left"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:text="Use encryption for all files"
-                    android:textSize="15sp"
-                    android:textColor="@color/primary"/>
-
-                <Switch
-                    android:id="@+id/all_secure"
-                    android:layout_marginStart="-60dp"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:checked="true"
-                    tools:ignore="UseSwitchCompatOrMaterialXml" />
-
-            </LinearLayout>
-            <RelativeLayout
-                android:paddingBottom="1dp"
-                android:background="@drawable/line"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent">
-                <TextView
-                    android:fontFamily="@font/trebuc"
-                    android:background="@color/app_back"
-                    android:padding="20dp"
-                    android:textSize="13sp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/grey"
-                    android:text="Send every file encrypted through default sender with any network."/>
-            </RelativeLayout>
-
-            <LinearLayout
                 android:layout_marginTop="15dp"
                 android:layout_height="35dp"
                 android:layout_width="match_parent"
@@ -514,6 +386,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="Feedback"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_height="35dp"
+                android:layout_width="match_parent"
+                android:gravity="center">
                 <TextView
                     android:id="@+id/link_about"
                     android:ellipsize="middle"
@@ -528,6 +405,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="About"/>
+                <TextView
+                    android:id="@+id/intro"
+                    android:ellipsize="middle"
+                    android:singleLine="true"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/trebuc"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="@string/intro"/>
             </LinearLayout>
 
             <TextView

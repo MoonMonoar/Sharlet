@@ -461,7 +461,7 @@ public class DBHandler extends SQLiteOpenHelper {
         try {
             String result = null;
             SQLiteDatabase db = this.getReadableDatabase();
-            Cursor cursor = db.rawQuery("SELECT " + SETTINGS_VAL_COL + " FROM " + SETTINGS_TABLE_NAME + " WHERE " + SETTINGS_NAME_COL + " = ?", new String[]{setting_name});
+            Cursor cursor = db.rawQuery("SELECT " + SETTINGS_VAL_COL + " FROM " + SETTINGS_TABLE_NAME + " WHERE " + SETTINGS_NAME_COL + " = ? ORDER BY id DESC LIMIT 1 OFFSET 0", new String[]{setting_name});
             if (cursor.moveToFirst()) {
                 do {
                     result = cursor.getString(0);
@@ -503,6 +503,25 @@ public class DBHandler extends SQLiteOpenHelper {
             return null;
         }
     }
+
+    public List<String> get_files_history_by_portal_id(String portal_id){
+        try {
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.rawQuery("SELECT path FROM " + HISTORY_TABLE_NAME + " WHERE portal_id = ? ORDER BY send_time DESC", new String[]{portal_id});
+            List<String> results = new ArrayList<>();
+            if (cursor.moveToFirst()) {
+                do {
+                    results.add(cursor.getString(0));
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+            return results;
+        }
+        catch (Exception e){
+            return null;
+        }
+    }
+
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

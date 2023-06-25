@@ -1,0 +1,4 @@
+<clip xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/white_progress"
+    android:clipOrientation="vertical"
+    android:gravity="start"/>

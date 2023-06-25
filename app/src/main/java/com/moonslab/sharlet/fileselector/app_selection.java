@@ -2,26 +2,22 @@ package com.moonslab.sharlet.fileselector;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.moonslab.sharlet.DBHandler;
 import com.moonslab.sharlet.File_selection;
@@ -29,15 +25,12 @@ import com.moonslab.sharlet.Home;
 import com.moonslab.sharlet.R;
 import com.moonslab.sharlet.Receive;
 
-import org.apache.commons.io.FileUtils;
-
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,7 +80,7 @@ public class app_selection extends Fragment {
             }
         }
 
-        class MyThread extends Thread {
+        class appThread extends Thread {
             @SuppressLint("SetTextI18n")
             public void run() {
                 //Add title view
@@ -265,38 +258,19 @@ public class app_selection extends Fragment {
                 }
             }
         };
-        new MyThread().start();
+        new appThread().start();
 
         //Return the view
         return main_view;
     }
 
-    private void store_as_file(String file_name, String data , Context context) {
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(file_name, Context.MODE_PRIVATE));
-            outputStreamWriter.write(data);
-            outputStreamWriter.close();
-        }
-        catch (IOException e) {
-            Toast.makeText(context, "Error loading file!", Toast.LENGTH_SHORT).show();
-        }
-    }
-    private String read_from_file(String file_name, Context context) {
-        try {
-            String location = context.getFilesDir().getAbsolutePath()+"/"+file_name;
-            return FileUtils.readFileToString(new File(location), StandardCharsets.UTF_8);
-        }
-        catch (IOException e){
-            return null;
-        }
-    }
     private void select_app(File target_file, View view_child){
         List<String> bucket_list = new ArrayList<>();
         String location = Home.get_app_home_bundle_data_store()+"/Selection_bucket.txt";
         File main_file = new File(location);
         if(!main_file.exists()){
             try {
-                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                 outputStreamWriter.write("");
                 outputStreamWriter.close();
             }
@@ -321,6 +295,7 @@ public class app_selection extends Fragment {
         Boolean selected_already = false;
         //Not null, so look for the file
         //if exists, its selected
+        assert bucket_list != null;
         for (String path : bucket_list) {
             String path0 = target_file.getPath();
             String home = "/storage";
@@ -365,7 +340,7 @@ public class app_selection extends Fragment {
             if(null != new_data){
                 //Save the string
                 try {
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                     outputStreamWriter.write(new_data);
                     outputStreamWriter.close();
                 }
@@ -403,7 +378,7 @@ public class app_selection extends Fragment {
             if(null != new_data){
                 //Save the string
                 try {
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                     outputStreamWriter.write(new_data);
                     outputStreamWriter.close();
                 }

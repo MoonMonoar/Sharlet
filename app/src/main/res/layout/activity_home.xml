@@ -7,6 +7,7 @@
     tools:context=".Home">
 
     <RelativeLayout
+        android:elevation="5dp"
         android:id="@+id/relativeLayout5"
         android:layout_width="match_parent"
         android:layout_height="70dp"
@@ -18,13 +19,14 @@
             android:layout_height="match_parent"
             android:layout_marginStart="15dp"
             android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/trebuc"
-                android:text="Sharlet"
+                android:text="@string/app_name"
                 android:textColor="@color/white"
                 android:textSize="30sp"
                 android:textStyle="bold" />
@@ -33,7 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="15dp"
                 android:fontFamily="@font/trebuc"
-                android:text="by MoonsLab · Home"
+                android:text="@string/by_moonslab_home"
                 android:textColor="@color/white"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -106,74 +108,76 @@
     </FrameLayout>
 
     <LinearLayout
-        android:gravity="center"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@color/primary"
+        android:elevation="5dp"
+        android:gravity="center"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:ignore="MissingConstraints">
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteX="-48dp">
 
         <TextView
-            android:background="@color/dark_primary"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center"
             android:id="@+id/button_home"
             android:layout_width="70dp"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
+            android:background="@color/dark_primary"
+            android:clickable="true"
+            android:focusable="true"
             android:fontFamily="@font/font_awesome_regular"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:gravity="center"
             android:text="\uf015"
             android:textColor="@color/white"
             android:textSize="20sp"
-            tools:ignore="MissingConstraints"/>
+            tools:ignore="MissingConstraints" />
 
         <TextView
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center"
             android:id="@+id/button_local"
             android:layout_width="70dp"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
+            android:clickable="true"
+            android:focusable="true"
             android:fontFamily="@font/font_awesome_regular"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:gravity="center"
             android:text="\uf07b"
             android:textColor="@color/white"
             android:textSize="20sp"
-            tools:ignore="MissingConstraints"/>
+            tools:ignore="MissingConstraints" />
 
         <TextView
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center"
             android:id="@+id/button_history"
             android:layout_width="70dp"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
+            android:clickable="true"
+            android:focusable="true"
             android:fontFamily="@font/font_awesome_regular"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:gravity="center"
             android:text="\uf1da"
             android:textColor="@color/white"
             android:textSize="20sp"
-            tools:ignore="MissingConstraints"/>
+            tools:ignore="MissingConstraints" />
 
         <TextView
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:gravity="center"
             android:id="@+id/button_music"
             android:layout_width="70dp"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
+            android:clickable="true"
+            android:focusable="true"
             android:fontFamily="@font/font_awesome_regular"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:gravity="center"
             android:text="\uf001"
             android:textColor="@color/white"
             android:textSize="20sp"
-            tools:ignore="MissingConstraints"/>
+            tools:ignore="MissingConstraints" />
 
     </LinearLayout>
 

@@ -2,22 +2,18 @@ package com.moonslab.sharlet.fileselector;
 
 import static com.moonslab.sharlet.Home.grid_select_all_child;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.MergeCursor;
 import android.os.Bundle;
-
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.GridView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -25,17 +21,16 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import com.moonslab.sharlet.File_selection;
 import com.moonslab.sharlet.File_selection_grid_adapter;
 import com.moonslab.sharlet.Home;
 import com.moonslab.sharlet.R;
 import com.moonslab.sharlet.See_all_files;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -85,47 +80,42 @@ public class file_selection_video extends Fragment {
 
             return null;
         }
-        if(null == files){
-            Toast.makeText(context, "Failed to load files!", Toast.LENGTH_SHORT).show();
-            return null;
-        }
         return files;
     }
     public String folderFromPath(String path, String name){
-        String r_str = "", r_n_str = "";
+        StringBuilder r_str = new StringBuilder();
+        StringBuilder r_n_str = new StringBuilder();
         char ch;
         path = path.substring(0, path.indexOf(name)-1);
         for (int i=0; i< path.length(); i++)
         {
             ch = path.charAt(i);
-            r_str = ch+r_str;
+            r_str.insert(0, ch);
         }
-        r_str = r_str.substring(0, r_str.indexOf("/"));
+        r_str = new StringBuilder(r_str.substring(0, r_str.indexOf("/")));
         int i = r_str.length()-1;
         while(i >= 0){
             ch = r_str.charAt(i);
-            r_n_str = r_n_str+ch;
+            r_n_str.append(ch);
             i--;
         }
-        return r_n_str;
+        return r_n_str.toString();
     }
     public String get_folder_icon(String folder_name){
-        if(folder_name.equals("Screenshots")
-                || folder_name.equals("Camera")
-                || folder_name.equals("DCIM")
-                || folder_name.equals("Pictures")
-                || folder_name.equals("Images")){
-            return "\\\uf03d";
-        }
-        else if(folder_name.equals("Downloads") ||
-                folder_name.equals("Download")){
-            return "\\\uf019";
-        }
-        else if(folder_name.equals("Telegram")){
-            return "\\\uf1d8";
-        }
-        else {
-            return "\\\uf07b";
+        switch (folder_name) {
+            case "Screenshots":
+            case "Camera":
+            case "DCIM":
+            case "Pictures":
+            case "Images":
+                return "\\\uf03d";
+            case "Downloads":
+            case "Download":
+                return "\\\uf019";
+            case "Telegram":
+                return "\\\uf1d8";
+            default:
+                return "\\\uf07b";
         }
     }
     //Passive code -- ends
@@ -152,24 +142,22 @@ public class file_selection_video extends Fragment {
                 //Look thorough every file and store data
                 String name = file.getName();
                 String path = file.getPath();
-                if (null != name && null != path) {
-                    try {
-                        folder = folderFromPath(path, name);
-                    } catch (Exception e) {
-                        //Error
-                        //Add to Unknown album
-                        folder = "Unknown album";
-                    }
-                    //Put files to hashmap
-                    List<File> old_files = folders.get(folder);
-                    if (null == old_files) {
-                        List<File> new_files = new ArrayList<File>();
-                        new_files.add(file);
-                        folders.put(folder, new_files);
-                    } else {
-                        old_files.add(file);
-                        folders.put(folder, old_files);
-                    }
+                try {
+                    folder = folderFromPath(path, name);
+                } catch (Exception e) {
+                    //Error
+                    //Add to Unknown album
+                    folder = "Unknown album";
+                }
+                //Put files to hashmap
+                List<File> old_files = folders.get(folder);
+                if (null == old_files) {
+                    List<File> new_files = new ArrayList<File>();
+                    new_files.add(file);
+                    folders.put(folder, new_files);
+                } else {
+                    old_files.add(file);
+                    folders.put(folder, old_files);
                 }
             }
             //SORT BY FOLDER DONE
@@ -185,26 +173,23 @@ public class file_selection_video extends Fragment {
             next_start = pagination(0, ender, folders, inflater, finalMain_view); //Will return the last element id
             //Start the listener
             main_scroll.getViewTreeObserver()
-                    .addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-                        @Override
-                        public void onScrollChanged() {
-                            if(scroll_ended){
-                                return;
-                            }
-                            if (main_scroll.getChildAt(0).getBottom()
-                                    <= (main_scroll.getHeight() + main_scroll.getScrollY())) {
-                                //scroll view is at bottom
-                                //Load more from the previous last value
-                                if(!scroll_loader_busy){
-                                    //Add next if has any
-                                    int ender = next_start+15;
-                                    if(ender > scroll_total_folders){
-                                        //No more needed
-                                        scroll_ended = true;
-                                        ender = scroll_total_folders;
-                                    }
-                                    next_start = pagination(next_start, ender, folders, inflater, finalMain_view); //Will return the last element id
+                    .addOnScrollChangedListener(() -> {
+                        if(scroll_ended){
+                            return;
+                        }
+                        if (main_scroll.getChildAt(0).getBottom()
+                                <= (main_scroll.getHeight() + main_scroll.getScrollY())) {
+                            //scroll view is at bottom
+                            //Load more from the previous last value
+                            if(!scroll_loader_busy){
+                                //Add next if has any
+                                int ender1 = next_start+15;
+                                if(ender1 > scroll_total_folders){
+                                    //No more needed
+                                    scroll_ended = true;
+                                    ender1 = scroll_total_folders;
                                 }
+                                next_start = pagination(next_start, ender1, folders, inflater, finalMain_view); //Will return the last element id
                             }
                         }
                     });
@@ -219,6 +204,7 @@ public class file_selection_video extends Fragment {
     }
 
     //Pagination
+    @SuppressLint("SetTextI18n")
     public int pagination(int start, int end, HashMap<String, List> folders,
                           LayoutInflater inflater, View main_view){
         int flag_count = 0;
@@ -277,12 +263,7 @@ public class file_selection_video extends Fragment {
             }
             else {
                 see_all.setTextColor(ContextCompat.getColor(context, R.color.grey));
-                see_all.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(context, "No more files in this folder!", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                see_all.setOnClickListener(v -> Toast.makeText(context, "No more files in this folder!", Toast.LENGTH_SHORT).show());
             }
 
             //Set icon
@@ -314,15 +295,12 @@ public class file_selection_video extends Fragment {
                 }
             });
 
-            main_view.post(new Runnable() {
-                @Override
-                public void run() {
-                    TableLayout files_table = main_view.findViewById(R.id.files_table);
-                    RelativeLayout loader = main_view.findViewById(R.id.file_selection_loading);
-                    files_table.addView(table_element);
-                    if(start == 0) {
-                        loader.setVisibility(View.GONE);
-                    }
+            main_view.post(() -> {
+                TableLayout files_table = main_view.findViewById(R.id.files_table);
+                RelativeLayout loader = main_view.findViewById(R.id.file_selection_loading);
+                files_table.addView(table_element);
+                if(start == 0) {
+                    loader.setVisibility(View.GONE);
                 }
             });
             flag_count++;

@@ -30,7 +30,6 @@ import com.bumptech.glide.Glide;
 import com.moonslab.sharlet.DBHandler;
 import com.moonslab.sharlet.File_selection;
 import com.moonslab.sharlet.Home;
-import com.moonslab.sharlet.Music_player;
 import com.moonslab.sharlet.Photo_view;
 import com.moonslab.sharlet.R;
 import com.moonslab.sharlet.Receive;
@@ -41,10 +40,10 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -336,7 +335,7 @@ public class media extends Fragment {
                             File main_file = new File(location);
                             if (!main_file.exists()) {
                                 try {
-                                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                                     outputStreamWriter.write("");
                                     outputStreamWriter.close();
                                 } catch (Exception e) {
@@ -399,7 +398,7 @@ public class media extends Fragment {
                                 if (null != new_data) {
                                     //Save the string
                                     try {
-                                        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                                        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                                         outputStreamWriter.write(new_data);
                                         outputStreamWriter.close();
                                     } catch (Exception e) {
@@ -435,7 +434,7 @@ public class media extends Fragment {
                                 if (null != new_data) {
                                     //Save the string
                                     try {
-                                        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                                        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                                         outputStreamWriter.write(new_data);
                                         outputStreamWriter.close();
                                     } catch (Exception e) {
@@ -453,7 +452,7 @@ public class media extends Fragment {
                     File main_file = new File(location);
                     if (!main_file.exists()) {
                         try {
-                            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                             outputStreamWriter.write("");
                             outputStreamWriter.close();
                         } catch (Exception e) {
@@ -514,24 +513,22 @@ public class media extends Fragment {
                     //Look thorough every file and store data
                     String name = file.getName();
                     String path = file.getPath();
-                    if (null != name && null != path) {
-                        try {
-                            folder = folderFromPath(path, name);
-                        } catch (Exception e) {
-                            //Error
-                            //Add to Unknown album
-                            folder = "Unknown album";
-                        }
-                        //Put files to hashmap
-                        List<File> old_files = folders.get(folder);
-                        if (null == old_files) {
-                            List<File> new_files = new ArrayList();
-                            new_files.add(file);
-                            folders.put(folder, new_files);
-                        } else {
-                            old_files.add(file);
-                            folders.put(folder, old_files);
-                        }
+                    try {
+                        folder = folderFromPath(path, name);
+                    } catch (Exception e) {
+                        //Error
+                        //Add to Unknown album
+                        folder = "Unknown album";
+                    }
+                    //Put files to hashmap
+                    List<File> old_files = folders.get(folder);
+                    if (null == old_files) {
+                        List<File> new_files = new ArrayList<>();
+                        new_files.add(file);
+                        folders.put(folder, new_files);
+                    } else {
+                        old_files.add(file);
+                        folders.put(folder, old_files);
                     }
                 }
                 //SORT BY FOLDER DONE
@@ -539,7 +536,7 @@ public class media extends Fragment {
                     no_file(inflater, main_view, files_table);
                     return;
                 }
-                String[] keys = folders.keySet().toArray(new String[folders.keySet().size()]);
+                String[] keys = folders.keySet().toArray(new String[0]);
                 int flag2 = 0;
                 main_view.post(files_table::removeAllViews);
                 for(int x = 0; x < folders.size(); x++){
@@ -625,6 +622,7 @@ public class media extends Fragment {
         }).start();
     }
 
+    @SuppressLint("SetTextI18n")
     private void no_file(LayoutInflater inflater, View main_view, TableLayout files_table){
         View view = inflater.inflate(R.layout.no_files, null);
         main_view.post(() -> {
@@ -752,24 +750,21 @@ public class media extends Fragment {
         return r_n_str;
     }
     public String get_folder_icon(String folder_name){
-        if(folder_name.equals("Screenshots")
-                || folder_name.equals("Pictures")
-                || folder_name.equals("Images")){
-            return "\\\uf302";
-        }
-        else if(folder_name.equals("Camera")
-                || folder_name.equals("DCIM")){
-            return "\\\uf030";
-        }
-        else if(folder_name.equals("Downloads") ||
-                folder_name.equals("Download")){
-            return "\\\uf019";
-        }
-        else if(folder_name.equals("Telegram")){
-            return "\\\uf1d8";
-        }
-        else {
-            return "\\\uf07b";
+        switch (folder_name) {
+            case "Screenshots":
+            case "Pictures":
+            case "Images":
+                return "\\\uf302";
+            case "Camera":
+            case "DCIM":
+                return "\\\uf030";
+            case "Downloads":
+            case "Download":
+                return "\\\uf019";
+            case "Telegram":
+                return "\\\uf1d8";
+            default:
+                return "\\\uf07b";
         }
     }
 }

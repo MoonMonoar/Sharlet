@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white">
+    <TextView
+        android:padding="10dp"
+        android:fontFamily="@font/trebuc"
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/visit_on_any_device"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        tools:ignore="MissingConstraints" />
+    <TextView
+        android:layout_below="@id/title"
+        android:padding="10dp"
+        android:fontFamily="@font/trebuc"
+        android:textColor="@color/black"
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sender_is_not_ready_yet"
+        tools:ignore="MissingConstraints" />
+    <LinearLayout
+        android:layout_below="@id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="2">
+        <Button
+            android:fontFamily="@font/trebuc"
+            android:id="@+id/btn_got_it"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:text="@string/got_it"
+            android:textAllCaps="false"
+            android:textColor="@color/primary"
+            style="?android:attr/buttonBarButtonStyle" />
+        <Button
+            android:fontFamily="@font/trebuc"
+            android:id="@+id/btn_copy"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:stateListAnimator="@null"
+            android:text="@string/copy"
+            android:textAllCaps="false"
+            android:textColor="@color/primary"
+            style="?android:attr/buttonBarButtonStyle" />
+    </LinearLayout>
+</RelativeLayout>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@color/slide1">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/icon"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:lottie_autoPlay="true"
+        app:lottie_fileName="turbo.json"
+        app:lottie_loop="true" />
+
+    <TextView
+        android:fontFamily="@font/trebuc"
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="@string/out_of_turbo_token"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/icon" />
+
+    <TextView
+        android:textSize="15sp"
+        android:fontFamily="@font/trebuc"
+        android:textColor="@color/white"
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/you_don_t_have_any_turbo_token_left_go_to_home_and_claim_daily_reward_or_watch_ad_to_get_more_token"
+        android:textAlignment="center"/>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="1dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/description" />
+    <LinearLayout
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:id="@+id/btn_got_it"
+        android:layout_margin="5dp"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp">
+        <TextView
+            android:layout_marginEnd="5dp"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:fontFamily="@font/font_awesome_regular"
+            android:text="@string/fa_check"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
+        <TextView
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:fontFamily="@font/trebuc"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:stateListAnimator="@null"
+            android:text="@string/got_it"
+            android:textAllCaps="false"
+            android:textColor="@color/white"/>
+    </LinearLayout>
+</LinearLayout>

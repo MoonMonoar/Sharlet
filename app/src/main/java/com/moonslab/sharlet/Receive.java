@@ -1,6 +1,7 @@
 package com.moonslab.sharlet;
 
 import static com.moonslab.sharlet.Home.store_as_file;
+
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.ClipData;
@@ -25,13 +26,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.moonslab.sharlet.custom.Sender;
 import com.squareup.picasso.Picasso;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,23 +40,22 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class Receive extends AppCompatActivity {
-    private HashMap<String, String> link_sets = new HashMap<>();
-    private ProgressBar progress, total_progress;
+    private final HashMap<String, String> link_sets = new HashMap<>();
     private int path_index = 0;
     private Dialog dialog;
-    private int global_error = 0;
-    private String[] raw_paths, raw_links;
+    private String[] raw_paths;
     private String server_address = null;
     private String pc_ios_link, pc_ios_pin;
     private Context context;
     private TextView current_file, total_received, pack_got, portal_summary, main_title;
-    private long previous_bps = 0;
-    private long total_incoming_size = 0;
+    private final long previous_bps = 0;
+    private final long total_incoming_size = 0;
 
     private TableLayout main_table;
 
     private long start_time;
-    private long total_packs = 0, current_pack = 0;
+    private long total_packs = 0;
+    private final long current_pack = 0;
     private final HashMap<String, View> file_all_child = new HashMap<>();
     private boolean receive_complete = false;
     private DBHandler dbHandler;
@@ -88,8 +86,8 @@ public class Receive extends AppCompatActivity {
         }
         dbHandler = new DBHandler(this);
 
-        progress = findViewById(R.id.progress);
-        total_progress = findViewById(R.id.total_progress);
+        ProgressBar progress = findViewById(R.id.progress);
+        ProgressBar total_progress = findViewById(R.id.total_progress);
         total_received = findViewById(R.id.total_received);
         pack_got = findViewById(R.id.pack_got);
         current_file = findViewById(R.id.current_file);
@@ -134,7 +132,7 @@ public class Receive extends AppCompatActivity {
 
         //Dialogue ends
         raw_paths = dbHandler.get_settings("receive_raw_paths").split(System.lineSeparator());
-        raw_links = dbHandler.get_settings("receive_links").split(System.lineSeparator());
+        String[] raw_links = dbHandler.get_settings("receive_links").split(System.lineSeparator());
         if(null != raw_paths) {
             for (int x = 0; x < raw_paths.length; x++) {
                 link_sets.put(raw_paths[x], raw_links[x]);
@@ -148,6 +146,7 @@ public class Receive extends AppCompatActivity {
         make_page_layout();
         //Initiate the receiving...
         start_time = new Date().getTime();
+        assert link_sets != null;
         total_packs = link_sets.size();
         path_index = 0;
         new Thread(this::start_receive).start();
@@ -156,8 +155,7 @@ public class Receive extends AppCompatActivity {
     private void make_page_layout() {
         new Thread(()-> {
             boolean first = false;
-            for (int x = 0; x < raw_paths.length; x++) {
-                String path_main = raw_paths[x];
+            for (String path_main : raw_paths) {
                 if (null != path_main) {
                     String file_name_main = path_main.substring(path_main.lastIndexOf("/") + 1);
                     View child = View.inflate(context, R.layout.sender_file_child, null);
@@ -170,35 +168,33 @@ public class Receive extends AppCompatActivity {
                     String location = Home.get_app_home_directory();
 
                     String file_type = Home.file_type(file_name_main);
-                    if(file_type.equals("app")) {
-                        file_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_android_24));
-                        location += "/Apps/";
+                    switch (file_type) {
+                        case "app":
+                            file_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_android_24));
+                            location += "/Apps/";
+                            break;
+                        case "photo":
+                            file_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_photo_24));
+                            location += "/Photos/";
+                            break;
+                        case "video":
+                            file_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_video_file_24));
+                            location += "/Videos/";
+                            break;
+                        case "document":
+                            file_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.book_file));
+                            location += "/Documents/";
+                            break;
+                        case "audio":
+                            file_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_audio_file_24));
+                            location += "/Audio/";
+                            break;
+                        default:
+                            location += "/Files/";
+                            break;
                     }
 
-                    else if(file_type.equals("photo")) {
-                        file_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_photo_24));
-                        location += "/Photos/";
-                    }
-
-                    else if(file_type.equals("video")) {
-                        file_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_video_file_24));
-                        location += "/Videos/";
-                    }
-
-                    else if(file_type.equals("document")) {
-                        file_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.book_file));
-                        location += "/Documents/";
-                    }
-
-                    else if (file_type.equals("audio")) {
-                        file_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_audio_file_24));
-                        location += "/Audio/";
-                    }
-                    else {
-                        location += "/Files/";
-                    }
-
-                    String path = location+file_name_main;
+                    String path = location + file_name_main;
                     file_name.setText(file_name_main);
                     file_path.setText(path);
                     if (!first) {
@@ -215,23 +211,27 @@ public class Receive extends AppCompatActivity {
 
     private void open_file(String path, String file_type) {
         if(receive_complete){
-            if(file_type.equals("photo")){
-                Intent intent = new Intent(context, Photo_view.class);
-                //Save the file first
-                store_as_file("Image_last.txt", path, context);
-                context.startActivity(intent);
-            }
-            else if(file_type.equals("video")){
-                Intent intent = new Intent(context, Video_player.class);
-                store_as_file("Video_last.txt", path, context);
-                context.startActivity(intent);
-            }
-            else if(file_type.equals("audio")){
-                Intent in = Home.get_music_intent(dbHandler, path, context);
-                context.startActivity(in);
-            }
-            else {
-                Home.openFile(context, new File(path));
+            switch (file_type) {
+                case "photo": {
+                    Intent intent = new Intent(context, Photo_view.class);
+                    //Save the file first
+                    store_as_file("Image_last.txt", path, context);
+                    context.startActivity(intent);
+                    break;
+                }
+                case "video": {
+                    Intent intent = new Intent(context, Video_player.class);
+                    store_as_file("Video_last.txt", path, context);
+                    context.startActivity(intent);
+                    break;
+                }
+                case "audio":
+                    Intent in = Home.get_music_intent(dbHandler, path, context);
+                    context.startActivity(in);
+                    break;
+                default:
+                    Home.openFile(context, new File(path));
+                    break;
             }
         }
         else {
@@ -277,8 +277,7 @@ public class Receive extends AppCompatActivity {
                     fos.close();
 
                 }
-                catch (Exception e){
-                    global_error++;
+                catch (Exception ignored){
                 }
             }
         }
@@ -287,7 +286,7 @@ public class Receive extends AppCompatActivity {
             long diff = new Date().getTime() - start_time;
             String speed = Receive.format_size(previous_bps);
             speed += "/s";
-            String status = format_size(total_incoming_size)+" received in "+Send.get_time_span(diff)+" - "+speed;
+            String status = format_size(total_incoming_size)+" received in "+ Sender.get_time_span(diff)+" - "+speed;
             runOnUiThread(()-> {
                    portal_summary.setText(status);
                    current_file.setText("Receiver inactive");
@@ -306,7 +305,7 @@ public class Receive extends AppCompatActivity {
     public static String format_size(long bytes){
         float returnable = 0;
         String fix = "KB";
-        returnable = bytes/1000; //Kb
+        returnable = bytes/(float)1000; //Kb
         if(returnable >= 1000){
             //Megabyte range
             returnable = returnable/1000;

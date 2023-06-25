@@ -6,6 +6,7 @@
     tools:context=".See_all_files">
 
     <RelativeLayout
+        android:elevation="5dp"
         android:background="@color/primary"
         android:id="@+id/relativeLayout2"
         android:layout_width="match_parent"

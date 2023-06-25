@@ -1,5 +1,6 @@
 package com.moonslab.sharlet.fileselector;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.moonslab.sharlet.Home.grid_select_all_child;
 
 import android.annotation.SuppressLint;
@@ -12,16 +13,11 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
-
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
 import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -29,6 +25,9 @@ import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.moonslab.sharlet.DBHandler;
@@ -46,16 +45,12 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.text.Format;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -86,6 +81,7 @@ public class file_selection_all extends Fragment {
     }
 
     View main_view;
+    @SuppressLint({"SetTextI18n", "UseCompatLoadingForDrawables"})
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -377,7 +373,7 @@ public class file_selection_all extends Fragment {
                         return true;
                     });
                     //Pre check
-                    if(selected_folder_paths.indexOf(file_list[finalX].getPath()) > -1){
+                    if(selected_folder_paths.contains(file_list[finalX].getPath())){
                         //Was selected
                         view_child.setBackgroundColor(ContextCompat.getColor(context, R.color.selection));
                     }
@@ -450,12 +446,9 @@ public class file_selection_all extends Fragment {
                         }
                         name_file.setText(file_name);
                         view_child.setOnLongClickListener(v -> {
-                            Intent intent = new Intent(context, Music_player.class);
-                            //Save the file first
-                            //Unset loop
-                            store_as_file("Audio_loop.txt", "", context);
-                            store_as_file("Audio_last.txt", target_file.getPath(), context);
-                            context.startActivity(intent);
+                            Intent in = Home.get_music_intent(dbHandler, target_file.getPath(), context);
+                            in.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(in);
                             return true;
                         });
                     } else if (File_extension.equals("mp4")
@@ -486,7 +479,7 @@ public class file_selection_all extends Fragment {
                             return true;
                         });
                     }
-                    view_child.setOnClickListener(v -> explorer_select_single(target_file, view_child, false, target_file.getParent()));
+                    view_child.setOnClickListener(v -> explorer_select_single(target_file, view_child, target_file.getParent()));
 
                     //Recheck
                     if(is_selected(target_file, context)){
@@ -557,7 +550,7 @@ public class file_selection_all extends Fragment {
         File main_file = new File(location);
         if(!main_file.exists()){
             try {
-                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                 outputStreamWriter.write("");
                 outputStreamWriter.close();
             }
@@ -596,15 +589,14 @@ public class file_selection_all extends Fragment {
         }
         return selected_already;
     }
-    private int explorer_select_single(File target_file, View view_child, Boolean no_child, String folder_path){
-        int count = 0;
+    private void explorer_select_single(File target_file, View view_child, String folder_path){
         //Read the bucket
         List<String> bucket_list = new ArrayList<>();
         String location = Home.get_app_home_bundle_data_store()+"/Selection_bucket.txt";
         File main_file = new File(location);
         if(!main_file.exists()){
             try {
-                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
+                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
                 outputStreamWriter.write("");
                 outputStreamWriter.close();
             }
@@ -626,9 +618,10 @@ public class file_selection_all extends Fragment {
             bucket_list = null;
         }
 
-        Boolean selected_already = false;
+        boolean selected_already = false;
         //Not null, so look for the file
         //if exists, its selected
+        assert bucket_list != null;
         for (String path : bucket_list) {
             String path0 = target_file.getPath();
             String home = "/storage";
@@ -643,21 +636,17 @@ public class file_selection_all extends Fragment {
         }
 
         if(selected_already){
-            if(!no_child) {
-                view_child.setBackgroundColor(ContextCompat.getColor(context, R.color.white));
-                view_child.setBackground(ContextCompat.getDrawable(context, R.drawable.line));
-                if(selected_folder_paths.indexOf(folder_path) > -1){
-                    selected_folder_paths.remove(folder_path);
-                }
-            }
+            view_child.setBackgroundColor(ContextCompat.getColor(context, R.color.white));
+            view_child.setBackground(ContextCompat.getDrawable(context, R.drawable.line));
+            selected_folder_paths.remove(folder_path);
             if(bucket_list.size() == 1){
                 //Empty and return
                 main_file.delete();
                 File_selection.selection_update();
-                return count;
+                return;
             }
             //New bucket
-            String new_data = null;
+            StringBuilder new_data = null;
             for(String path : bucket_list){
                 String path0 = target_file.getPath();
                 String home = "/storage";
@@ -669,17 +658,17 @@ public class file_selection_all extends Fragment {
                     continue;
                 }
                 if(null == new_data){
-                    new_data = path;
+                    new_data = new StringBuilder(path);
                 }
                 else {
-                    new_data+= System.lineSeparator()+path;
+                    new_data.append(System.lineSeparator()).append(path);
                 }
             }
             if(null != new_data){
                 //Save the string
                 try {
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
-                    outputStreamWriter.write(new_data);
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
+                    outputStreamWriter.write(new_data.toString());
                     outputStreamWriter.close();
                 }
                 catch (Exception e){
@@ -688,9 +677,7 @@ public class file_selection_all extends Fragment {
             }
         }
         else {
-            if(!no_child) {
-                view_child.setBackgroundColor(ContextCompat.getColor(context, R.color.selection));
-            }
+            view_child.setBackgroundColor(ContextCompat.getColor(context, R.color.selection));
             String path0 = target_file.getPath();
             String home = "/storage";
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
@@ -699,33 +686,31 @@ public class file_selection_all extends Fragment {
             path0 = path0.substring(home.length());
             bucket_list.add(path0);
             //New bucket
-            String new_data = null;
+            StringBuilder new_data = null;
             for(String path : bucket_list){
                 if(path.equals("empty")){
                     continue;
                 }
                 if(null == new_data){
-                    new_data = path;
+                    new_data = new StringBuilder(path);
                 }
                 else {
-                    new_data+= System.lineSeparator()+path;
+                    new_data.append(System.lineSeparator()).append(path);
                 }
             }
             if(null != new_data){
                 //Save the string
                 try {
-                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(main_file));
-                    outputStreamWriter.write(new_data);
+                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(Files.newOutputStream(main_file.toPath()));
+                    outputStreamWriter.write(new_data.toString());
                     outputStreamWriter.close();
                 }
                 catch (Exception e){
                     e.printStackTrace();
                 }
             }
-            count++;
         }
         File_selection.selection_update();
-        return count;
     }
     private void explorer_select_folder(String path, View view_child){
         File[] file_list = File_selection.get_files(path);
@@ -737,15 +722,15 @@ public class file_selection_all extends Fragment {
             return;
         }
         int flag = 0;
-        Boolean hidden_factor = false;
+        boolean hidden_factor = false;
         List<File> selections = new ArrayList<>();
-        for(int x = 0; x < file_list.length; x++){
-            if(file_list[x].isHidden() && !show_hidden){
+        for (File value : file_list) {
+            if (value.isHidden() && !show_hidden) {
                 hidden_factor = true;
                 continue;
             }
-            if(file_list[x].isFile()){
-                selections.add(file_list[x]);
+            if (value.isFile()) {
+                selections.add(value);
                 flag++;
             }
         }

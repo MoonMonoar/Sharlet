@@ -2,22 +2,17 @@ package com.moonslab.sharlet.fileselector;
 
 import static com.moonslab.sharlet.Home.grid_select_all_child;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.MergeCursor;
 import android.os.Bundle;
-
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.GridView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -25,17 +20,16 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+
 import com.moonslab.sharlet.File_selection;
 import com.moonslab.sharlet.File_selection_grid_adapter;
 import com.moonslab.sharlet.Home;
 import com.moonslab.sharlet.R;
 import com.moonslab.sharlet.See_all_files;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -85,10 +79,6 @@ public class file_selection_photo extends Fragment {
 
             return null;
         }
-        if(null == files){
-            Toast.makeText(context, "Failed to load files!", Toast.LENGTH_SHORT).show();
-            return null;
-        }
         return files;
     }
     public String folderFromPath(String path, String name){
@@ -110,24 +100,21 @@ public class file_selection_photo extends Fragment {
         return r_n_str;
     }
     public String get_folder_icon(String folder_name){
-        if(folder_name.equals("Screenshots")
-                || folder_name.equals("Pictures")
-                || folder_name.equals("Images")){
-            return "\\\uf302";
-        }
-        else if(folder_name.equals("Camera")
-                || folder_name.equals("DCIM")){
-            return "\\\uf030";
-        }
-        else if(folder_name.equals("Downloads") ||
-                folder_name.equals("Download")){
-            return "\\\uf019";
-        }
-        else if(folder_name.equals("Telegram")){
-            return "\\\uf1d8";
-        }
-        else {
-            return "\\\uf07b";
+        switch (folder_name) {
+            case "Screenshots":
+            case "Pictures":
+            case "Images":
+                return "\\\uf302";
+            case "Camera":
+            case "DCIM":
+                return "\\\uf030";
+            case "Downloads":
+            case "Download":
+                return "\\\uf019";
+            case "Telegram":
+                return "\\\uf1d8";
+            default:
+                return "\\\uf07b";
         }
     }
     //Passive code -- ends
@@ -154,24 +141,22 @@ public class file_selection_photo extends Fragment {
                 //Look thorough every file and store data
                 String name = file.getName();
                 String path = file.getPath();
-                if (null != name && null != path) {
-                    try {
-                        folder = folderFromPath(path, name);
-                    } catch (Exception e) {
-                        //Error
-                        //Add to Unknown album
-                        folder = "Unknown album";
-                    }
-                    //Put files to hashmap
-                    List<File> old_files = folders.get(folder);
-                    if (null == old_files) {
-                        List<File> new_files = new ArrayList<File>();
-                        new_files.add(file);
-                        folders.put(folder, new_files);
-                    } else {
-                        old_files.add(file);
-                        folders.put(folder, old_files);
-                    }
+                try {
+                    folder = folderFromPath(path, name);
+                } catch (Exception e) {
+                    //Error
+                    //Add to Unknown album
+                    folder = "Unknown album";
+                }
+                //Put files to hashmap
+                List<File> old_files = folders.get(folder);
+                if (null == old_files) {
+                    List<File> new_files = new ArrayList<File>();
+                    new_files.add(file);
+                    folders.put(folder, new_files);
+                } else {
+                    old_files.add(file);
+                    folders.put(folder, old_files);
                 }
             }
             //SORT BY FOLDER DONE
@@ -216,6 +201,7 @@ public class file_selection_photo extends Fragment {
     }
 
     //Pagination
+    @SuppressLint("SetTextI18n")
     public int pagination(int start, int end, HashMap<String, List> folders,
                           LayoutInflater inflater, View main_view){
         int flag_count = 0;

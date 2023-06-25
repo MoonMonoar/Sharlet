@@ -106,7 +106,7 @@ public class library extends Fragment {
                  name.setText(target_file.getName());
                  info.setText(folderFromPath(target_file.getPath(), target_file.getName())+" - "+ Home.convertTime(target_file.lastModified()));
                  if(!check){
-                     main_view.post(() ->table.removeAllViews());
+                     main_view.post(table::removeAllViews);
                      check = true;
                  }
                  //Events
@@ -125,7 +125,6 @@ public class library extends Fragment {
                          i.putExtras(b);
                          startActivity(i);
                     });
-
                  main_view.post(() -> table.addView(child));
              }
             }
@@ -168,15 +167,16 @@ public class library extends Fragment {
         return files;
     }
     public static String folderFromPath(String path, String name){
-        String r_str = "", r_n_str = "";
+        StringBuilder r_str = new StringBuilder();
+        String r_n_str = "";
         char ch;
         path = path.substring(0, path.indexOf(name)-1);
         for (int i=0; i< path.length(); i++)
         {
             ch = path.charAt(i);
-            r_str = ch+r_str;
+            r_str.insert(0, ch);
         }
-        r_str = r_str.substring(0, r_str.indexOf("/"));
+        r_str = new StringBuilder(r_str.substring(0, r_str.indexOf("/")));
         int i = r_str.length()-1;
         while(i >= 0){
             ch = r_str.charAt(i);

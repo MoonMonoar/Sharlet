@@ -14,21 +14,17 @@ public class Music_application_class extends Application {
         Create_notification_channel();
     }
     private void Create_notification_channel() {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_MUSIC,
-                    "Music player", NotificationManager.IMPORTANCE_HIGH);
-            notificationChannel.setDescription("Sharlet - Default music player");
-            notificationChannel.setSound(null, null);
-            notificationChannel.setVibrationPattern(null);
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_DEFAULT,
-                    "Sharlet", NotificationManager.IMPORTANCE_HIGH);
-            notificationChannel.setDescription("Sharlet - App notifications");
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
+        NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_MUSIC,
+                "Music player", NotificationManager.IMPORTANCE_HIGH);
+        notificationChannel.setDescription("Sharlet - Default music player");
+        notificationChannel.setSound(null, null);
+        notificationChannel.setVibrationPattern(null);
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(notificationChannel);
+        NotificationChannel notificationChannel2 = new NotificationChannel(CHANNEL_DEFAULT,
+                "Sharlet", NotificationManager.IMPORTANCE_HIGH);
+        notificationChannel2.setDescription("Sharlet - App notifications");
+        NotificationManager notificationManager2 = getSystemService(NotificationManager.class);
+        notificationManager2.createNotificationChannel(notificationChannel);
     }
 }
