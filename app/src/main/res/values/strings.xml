@@ -120,4 +120,7 @@
     <string name="scan_to_receive">Scan to receive</string>
     <string name="connecting">Connecting...</string>
     <string name="sender_device">Sender device</string>
+    <string name="unknown_network">Unknown network</string>
+    <string name="connected">Connected!</string>
+    <string name="starting">Starting...</string>
 </resources>

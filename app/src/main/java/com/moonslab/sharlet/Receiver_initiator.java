@@ -38,10 +38,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Receiver_initiator extends AppCompatActivity {
+    private TextView log;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_receiver_initiator);
+        log = findViewById(R.id.log);
         //Database
         //Read and try to get the info
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.white));
@@ -57,16 +59,20 @@ public class Receiver_initiator extends AppCompatActivity {
         Handler bucket_handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
+                log.setText(R.string.connected);
                 String data = msg.obj.toString();
                 //data is a json object
-                Pattern pattern = Pattern.compile("payload:'(.*?)',\\s*user:'(.*?)',\\s*photo:'(.*?)'");
+                Pattern pattern = Pattern.compile("payload:'(.*?)',\\s*user:'(.*?)',\\s*photo:'(.*?)',\\s*ssid:'(.*?)',\\s*link_speed:'(.*?)'");
                 Matcher matcher = pattern.matcher(data);
                 if (matcher.find()) {
-                    TextView name = findViewById(R.id.user_name);
+                    TextView name = findViewById(R.id.user_name),
+                             net_info = findViewById(R.id.net_info);
                     ImageView image = findViewById(R.id.user_image),
                             ph = findViewById(R.id.user_image_ph);
-                    String user = matcher.group(2);
-                    String photo = matcher.group(3);
+                    String user = matcher.group(2),
+                            photo = matcher.group(3),
+                            ssid = matcher.group(4),
+                            link_speed = matcher.group(5);
                     name.setText(user);
                     if (null != photo && !photo.equals("null")) {
                         new Thread(()-> {
@@ -77,6 +83,11 @@ public class Receiver_initiator extends AppCompatActivity {
                                     image.setImageBitmap(bm);
                                     ph.setVisibility(View.GONE);
                                     image.setVisibility(View.VISIBLE);
+                                    if(null != ssid && null != link_speed) {
+                                        String net_info_text = ssid;
+                                        net_info_text = link_speed+" - "+net_info_text;
+                                        net_info.setText(net_info_text);
+                                    }
                                 });
                             } catch (Exception e) {
                                 //DO nothing
@@ -109,8 +120,8 @@ public class Receiver_initiator extends AppCompatActivity {
                     finish();
                 }
                 //The bucket
-                Toast.makeText(Receiver_initiator.this, "Bucket loaded!", Toast.LENGTH_SHORT).show();
 
+                log.setText(R.string.starting);
             }
         };
         //Allowing all ssl(to allow SSL anyway - not much issue)
