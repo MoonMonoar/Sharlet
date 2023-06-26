@@ -555,9 +555,9 @@ public class Sender extends Service {
     static class android_discover implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            String ajax_data = "payload: "+main_payload+System.lineSeparator()+"user: " + user_name+System.lineSeparator()+"photo: null"+System.lineSeparator();
+            String ajax_data = "{payload:'" +main_payload+ "', user:'" +user_name+ "'photo: 'null', ssid: '"+ssid+"', link_speed: '"+link_speed+"'}";
             if(user_photo_final != null) {
-                ajax_data = "payload: "+main_payload+System.lineSeparator()+"user: " + user_name+System.lineSeparator()+"photo: "+user_photo_final+System.lineSeparator();
+                ajax_data = "{payload:'" +main_payload+ "', user:'" +user_name+ "', photo:'"+user_photo_final+", ssid: '"+ssid+"', link_speed: '"+link_speed+"''}";
             }
             // Send a response
             exchange.sendResponseHeaders(200, ajax_data.getBytes(StandardCharsets.UTF_8).length);

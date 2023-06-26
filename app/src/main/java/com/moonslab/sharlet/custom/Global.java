@@ -91,7 +91,8 @@ public class Global {
             prepareSecreteKey(secret);
             @SuppressLint("GetInstance") Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-            return android.util.Base64.encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)), android.util.Base64.URL_SAFE | android.util.Base64.NO_PADDING);
+            return android.util.Base64.encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)), android.util.Base64.URL_SAFE | android.util.Base64.NO_PADDING)
+                    .replaceAll(System.lineSeparator(), "");
         } catch (Exception e) {
             Toast.makeText(context, R.string.failed_error_while_encrypting, Toast.LENGTH_SHORT).show();
         }

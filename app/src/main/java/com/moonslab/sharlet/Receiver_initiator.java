@@ -1,12 +1,16 @@
 package com.moonslab.sharlet;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.moonslab.sharlet.custom.Net;
+import com.squareup.picasso.Picasso;
 
 import org.apache.commons.io.FileUtils;
 
@@ -27,7 +32,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Receiver_initiator extends AppCompatActivity {
     @Override
@@ -45,6 +53,53 @@ public class Receiver_initiator extends AppCompatActivity {
             this.finish();
             return;
         }
+        //Discover style connect
+        Handler bucket_handler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                String data = msg.obj.toString();
+                //data is a json object
+                Pattern pattern = Pattern.compile("payload:'(.*?)',\\s*user:'(.*?)',\\s*photo:'(.*?)'");
+                Matcher matcher = pattern.matcher(data);
+                if (matcher.find()) {
+                    TextView name = findViewById(R.id.user_name);
+                    ImageView image = findViewById(R.id.user_image),
+                            ph = findViewById(R.id.user_image_ph);
+                    String user = matcher.group(2);
+                    String photo = matcher.group(3);
+                    name.setText(user);
+                    if (null != photo && !photo.equals("null")) {
+                        new Thread(()-> {
+                            try {
+                                URL url = new URL(photo);
+                                Bitmap bm = BitmapFactory.decodeStream(url.openConnection().getInputStream());
+                                runOnUiThread(()-> {
+                                    image.setImageBitmap(bm);
+                                    ph.setVisibility(View.GONE);
+                                    image.setVisibility(View.VISIBLE);
+                                });
+                            } catch (Exception e) {
+                                //DO nothing
+                                Log.d("RECEIVE-INITIATOR-ERROR", e.toString());
+                            }
+                        }).start();
+                    }
+                    //Finally read the bucket now
+                    load_selection(server, pin);
+                }
+                else {
+                    Toast.makeText(Receiver_initiator.this, "Device not found!", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+        };
+        //Allowing all ssl(to allow SSL anyway - not much issue)
+        HttpsTrustManager.allowAllSSL();
+        Net net = new Net(bucket_handler);
+        //Discover server
+        net.post(server+"/", "");
+    }
+    private void load_selection(String server, String pin){
         Handler bucket_handler = new Handler(Looper.getMainLooper()) {
             @Override
             public void handleMessage(Message msg) {
@@ -54,9 +109,7 @@ public class Receiver_initiator extends AppCompatActivity {
                     finish();
                 }
                 //The bucket
-
-
-
+                Toast.makeText(Receiver_initiator.this, "Bucket loaded!", Toast.LENGTH_SHORT).show();
 
             }
         };

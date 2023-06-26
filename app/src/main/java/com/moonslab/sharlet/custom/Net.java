@@ -2,6 +2,7 @@ package com.moonslab.sharlet.custom;
 
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
