@@ -10,13 +10,15 @@ import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 
+import com.moonslab.sharlet.objects.fileOBJ;
+
 import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DBHandler extends SQLiteOpenHelper {
     private static final String DB_NAME = "SharletDB";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     //Default tables
     //Table -- history
@@ -68,6 +70,14 @@ public class DBHandler extends SQLiteOpenHelper {
     private final String FAV_MUSIC_PATH = "path";
     private final String FAV_MUSIC_ADDED_TIME = "time";
 
+    //Incoming file database
+    private final String INC_NAME = "incoming";
+    private final String INC_ID = "id";
+    private final String INC_FILE = "file";
+    private final String INC_LINK = "link";
+    private final String INC_PASS = "pass";
+
+
     //Constructor
     public DBHandler(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -114,6 +124,14 @@ public class DBHandler extends SQLiteOpenHelper {
                 + MUSIC_PATH + " TEXT,"
                 + MUSIC_ADDED_TIME + " TEXT)";
         db.execSQL(query5);
+
+        //INCOMING FILES
+        String query6 = "CREATE TABLE " + INC_NAME + " ("
+                + INC_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + INC_FILE + " TEXT,"
+                + INC_LINK + " TEXT,"
+                + INC_PASS + " TEXT)";
+        db.execSQL(query6);
     }
 
     //DB METHODS
@@ -522,6 +540,45 @@ public class DBHandler extends SQLiteOpenHelper {
         }
     }
 
+    public void incomingPut(fileOBJ[] fileOBJS){
+        //Empty the table
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        //ALL grater then 0
+        db.delete(INC_NAME, INC_ID+" > ?", new String[]{"0"});
+        db.close();
+
+        //ADD THE LIST
+        for(fileOBJ file: fileOBJS){
+            //INSERT
+            db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            //Add values
+            values.put(INC_FILE, file.getFile());
+            values.put(INC_LINK, file.getLink());
+            values.put(INC_PASS, file.getPass());
+            db.insert(INC_NAME, null, values);
+            db.close();
+        }
+    }
+
+    public List<fileOBJ> incomingGet(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        List<fileOBJ> list = new ArrayList<>();
+        //Select all
+        Cursor cursor = db.rawQuery("SELECT * FROM " + INC_NAME + " WHERE "+INC_ID+" > 0", null);
+        if (cursor.moveToFirst()) {
+            do {
+                fileOBJ fileOBJ = new fileOBJ();
+                fileOBJ.setFile(cursor.getString(0));
+                fileOBJ.setFile(cursor.getString(1));
+                fileOBJ.setFile(cursor.getString(2));
+                list.add(fileOBJ);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return list;
+    }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -530,6 +587,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + PROFILE_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + FAV_MUSIC_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + MUSIC_TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + INC_NAME);
         onCreate(db);
     }
 }

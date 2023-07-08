@@ -17,7 +17,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.google.gson.Gson;
 import com.moonslab.sharlet.custom.Net;
+import com.moonslab.sharlet.objects.fileOBJ;
 import com.squareup.picasso.Picasso;
 
 import org.apache.commons.io.FileUtils;
@@ -39,9 +41,11 @@ import java.util.regex.Pattern;
 
 public class Receiver_initiator extends AppCompatActivity {
     private TextView log;
+    private DBHandler dbHandler;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        dbHandler = new DBHandler(this);
         setContentView(R.layout.activity_receiver_initiator);
         log = findViewById(R.id.log);
         //Database
@@ -119,9 +123,19 @@ public class Receiver_initiator extends AppCompatActivity {
                     Toast.makeText(Receiver_initiator.this, "Invalid connection!", Toast.LENGTH_SHORT).show();
                     finish();
                 }
-                //The bucket
-
                 log.setText(R.string.starting);
+                //The bucket -- save it into the database
+                try{
+                    Gson gson = new Gson();
+                    fileOBJ[] fileOBJS = gson.fromJson(data, fileOBJ[].class);
+                    dbHandler.incomingPut(fileOBJS);
+                    Toast.makeText(Receiver_initiator.this, "Done", Toast.LENGTH_SHORT).show();
+                }
+                catch (Exception e){
+                    Log.d("MOON-ERR", e.toString());
+                    finish();
+                    Toast.makeText(Receiver_initiator.this, "Invalid information!", Toast.LENGTH_SHORT).show();
+                }
             }
         };
         //Allowing all ssl(to allow SSL anyway - not much issue)

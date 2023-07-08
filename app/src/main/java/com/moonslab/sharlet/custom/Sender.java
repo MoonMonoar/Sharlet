@@ -4,7 +4,7 @@ import static com.moonslab.sharlet.Home.cancel_notification;
 import static com.moonslab.sharlet.Home.default_username;
 import static com.moonslab.sharlet.Home.get_app_home_bundle_data_store;
 import static com.moonslab.sharlet.Home.get_appdata_location_root;
-import static com.moonslab.sharlet.Music_application_class.CHANNEL_DEFAULT;
+import static com.moonslab.sharlet.Music_application_class.CHANNEL_SERVICE;
 import static org.apache.commons.net.io.Util.copyStream;
 
 import android.annotation.SuppressLint;
@@ -81,7 +81,6 @@ import java.util.concurrent.Executors;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
-
 public class Sender extends Service {
     //COMPONENTS
     static String server_address;
@@ -375,7 +374,7 @@ public class Sender extends Service {
 
         //SENDERS FILES READY
         //Sender ready files
-        StringBuilder new_bucket = new StringBuilder();
+        StringBuilder new_bucket = new StringBuilder("["); //Open the array
         List<String> bucket_list = new ArrayList<>();
         if(bundle_file.exists()) {
             try {
@@ -383,7 +382,6 @@ public class Sender extends Service {
                 String line = reader.readLine();
                 while (line != null) {
                     bucket_list.add(line);
-                    new_bucket.append(line).append(System.lineSeparator());
                     // read next line
                     line = reader.readLine();
                 }
@@ -392,7 +390,8 @@ public class Sender extends Service {
                 bucket_list = null;
             }
             if(null != bucket_list){
-                new_bucket.append("[LINK_SET-SHARLET]").append(System.lineSeparator());
+                int flag_last = bucket_list.size()-1;
+                int flag_run = 0;
                 for(String path : bucket_list){
                     String home = "/storage";
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
@@ -408,11 +407,20 @@ public class Sender extends Service {
                         String link_random = getRandomFilename(), file_password = getRandomFilename();
                         main_server.createContext("/"+ main_pin +"/"+link_random, load_file_path(home+path, true, true, file_password));
                         server.createContext("/"+main_pin+"/"+link_random, load_file_path(home+path, true, false, file_password));
-                        new_bucket.append(link_random).append("-").append(file_password).append(System.lineSeparator());
+                        String obj;
+                        if(flag_run < flag_last) {
+                            obj = "{file: \"" + path + "\", link: \"" + link_random + "\", pass: \"" + file_password + "\"},";
+                        }
+                        else {
+                            obj = "{file: \"" + path + "\", link: \"" + link_random + "\", pass: \"" + file_password + "\"}";
+                        }
+                        new_bucket.append(obj);
                     }
+                    flag_run++;
                 }
                 try {
                     //Save the string again
+                    new_bucket.append("]"); // Close the array
                     PrintWriter writer = new PrintWriter(bundle_file.getPath(), "UTF-8");
                     writer.println(new_bucket);
                     writer.close();
@@ -451,7 +459,7 @@ public class Sender extends Service {
         if(!turbo_active){
             turbo_emoji = "🔗";
         }
-        Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_DEFAULT)
+        Notification notification = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_SERVICE)
                 .setSmallIcon(R.drawable.logo_main)
                 .setContentTitle("Visit on any device")
                 .setContentText(turbo_emoji+" Link: "+server_type+server_address+":3250"+System.lineSeparator()+"🔑 Pin: "+main_pin)

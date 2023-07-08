@@ -2,6 +2,9 @@ package com.moonslab.sharlet.custom;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.provider.Settings;
 import android.widget.Toast;
 
@@ -119,4 +122,35 @@ public class Global {
         }
         return ENCRYPTION_KEY;
     }
+    public Bitmap makeDP(Bitmap originalBitmap, int desiredSize) {
+        // Determine the dimensions of the original image
+        int originalWidth = originalBitmap.getWidth();
+        int originalHeight = originalBitmap.getHeight();
+
+        // Calculate the ratio for resizing
+        float ratio;
+        if (originalWidth > originalHeight) {
+            ratio = (float) desiredSize / originalWidth;
+        } else {
+            ratio = (float) desiredSize / originalHeight;
+        }
+
+        // Calculate the new dimensions based on the ratio
+        int newWidth = Math.round(originalWidth * ratio);
+        int newHeight = Math.round(originalHeight * ratio);
+
+        // Resize the image
+        Bitmap resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, true);
+
+        // Calculate the cropping coordinates
+        int left = Math.max((newWidth - desiredSize) / 2, 0);
+        int top = Math.max((newHeight - desiredSize) / 2, 0);
+        int right = Math.min(left + desiredSize, newWidth);
+        int bottom = Math.min(top + desiredSize, newHeight);
+
+        // Create the cropped bitmap
+
+        return Bitmap.createBitmap(resizedBitmap, left, top, right - left, bottom - top);
+    }
+
 }

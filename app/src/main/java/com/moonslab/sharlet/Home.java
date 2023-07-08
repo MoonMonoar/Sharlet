@@ -897,8 +897,8 @@ public class Home extends AppCompatActivity {
                             runOnUiThread(()-> user_profile_image.setImageBitmap(finalSelectedImageBitmap));
                             //Save it
                             try (FileOutputStream out = new FileOutputStream(user_image_path)) {
-                                selectedImageBitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-                                // PNG is a lossless format, the compression factor (100) is ignored
+                                Bitmap compressedBitmap = global_class.makeDP(selectedImageBitmap, 320);
+                                compressedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                             } catch (IOException e) {
                                 runOnUiThread(()->Toast.makeText(context, "Failed to save! Try again", Toast.LENGTH_SHORT).show());
                             }

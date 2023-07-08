@@ -50,6 +50,9 @@ dependencies {
     implementation 'net.lingala.zip4j:zip4j:2.11.2'
     implementation 'com.airbnb.android:lottie:5.2.0'
 
+    //JSON
+    implementation 'com.google.code.gson:gson:2.8.9'
+
     //QR
     implementation 'com.github.androidmads:QRGenerator:1.0.1'
     implementation 'com.github.yuriy-budiyev:code-scanner:2.3.2'
