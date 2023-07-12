@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#ac551b</color>
+    <color name="primary_semi">#D2844E</color>
+    <color name="button_back">#C46612</color>
+    <color name="dark_primary">#b25a12</color>
+    <color name="very_dark_primary">#A44703</color>
+    <color name="tab_inactive">#C4A685</color>
+    <color name="selection">#C39B7D</color>
+    <color name="purple_200">#B3550B</color>
+    <color name="purple_500">#ac551b</color>
+    <color name="black">#FF000000</color>
+    <color name="night_black">#0D0D0D</color>
+    <color name="white">#DEDEDEDE</color>
+    <color name="grey">#6E6E6E</color>
+    <color name="light_grey">#ABABAB</color>
+    <color name="transparent">#00000000</color>
+    <color name="grey_semi">#888888</color>
+    <color name="app_back">#474747</color>
+    <color name="primary_very_light">#BBA68E</color>
+    <color name="home_loader">#CC6B19</color>
+    <color name="light_blue_600">#C40097D1</color>
+    <color name="light_blue_900">#C4005077</color>
+    <color name="light_blue_A200">#C440B9FF</color>
+    <color name="light_blue_A400">#C4008AFF</color>
+    <color name="black_overlay">#66000000</color>
+    <color name="light_green">#079863</color>
+    <color name="warning">#b71c1c</color>
+    <color name="info">#0D47A1</color>
+    <color name="gradient_1">#ac203f</color>
+    <color name="gradient_2">#ac9e00</color>
+
+    <color name="slide2">#2A2A2A</color>
+    <color name="slide3">#0A3D4A</color>
+    <color name="slide4">#056D11</color>
+    <color name="slide4_button">#06450E</color>
+
+</resources>
