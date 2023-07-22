@@ -5,7 +5,7 @@
     android:id="@+id/slide_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/slide1"
+    android:background="@color/dark_primary"
     tools:context=".Welcome">
     <RelativeLayout
         android:id="@+id/slide_view"
@@ -40,7 +40,9 @@
                 android:layout_height="wrap_content"
                 tools:ignore="RtlSymmetry"/>
             <com.airbnb.lottie.LottieAnimationView
-                android:layout_marginTop="-50dp"
+                android:scaleX="0.8"
+                android:scaleY="0.8"
+                android:layout_marginTop="-60dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:lottie_autoPlay="true"
@@ -284,113 +286,123 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 tools:ignore="RtlSymmetry"/>
-            <RelativeLayout
+            <LinearLayout
                 android:gravity="center"
                 android:layout_marginBottom="70dp"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-                <RelativeLayout
-                    android:id="@+id/rv1"
+                <ScrollView
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-                    <TextView
-                        android:id="@+id/tv1"
-                        android:textSize="18sp"
-                        android:fontFamily="@font/trebuc"
-                        android:textColor="@color/white"
+                    <TableLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/file_management"/>
-                    <TextView
-                        android:id="@+id/fm_t"
-                        android:layout_marginTop="10dp"
-                        android:layout_below="@id/tv1"
-                        android:textSize="14.5sp"
-                        android:fontFamily="@font/trebuc"
-                        android:textColor="@color/white"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sharlet_needs_to_access_your_files_to_be_able_to_send_and_receive_its_safe_and_sharlet_never_deletes_your_files"/>
-                    <Button
-                        android:id="@+id/file_all"
-                        android:textSize="12sp"
-                        android:backgroundTint="@color/slide4_button"
-                        android:text="@string/grant_permission"
-                        android:layout_marginTop="5dp"
-                        android:layout_below="@id/fm_t"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </RelativeLayout>
-                <RelativeLayout
-                    android:id="@+id/rv2"
-                    android:layout_marginTop="20dp"
-                    android:layout_below="@id/rv1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:id="@+id/tv2"
-                        android:textSize="18sp"
-                        android:fontFamily="@font/trebuc"
-                        android:textColor="@color/white"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/_2_read_external_storage"/>
-                    <TextView
-                        android:id="@+id/es_t"
-                        android:layout_marginTop="10dp"
-                        android:layout_below="@id/tv2"
-                        android:textSize="14.5sp"
-                        android:fontFamily="@font/trebuc"
-                        android:textColor="@color/white"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/sharlet_needs_this_permission_to_be_able_to_read_sd_card_files_similar_to_file_management"/>
-                    <Button
-                        android:id="@+id/Sd_card"
-                        android:textSize="12sp"
-                        android:backgroundTint="@color/slide4_button"
-                        android:text="@string/grant_permission"
-                        android:layout_marginTop="5dp"
-                        android:layout_below="@id/es_t"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </RelativeLayout>
-                <RelativeLayout
-                    android:layout_marginTop="20dp"
-                    android:layout_below="@id/rv2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:id="@+id/tv3"
-                        android:textSize="18sp"
-                        android:fontFamily="@font/trebuc"
-                        android:textColor="@color/white"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/_3_location"/>
-                    <TextView
-                        android:id="@+id/l_t"
-                        android:layout_marginTop="10dp"
-                        android:layout_below="@id/tv3"
-                        android:textSize="14.5sp"
-                        android:fontFamily="@font/trebuc"
-                        android:textColor="@color/white"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/this_is_needed_to_know_your_wifi_hotspot_name_only_you_can_skip_this_permission_if_you_want"/>
-                    <Button
-                        android:id="@+id/Location_permission"
-                        android:textSize="12sp"
-                        android:backgroundTint="@color/slide4_button"
-                        android:text="@string/grant_permission"
-                        android:layout_marginTop="5dp"
-                        android:layout_below="@id/l_t"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
-                </RelativeLayout>
-            </RelativeLayout>
+                        android:layout_height="wrap_content">
+                        <RelativeLayout
+                            android:id="@+id/rv1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:id="@+id/tv1"
+                                android:textSize="18sp"
+                                android:fontFamily="@font/trebuc"
+                                android:textColor="@color/white"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/file_management"/>
+                            <TextView
+                                android:id="@+id/fm_t"
+                                android:layout_marginTop="10dp"
+                                android:layout_below="@id/tv1"
+                                android:textSize="14.5sp"
+                                android:fontFamily="@font/trebuc"
+                                android:textColor="@color/white"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/sharlet_needs_to_access_your_files_to_be_able_to_send_and_receive_its_safe_and_sharlet_never_deletes_your_files"/>
+                            <Button
+                                android:id="@+id/file_all"
+                                android:textSize="12sp"
+                                android:backgroundTint="@color/slide4_button"
+                                android:text="@string/grant_permission"
+                                android:layout_marginTop="5dp"
+                                android:layout_below="@id/fm_t"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </RelativeLayout>
+                        <RelativeLayout
+                            android:id="@+id/rv2"
+                            android:layout_marginTop="20dp"
+                            android:layout_below="@id/rv1"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:id="@+id/tv2"
+                                android:textSize="18sp"
+                                android:fontFamily="@font/trebuc"
+                                android:textColor="@color/white"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/_2_read_external_storage"/>
+                            <TextView
+                                android:id="@+id/es_t"
+                                android:layout_marginTop="10dp"
+                                android:layout_below="@id/tv2"
+                                android:textSize="14.5sp"
+                                android:fontFamily="@font/trebuc"
+                                android:textColor="@color/white"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/sharlet_needs_this_permission_to_be_able_to_read_sd_card_files_similar_to_file_management"/>
+                            <Button
+                                android:id="@+id/Sd_card"
+                                android:textSize="12sp"
+                                android:backgroundTint="@color/slide4_button"
+                                android:text="@string/grant_permission"
+                                android:layout_marginTop="5dp"
+                                android:layout_below="@id/es_t"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </RelativeLayout>
+                        <RelativeLayout
+                            android:layout_marginTop="20dp"
+                            android:layout_below="@id/rv2"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:id="@+id/tv3"
+                                android:textSize="18sp"
+                                android:fontFamily="@font/trebuc"
+                                android:textColor="@color/white"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/_3_location"/>
+                            <TextView
+                                android:id="@+id/l_t"
+                                android:layout_marginTop="10dp"
+                                android:layout_below="@id/tv3"
+                                android:textSize="14.5sp"
+                                android:fontFamily="@font/trebuc"
+                                android:textColor="@color/white"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/this_is_needed_to_know_your_wifi_hotspot_name_only_you_can_skip_this_permission_if_you_want"/>
+                            <Button
+                                android:id="@+id/Location_permission"
+                                android:textSize="12sp"
+                                android:backgroundTint="@color/slide4_button"
+                                android:text="@string/grant_permission"
+                                android:layout_marginTop="5dp"
+                                android:layout_below="@id/l_t"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+                        </RelativeLayout>
+                    </TableLayout>
+                </ScrollView>
+            </LinearLayout>
             <LinearLayout
                 android:gravity="center"
                 android:layout_marginTop="-40dp"
@@ -444,6 +456,8 @@
         app:layout_constraintTop_toBottomOf="@+id/slide_view"
         tools:ignore="MissingConstraints">
         <LinearLayout
+            android:singleLine="true"
+            android:ellipsize="start"
             android:visibility="gone"
             android:id="@+id/prev"
             android:foreground="?android:attr/selectableItemBackground"
@@ -481,6 +495,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <TextView
+                android:singleLine="true"
+                android:ellipsize="end"
                 android:gravity="center"
                 android:textColor="@color/white"
                 android:textStyle="bold"

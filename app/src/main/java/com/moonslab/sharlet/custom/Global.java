@@ -3,11 +3,12 @@ package com.moonslab.sharlet.custom;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.provider.Settings;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatDelegate;
+
+import com.moonslab.sharlet.DBHandler;
 import com.moonslab.sharlet.R;
 
 import java.io.File;
@@ -152,5 +153,34 @@ public class Global {
 
         return Bitmap.createBitmap(resizedBitmap, left, top, right - left, bottom - top);
     }
-
+    public boolean isTurboReady(){
+        NetUtility netUtility = new NetUtility(context);
+        DBHandler dbHandler = new DBHandler(context);
+        dbHandler.add_setting("turbo_active", "false");
+        boolean wifi5g = netUtility.isWiFiConnected() && netUtility.getWifiFrequency().equals("5");
+        if(isLocationGranted() && netUtility.isHotspotEnabled() || wifi5g){
+            dbHandler.add_setting("turbo_active", "true");
+            return true;
+        }
+        return false;
+    }
+    public boolean isLocationGranted(){
+        return !(context.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) < 0)
+                && !(context.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) < 0);
+    }
+    public void enableDarkMode(){
+        DBHandler dbHandler = new DBHandler(context);
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        dbHandler.add_setting("dark_mode", "true");
+    }
+    public void disableDarkMode(){
+        DBHandler dbHandler = new DBHandler(context);
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        dbHandler.add_setting("dark_mode", "false");
+    }
+    public boolean wasDarkModeOn(){
+        DBHandler dbHandler = new DBHandler(context);
+        String data = dbHandler.get_settings("dark_mode");
+        return null == data || data.equals("true");
+    }
 }

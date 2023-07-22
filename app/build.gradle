@@ -14,7 +14,7 @@ android {
         minSdk 26
         targetSdk 33
         versionCode 1
-        versionName "1.1.d-1.830-preview"
+        versionName "1.980-pub"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -34,6 +34,9 @@ android {
 }
 
 dependencies {
+    //Google
+    implementation 'com.google.android.play:app-update:2.1.0'
+
     //Maven
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'
     implementation 'com.sun.net.httpserver:http:20070405'
@@ -46,9 +49,10 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.github.MikeOrtiz:TouchImageView:1.4.1'
     implementation 'commons-net:commons-net:3.6'
-    implementation 'com.google.android.gms:play-services-ads:22.1.0'
+    implementation 'com.google.android.gms:play-services-ads:22.2.0'
     implementation 'net.lingala.zip4j:zip4j:2.11.2'
     implementation 'com.airbnb.android:lottie:5.2.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 
     //JSON
     implementation 'com.google.code.gson:gson:2.8.9'
@@ -57,7 +61,7 @@ dependencies {
     implementation 'com.github.androidmads:QRGenerator:1.0.1'
     implementation 'com.github.yuriy-budiyev:code-scanner:2.3.2'
 
-    //Kotlin - this causes error
+    //Kotlin - this causes error -- don't change
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.8.20'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20'
 

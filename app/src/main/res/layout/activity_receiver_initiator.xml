@@ -20,14 +20,12 @@
             android:layout_height="80dp">
             <ImageView
                 android:id="@+id/user_image_ph"
-                android:src="@drawable/sender_dp"
-                android:layout_marginEnd="10dp"
                 android:layout_width="80dp"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                android:layout_marginEnd="10dp"
+                android:src="@drawable/sender_dp" />
             <ImageView
                 android:visibility="gone"
-                android:scaleY="1.5"
-                android:scaleX="1.5"
                 android:id="@+id/user_image"
                 android:layout_marginEnd="10dp"
                 android:layout_width="80dp"

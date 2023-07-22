@@ -29,7 +29,7 @@
             <TextView
                 android:fontFamily="@font/trebuc"
                 android:id="@+id/file_name"
-                android:textColor="@color/black"
+                android:textColor="@color/text_color_black"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="15dp"
                 android:textSize="18sp"
@@ -43,7 +43,7 @@
             android:fontFamily="@font/trebuc"
             android:paddingBottom="18dp"
             android:background="@drawable/line"
-            android:textColor="@color/black"
+            android:textColor="@color/text_color_black"
             android:id="@+id/file_info"
             android:layout_marginLeft="75dp"
             android:layout_marginTop="40dp"

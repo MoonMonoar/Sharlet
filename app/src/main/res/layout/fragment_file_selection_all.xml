@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center|left"
-        tools:ignore="MissingConstraints">
+        tools:ignore="MissingConstraints,RtlHardcoded">
 
         <LinearLayout
             android:layout_marginTop="-4dp"
@@ -90,7 +90,7 @@
                         android:layout_height="match_parent"
                         android:gravity="center|left"
                         android:text="Loading..."
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_color_black"
                         android:textSize="14sp" />
             </LinearLayout>
 

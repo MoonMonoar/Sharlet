@@ -2,23 +2,18 @@ package com.moonslab.sharlet;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.widget.Toast;
-
-import androidx.core.content.ContextCompat;
 
 import com.moonslab.sharlet.objects.fileOBJ;
 
-import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DBHandler extends SQLiteOpenHelper {
     private static final String DB_NAME = "SharletDB";
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 6;
 
     //Default tables
     //Table -- history
@@ -76,7 +71,7 @@ public class DBHandler extends SQLiteOpenHelper {
     private final String INC_FILE = "file";
     private final String INC_LINK = "link";
     private final String INC_PASS = "pass";
-
+    private final String INC_STATUS = "status"; //0 MEANS PENDING, 1 MEANS RECEIVED
 
     //Constructor
     public DBHandler(Context context) {
@@ -130,8 +125,13 @@ public class DBHandler extends SQLiteOpenHelper {
                 + INC_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + INC_FILE + " TEXT,"
                 + INC_LINK + " TEXT,"
-                + INC_PASS + " TEXT)";
+                + INC_PASS + " TEXT,"
+                + INC_STATUS + " INTEGER)";
         db.execSQL(query6);
+
+        //KNOWN DEVICE IPS
+        String query7 = "CREATE TABLE known_ip (id INTEGER PRIMARY KEY AUTOINCREMENT, ip TEXT)";
+        db.execSQL(query7);
     }
 
     //DB METHODS
@@ -393,6 +393,64 @@ public class DBHandler extends SQLiteOpenHelper {
         }
     }
 
+    public Boolean is_knownIP(String path){
+        try {
+            Boolean result = false;
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.rawQuery("SELECT ip FROM known_ip WHERE ip = ?", new String[]{path});
+            if (cursor.moveToFirst()) {
+                do {
+                    result = true;
+                    break;
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+            return result;
+        }
+        catch (Exception e){
+            return false;
+        }
+    }
+
+    public Boolean add_knownIp(String path){
+        try {
+            //DB
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+
+            //Add values
+            values.put("ip", path);
+
+            //Pass
+            if(!is_knownIP(path)) {
+                db.insert("known_ip", null, values);
+                db.close();
+            }
+            return true;
+        }
+        catch (Exception e){
+            return false;
+        }
+    }
+
+    public List<String> get_knownIp(){
+        try {
+            List<String> result = new ArrayList<>();
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor cursor = db.rawQuery("SELECT ip FROM known_ip order by id DESC", null);
+            if (cursor.moveToFirst()) {
+                do {
+                    result.add(cursor.getString(0));
+                } while (cursor.moveToNext());
+            }
+            cursor.close();
+            return result;
+        }
+        catch (Exception e){
+            return null;
+        }
+    }
+
     public Boolean add_setting(String setting_name, String value){
        try {
            //DB
@@ -417,7 +475,7 @@ public class DBHandler extends SQLiteOpenHelper {
        }
     }
 
-    public Boolean add_profile_data(String data_key, String value){
+    public void add_profile_data(String data_key, String value){
         try {
             //DB
             SQLiteDatabase db = this.getWritableDatabase();
@@ -434,14 +492,12 @@ public class DBHandler extends SQLiteOpenHelper {
             }
             else {
                 //Update
-                Cursor cursor = db.rawQuery("UPDATE "+PROFILE_TABLE_NAME+" SET "+PROFILE_DATA_VAL+" = ? WHERE "+PROFILE_DATA_NAME+" = ?", new String[]{value, data_key});
-                cursor.close();
+                db.update(PROFILE_TABLE_NAME, values, PROFILE_DATA_NAME+" = ?", new String[]{data_key});
             }
+
             db.close();
-            return true;
         }
         catch (Exception e){
-            return false;
         }
     }
 
@@ -570,9 +626,15 @@ public class DBHandler extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             do {
                 fileOBJ fileOBJ = new fileOBJ();
-                fileOBJ.setFile(cursor.getString(0));
+                fileOBJ.setId(Integer.parseInt(cursor.getString(0)));
                 fileOBJ.setFile(cursor.getString(1));
-                fileOBJ.setFile(cursor.getString(2));
+                fileOBJ.setLink(cursor.getString(2));
+                fileOBJ.setPass(cursor.getString(3));
+                int received = (null != cursor.getString(4))?Integer.parseInt(cursor.getString(4)):0;
+                if(received == 0){
+                    fileOBJ.setReceived(false);
+                }
+                fileOBJ.setReceived(true);
                 list.add(fileOBJ);
             } while (cursor.moveToNext());
         }
@@ -588,6 +650,7 @@ public class DBHandler extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + FAV_MUSIC_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + MUSIC_TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + INC_NAME);
+        db.execSQL("DROP TABLE IF EXISTS known_ip");
         onCreate(db);
     }
 }

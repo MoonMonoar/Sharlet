@@ -177,6 +177,155 @@
         </RelativeLayout>
 
         <RelativeLayout
+            android:id="@+id/turbo_mode"
+            android:layout_marginBottom="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:padding="15dp"
+            android:background="@drawable/card"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+            <LinearLayout
+                android:id="@+id/l1"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_marginEnd="10dp"
+                    android:scaleY="0.65"
+                    android:scaleX="0.65"
+                    android:src="@drawable/turbo_token"
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent" />
+                <RelativeLayout
+                    android:gravity="center"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+                    <TextView
+                        android:id="@+id/tm_s"
+                        android:textColor="@color/black"
+                        android:textSize="18sp"
+                        android:fontFamily="@font/trebuc"
+                        android:text="@string/turbo_mode_inactive"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/tm_d"
+                        android:layout_below="@id/tm_s"
+                        android:textColor="@color/grey"
+                        android:textSize="15sp"
+                        android:fontFamily="@font/trebuc"
+                        android:text="@string/file_transfer_speed_is_limited"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </RelativeLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/location_needed"
+                android:orientation="vertical"
+                android:layout_below="@id/l1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:textSize="15sp"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/trebuc"
+                    android:text="@string/turn_on_location_permission_to_detect_wifi_hotspot_only"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+                <Button
+                    android:textAllCaps="false"
+                    android:id="@+id/Location_permission"
+                    android:textSize="12sp"
+                    android:backgroundTint="@color/primary"
+                    android:text="@string/grant_permission"
+                    android:layout_marginTop="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/own_hotspot_needed"
+                android:orientation="vertical"
+                android:layout_below="@id/location_needed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"
+                    android:id="@+id/tv_on_h"
+                    android:textSize="15sp"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/trebuc"
+                    android:text="@string/set_up_hotspot_with_5ghz_ap_band_turn_wifi_off_first"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:fontFamily="@font/trebuc"
+                    android:layout_marginTop="5dp"
+                    android:textColor="@color/black"
+                    android:gravity="center"
+                    android:text="@string/step_1_goto_portable_hotspot_settings"
+                    android:textSize="15sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <ImageView
+                    android:layout_marginTop="5dp"
+                    android:src="@drawable/hint5g1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="120dp"/>
+
+                <TextView
+                    android:fontFamily="@font/trebuc"
+                    android:layout_marginTop="5dp"
+                    android:textColor="@color/black"
+                    android:gravity="center"
+                    android:text="@string/step_2_select_5ghz_ap_band"
+                    android:textSize="15sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <ImageView
+                    android:layout_marginTop="10dp"
+                    android:src="@drawable/hint5g2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="170dp"/>
+                <Button
+                    android:layout_gravity="center"
+                    android:textAllCaps="false"
+                    android:id="@+id/Hotspot_open"
+                    android:textSize="12sp"
+                    android:backgroundTint="@color/primary"
+                    android:text="Set up"
+                    android:layout_marginTop="5dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/turbo_active"
+                android:orientation="vertical"
+                android:layout_below="@id/location_needed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/active_text"
+                    android:textAlignment="center"
+                    android:textSize="15sp"
+                    android:textColor="@color/black"
+                    android:fontFamily="@font/trebuc"
+                    android:text="@string/turbo_mode_is_ready_transfer_speeds_are_up_to_32mb_s_now"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
             android:id="@+id/turbo_tokens"
             android:layout_marginBottom="20dp"
             android:layout_marginStart="20dp"
@@ -190,13 +339,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:orientation="horizontal">
-                <com.airbnb.lottie.LottieAnimationView
+                <ImageView
+                    android:layout_marginEnd="10dp"
+                    android:scaleY="0.65"
+                    android:scaleX="0.65"
+                    android:src="@drawable/turbo_token"
                     android:layout_width="60dp"
-                    android:layout_height="match_parent"
-                    app:lottie_autoPlay="true"
-                    app:lottie_fileName="turbo.json"
-                    app:lottie_loop="true"
-                    tools:ignore="MissingConstraints"/>
+                    android:layout_height="match_parent" />
                 <RelativeLayout
                     android:gravity="center"
                     android:layout_width="0dp"
@@ -208,7 +357,7 @@
                         android:id="@+id/token_count"
                         android:textSize="23sp"
                         android:textStyle="bold"
-                        android:textColor="@color/turbo_color"
+                        android:textColor="@color/primary"
                         android:fontFamily="@font/trebuc"
                         android:text="@string/token"
                         android:layout_width="match_parent"
@@ -216,10 +365,7 @@
                         tools:ignore="RtlHardcoded" />
                     <TextView
                         android:id="@+id/turbo_token_info"
-                        android:textColor="@color/turbo_color"
-                        android:foreground="?android:attr/selectableItemBackground"
-                        android:clickable="true"
-                        android:focusable="true"
+                        android:textColor="@color/primary"
                         android:textSize="22sp"
                         android:gravity="center"
                         android:text="@string/fa_info"
@@ -232,7 +378,6 @@
             </LinearLayout>
             <LinearLayout
                 android:id="@+id/l3"
-                android:layout_marginTop="5dp"
                 android:gravity="center"
                 android:layout_below="@id/l2"
                 android:layout_width="match_parent"
@@ -244,7 +389,7 @@
                     android:singleLine="true"
                     android:ellipsize="end"
                     android:layout_marginStart="5dp"
-                    android:textColor="@color/turbo_color"
+                    android:textColor="@color/primary"
                     android:id="@+id/ad_w_hint"
                     android:fontFamily="@font/trebuc"
                     android:text="@string/watch_ad_to_get_more_tokens"
@@ -308,7 +453,7 @@
                     android:singleLine="true"
                     android:ellipsize="end"
                     android:layout_marginStart="5dp"
-                    android:textColor="@color/turbo_color"
+                    android:textColor="@color/primary"
                     android:fontFamily="@font/trebuc"
                     android:text="@string/you_have_1_token_reward"
                     android:layout_width="match_parent"
@@ -353,161 +498,12 @@
                 android:textSize="14sp"
                 android:singleLine="true"
                 android:ellipsize="end"
-                android:textColor="@color/turbo_color"
+                android:textColor="@color/primary"
                 android:id="@+id/timer"
                 android:fontFamily="@font/trebuc"
                 android:text="@string/daily_reward_00_00_00"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/turbo_mode"
-            android:layout_marginBottom="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:padding="15dp"
-            android:background="@drawable/card"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent">
-            <LinearLayout
-                android:id="@+id/l1"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:orientation="horizontal">
-                <com.airbnb.lottie.LottieAnimationView
-                    android:layout_width="60dp"
-                    android:layout_height="match_parent"
-                    app:lottie_autoPlay="true"
-                    app:lottie_fileName="turbo.json"
-                    app:lottie_loop="true"
-                    tools:ignore="MissingConstraints"/>
-                <RelativeLayout
-                    android:gravity="center"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1">
-                    <TextView
-                        android:id="@+id/tm_s"
-                        android:textColor="@color/black"
-                        android:textSize="18sp"
-                        android:fontFamily="@font/trebuc"
-                        android:text="@string/turbo_mode_inactive"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
-                    <TextView
-                        android:id="@+id/tm_d"
-                        android:layout_below="@id/tm_s"
-                        android:textColor="@color/grey"
-                        android:textSize="15sp"
-                        android:fontFamily="@font/trebuc"
-                        android:text="@string/file_transfer_speed_is_limited"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
-                </RelativeLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:id="@+id/location_needed"
-                android:orientation="vertical"
-                android:layout_below="@id/l1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:textSize="15sp"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/trebuc"
-                    android:text="@string/turn_on_location_permission_to_detect_wifi_hotspot_only"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-                <Button
-                    android:textAllCaps="false"
-                    android:id="@+id/Location_permission"
-                    android:textSize="12sp"
-                    android:backgroundTint="@color/turbo_button"
-                    android:text="@string/grant_permission"
-                    android:layout_marginTop="5dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-            <LinearLayout
-                android:visibility="gone"
-                android:id="@+id/own_hotspot_needed"
-                android:orientation="vertical"
-                android:layout_below="@id/location_needed"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:id="@+id/tv_on_h"
-                    android:textSize="15sp"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/trebuc"
-                    android:text="@string/turn_on_your_own_hotspot_set_password_recommended"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-                <Button
-                    android:textAllCaps="false"
-                    android:id="@+id/Hotspot_open"
-                    android:textSize="12sp"
-                    android:backgroundTint="@color/turbo_button"
-                    android:text="@string/turn_on"
-                    android:layout_marginTop="5dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-            <LinearLayout
-                android:visibility="gone"
-                android:id="@+id/band_need"
-                android:orientation="vertical"
-                android:layout_below="@id/location_needed"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:textSize="15sp"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/trebuc"
-                    android:text="@string/set_up_hotspot_with_5ghz_ap_band_turn_wifi_off_first"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                <Button
-                    android:textAllCaps="false"
-                    android:id="@+id/Hotspot_setup"
-                    android:textSize="12sp"
-                    android:backgroundTint="@color/turbo_button"
-                    android:text="@string/set_up"
-                    android:layout_marginTop="5dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-                <Button
-                    android:layout_marginStart="20dp"
-                    android:textAllCaps="false"
-                    android:id="@+id/ghz_done"
-                    android:textSize="12sp"
-                    android:backgroundTint="@color/turbo_button"
-                    android:text="@string/already_done"
-                    android:layout_marginTop="5dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-                </LinearLayout>
-            </LinearLayout>
-            <LinearLayout
-                android:visibility="gone"
-                android:id="@+id/turbo_active"
-                android:orientation="vertical"
-                android:layout_below="@id/location_needed"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                    android:textAlignment="center"
-                    android:textSize="15sp"
-                    android:textColor="@color/black"
-                    android:fontFamily="@font/trebuc"
-                    android:text="@string/turbo_mode_is_ready_transfer_speeds_are_up_to_32mb_s_now"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
         </RelativeLayout>
 
         <RelativeLayout

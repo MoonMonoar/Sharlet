@@ -116,7 +116,7 @@ public class Sender extends Service {
 
     ////NEVER CHANGE THIS !!!!!!!!
     //THIS WILL NEVER BE CHANGED -- EVEN IN THE UPCOMING UPDATES
-    final String PAYLOAD_DECODER_KEY = "uZ3x4OCmn*Xe&l1Ychs$pyrv^5pcoMh3gqUW&JE&lUCKM@3e!d";
+    public static final String PAYLOAD_DECODER_KEY = "uZ3x4OCmn*Xe&l1Ychs$pyrv^5pcoMh3gqUW&JE&lUCKM@3e!d";
     ////NEVER CHANGE THIS !!!!!!!!
 
     ////CHANGEABLE//
@@ -156,6 +156,7 @@ public class Sender extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         dbHandler = new DBHandler(getApplicationContext());
+
         if(running){
             String init_check = dbHandler.get_settings("last_sender_init");
             if(init_check != null && init_check.equals("true")) {
@@ -227,7 +228,7 @@ public class Sender extends Service {
         //USER Photo
         if (user_image.exists()) {
             //Always http
-            user_photo_final = "https://" + server_address + ":"+ main_port +"/"+ dynamic_photo_pin;
+            user_photo_final = server_type + server_address + ":"+ main_port +"/"+ dynamic_photo_pin;
         } else {
             user_photo_final = null;
         }
@@ -366,7 +367,7 @@ public class Sender extends Service {
         server.createContext("/js/jszip.min.js", load_file_path(package_location+"/http/js/jszip.min.js", false, false, null));
         server.createContext("/js/saver.js", load_file_path(package_location+"/http/js/saver.js", false, false, null));
         //HTML
-        server.createContext("/receive", load_file_path(package_location+"/http/receive/index.html", false, false, null));
+        server.createContext("/x-"+main_pin+"/receive", load_file_path(package_location+"/http/receive/index.html", false, false, null));
         server.createContext("/bucket_error.html", load_file_path(package_location+"/http/bucket_error.html", false, false, null));
 
         //PC SERVER COMPONENTS ENDS
@@ -409,10 +410,10 @@ public class Sender extends Service {
                         server.createContext("/"+main_pin+"/"+link_random, load_file_path(home+path, true, false, file_password));
                         String obj;
                         if(flag_run < flag_last) {
-                            obj = "{file: \"" + path + "\", link: \"" + link_random + "\", pass: \"" + file_password + "\"},";
+                            obj = "{\"file\": \"" + path + "\", \"link\": \"" + link_random + "\", \"pass\": \"" + file_password + "\"},";
                         }
                         else {
-                            obj = "{file: \"" + path + "\", link: \"" + link_random + "\", pass: \"" + file_password + "\"}";
+                            obj = "{\"file\": \"" + path + "\", \"link\": \"" + link_random + "\", \"pass\": \"" + file_password + "\"}";
                         }
                         new_bucket.append(obj);
                     }
@@ -508,7 +509,7 @@ public class Sender extends Service {
 
     static class http_info_handler implements HttpHandler {
         public void handle(HttpExchange t) throws IOException {
-            String ajax_data = "{ssid: \""+ssid.replace("\"",  "")+"\",  link_speed: \""+link_speed+"\"}";
+            String ajax_data = "{\"ssid\": \""+ssid.replace("\"",  "")+"\",  \"link_speed\": \""+link_speed+"\"}";
             t.sendResponseHeaders(200, ajax_data.length());
             OutputStream os = t.getResponseBody();
             os.write(ajax_data.getBytes());
@@ -518,7 +519,29 @@ public class Sender extends Service {
 
     static class http_auth_handler implements HttpHandler {
         public void handle(HttpExchange t) throws IOException {
-            String ajax_data = "{\"portal_pass\": true}";
+
+            InputStreamReader isr = new InputStreamReader(t.getRequestBody());
+            BufferedReader br = new BufferedReader(isr);
+            StringBuilder requestBody = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                requestBody.append(line);
+            }
+            br.close();
+            isr.close();
+
+            String pValue = extractParameterValue(requestBody.toString(), "p");
+            if (null == pValue || !pValue.equals(main_pin)) {
+                // Send a response
+                String response = "WRONG-PIN";
+                t.sendResponseHeaders(200, response.getBytes(StandardCharsets.UTF_8).length);
+                OutputStream responseBody = t.getResponseBody();
+                responseBody.write(response.getBytes(StandardCharsets.UTF_8));
+                responseBody.close();
+                return;
+            }
+
+            String ajax_data = "PASS";
             t.sendResponseHeaders(200, ajax_data.length());
             OutputStream os = t.getResponseBody();
             os.write(ajax_data.getBytes());
@@ -564,9 +587,9 @@ public class Sender extends Service {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
             ssid = ssid.replaceAll("\"", "");
-            String ajax_data = "{payload:'" +main_payload+ "', user:'" +user_name+ "', photo: 'null', ssid:'"+ssid+"', link_speed:'"+link_speed+"'}";
+            String ajax_data = "{\"payload\":'" +main_payload+ "', \"user\":'" +user_name+ "', \"photo\": null, \"ssid\":'"+ssid+"', \"link_speed\":'"+link_speed+"'}";
             if(user_photo_final != null) {
-                ajax_data = "{payload:'" +main_payload+ "', user:'" +user_name+ "', photo:'"+user_photo_final+"', ssid:'"+ssid+"', link_speed:'"+link_speed+"'}";
+                ajax_data = "{\"payload\":'" +main_payload+ "', \"user\":'" +user_name+ "', \"photo\": \""+user_photo_final+"\", \"ssid\":'"+ssid+"', \"link_speed\":'"+link_speed+"'}";
             }
             // Send a response
             exchange.sendResponseHeaders(200, ajax_data.getBytes(StandardCharsets.UTF_8).length);
@@ -617,13 +640,20 @@ public class Sender extends Service {
                     OutputStream responseBody = t.getResponseBody();
                     responseBody.write(response.getBytes(StandardCharsets.UTF_8));
                     responseBody.close();
+                    return;
                 }
             }
 
             File file = new File(path);
             String content_type = "text/html; charset=UTF-8";
             if(!file.exists()){
-                file = new File(Home.get_appdata_location_root(getApplicationContext())+"/http/404.html");
+                String response = "COULDN'T SERVE: FILE IS EMPTY OR DELETED";
+                // Send a response
+                t.sendResponseHeaders(200, response.getBytes(StandardCharsets.UTF_8).length);
+                OutputStream responseBody = t.getResponseBody();
+                responseBody.write(response.getBytes(StandardCharsets.UTF_8));
+                responseBody.close();
+                return;
             }
             else {
                 String ct = Files.probeContentType(Paths.get(file.getPath()));
@@ -789,7 +819,7 @@ public class Sender extends Service {
                 return;
             }
             h.add("Cache-Control", "no-cache");
-            h.add("Content-Type", "text/html");
+            h.add("Content-Type", "application/json");
             t.sendResponseHeaders(200, bundle_file.length());
             FileInputStream fis;
             fis = new FileInputStream(bundle_file);
@@ -933,6 +963,7 @@ public class Sender extends Service {
                     String name = file.getName(), path = file.getPath(), main_path = file.getPath();
 
                     String file_type = Home.file_type(file.getName());
+
                     if (file_type.equals("app")) {
                         mainHandler.post(()->file_image.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_android_24)));
                         if(file.getPath().contains("/Sharlet/.Transfer_data")){
@@ -971,6 +1002,7 @@ public class Sender extends Service {
                             mainHandler.post(()->file_image.setImageResource(R.drawable.ic_baseline_audio_file_24));
                         }
                     }
+
                     mainHandler.post(()->file_name.setText(name));
                     String finalPath = path;
                     mainHandler.post(()->file_path.setText(finalPath));

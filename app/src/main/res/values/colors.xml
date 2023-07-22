@@ -30,11 +30,11 @@
     <color name="gradient_1">#ff203f</color>
     <color name="gradient_2">#ffa800</color>
 
-    <color name="slide1">#057C53</color>
     <color name="slide2">#535353</color>
     <color name="slide3">#0E647C</color>
     <color name="slide4">#068A17</color>
     <color name="slide4_button">#075E12</color>
-    <color name="turbo_button">#06BC7E</color>
-    <color name="turbo_color">#0AC083</color>
+
+    <color name="text_color_black">#000000</color>
+    <color name="text_color_white">#FFFFFF</color>
 </resources>

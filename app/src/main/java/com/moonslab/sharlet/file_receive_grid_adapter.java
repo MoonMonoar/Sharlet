@@ -27,6 +27,7 @@ import java.util.List;
 
 public class file_receive_grid_adapter extends BaseAdapter {
     Context context;
+    DBHandler dbHandler;
     List<String> paths;
     LayoutInflater inflater;
     String type;
@@ -71,6 +72,7 @@ public class file_receive_grid_adapter extends BaseAdapter {
     }
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        dbHandler = new DBHandler(context);
         if(inflater == null){
             inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
@@ -145,26 +147,36 @@ public class file_receive_grid_adapter extends BaseAdapter {
             convertView.setOnClickListener(v -> {
                 File save_address1 = new File(finalReceive_path);
                 if(save_address1.isFile()) {
-                    if (type.equals("Photos")) {
-                        Intent intent = new Intent(context, Photo_view.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        //Save the file first
-                        store_as_file("Image_last.txt", finalReceive_path, context);
-                        context.startActivity(intent);
-                    } else if (type.equals("Videos")) {
-                        Intent intent = new Intent(context, Video_player.class);
-                        store_as_file("Video_last.txt", finalReceive_path, context);
-                        context.startActivity(intent);
-                    } else if (type.equals("Audio")) {
-                        Intent intent = new Intent(context, Music_player.class);
-                        //Save the file first
-                        //Unset loop
-                        store_as_file("Audio_loop.txt", "", context);
-                        store_as_file("Audio_last.txt", finalReceive_path, context);
-                        context.startActivity(intent);
-                    } else {
-                        Toast.makeText(context, "Opening...", Toast.LENGTH_SHORT).show();
-                        Home.openFile(context, save_address1);
+                    switch (type) {
+                        case "Photos": {
+                            Intent intent = new Intent(context, Photo_view.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            //Save the file first
+                            store_as_file("Image_last.txt", finalReceive_path, context);
+                            context.startActivity(intent);
+                            break;
+                        }
+                        case "Videos": {
+                            Intent intent = new Intent(context, Video_player.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            store_as_file("Video_last.txt", finalReceive_path, context);
+                            context.startActivity(intent);
+                            break;
+                        }
+                        case "Audio": {
+                            Intent intent = new Intent(context, Music_player.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            //Save the file first
+                            //Unset loop
+                            dbHandler.add_setting("music_loop", "");
+                            dbHandler.add_setting("last_music_path", path);
+                            context.startActivity(intent);
+                            break;
+                        }
+                        default:
+                            Toast.makeText(context, "Opening...", Toast.LENGTH_SHORT).show();
+                            Home.openFile(context, save_address1);
+                            break;
                     }
                 }
                 else {

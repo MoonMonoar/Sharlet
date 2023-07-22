@@ -30,7 +30,7 @@
                 android:fontFamily="@font/trebuc"
                 android:layout_marginEnd="10dp"
                 android:id="@+id/folder_name"
-                android:textColor="@color/black"
+                android:textColor="@color/text_color_black"
                 android:textSize="18sp"
                 android:singleLine="true"
                 android:ellipsize="middle"
@@ -52,13 +52,13 @@
             android:singleLine="true"
             android:ellipsize="middle"
             android:fontFamily="@font/trebuc"
-            android:textColor="@color/black"
+            android:textColor="@color/text_color_black"
             android:layout_marginEnd="10dp"
             android:id="@+id/folder_info"
             android:textSize="13sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No information"/>
+            android:text="@string/no_information"/>
             </LinearLayout>
         </RelativeLayout>
 

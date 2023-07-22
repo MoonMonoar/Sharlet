@@ -9,6 +9,6 @@
         android:top="30dp"
         android:right="30dp"
         android:bottom="30dp" />
-    <solid android:color="@color/slide1"/>
+    <solid android:color="@color/dark_primary"/>
     <corners android:radius="12sp"/>
 </shape>

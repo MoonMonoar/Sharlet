@@ -37,7 +37,6 @@ public class Send extends AppCompatActivity implements ServiceConnection {
     private ImageView qr_image;
     private String qr_link, qr_body;
 
-
     private boolean self_destroy = false;
 
     @Override

@@ -38,9 +38,10 @@
                 android:ellipsize="middle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Unknown user"/>
+                android:text="@string/unknown_user"/>
         </LinearLayout>
         <TextView
+            android:textColor="@color/grey"
             android:paddingBottom="15dp"
             android:singleLine="true"
             android:ellipsize="middle"
@@ -52,6 +53,7 @@
             android:textSize="10sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Unknown network"/>
+            android:text="@string/unknown_network"
+            tools:ignore="SmallSp" />
     </RelativeLayout>
 </LinearLayout>

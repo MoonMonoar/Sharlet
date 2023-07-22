@@ -21,7 +21,7 @@
             android:layout_marginStart="20dp"
             android:fontFamily="@font/font_awesome_regular"
             android:gravity="center"
-            android:text="\uf060"
+            android:text="@string/back_icon"
             android:textColor="@color/white"
             android:background="?android:attr/selectableItemBackgroundBorderless"
             android:textSize="25sp"/>

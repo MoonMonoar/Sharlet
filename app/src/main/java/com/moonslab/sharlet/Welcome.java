@@ -1,5 +1,6 @@
 package com.moonslab.sharlet;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -37,13 +38,15 @@ public class Welcome extends AppCompatActivity {
         setContentView(R.layout.activity_welcome);
         View decor = getWindow().getDecorView();
         decor.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.slide1));
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.dark_primary));
         List<LinearLayout> slides = new ArrayList<>();
         slides.add(findViewById(R.id.slide_one));
         slides.add(findViewById(R.id.slide_two));
         slides.add(findViewById(R.id.slide_three));
         slides.add(findViewById(R.id.slide_four));
         ConstraintLayout main_body = findViewById(R.id.slide_background);
+
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 
         //DATABASE
         dbHandler = new DBHandler(Welcome.this);
@@ -90,8 +93,8 @@ public class Welcome extends AppCompatActivity {
                 perm_check = true;
             }
             else {
-                getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.slide1));
-                main_body.setBackground(ContextCompat.getDrawable(this, R.color.slide1));
+                getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.dark_primary));
+                main_body.setBackground(ContextCompat.getDrawable(this, R.color.dark_primary));
             }
             if(current_slide == 4){
                 findViewById(R.id.slide_next).setVisibility(View.GONE);

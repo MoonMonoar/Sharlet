@@ -2,6 +2,7 @@ package com.moonslab.sharlet;
 
 import static com.moonslab.sharlet.Music_application_class.CHANNEL_DEFAULT;
 import static com.moonslab.sharlet.Music_player_service.folderFromPath;
+import static com.moonslab.sharlet.custom.Sender.PAYLOAD_DECODER_KEY;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -33,6 +34,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.MediaStore;
@@ -62,6 +64,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -88,8 +91,18 @@ import com.google.android.gms.ads.nativead.NativeAdOptions;
 import com.google.android.gms.ads.nativead.NativeAdView;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.appupdate.AppUpdateOptions;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.UpdateAvailability;
+import com.google.gson.Gson;
 import com.moonslab.sharlet.custom.Global;
+import com.moonslab.sharlet.custom.NetUtility;
+import com.moonslab.sharlet.custom.ScannedPeer;
 import com.moonslab.sharlet.custom.Sender;
 import com.moonslab.sharlet.musiclibrary.adapter;
 import com.squareup.picasso.MemoryPolicy;
@@ -130,6 +143,7 @@ import androidmads.library.qrgenearator.QRGContents;
 import androidmads.library.qrgenearator.QRGEncoder;
 
 public class Home extends AppCompatActivity {
+    private NetUtility netUtility;
     private boolean update_daily_token = false;
     private Global global_class;
     public static int clicks = 0;
@@ -158,9 +172,9 @@ public class Home extends AppCompatActivity {
     private TextView reset_l;
     private Dialog token_info;
     //Ads -- native ad
-    private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"; //NATIVE
-    private static final String AD_UNIT_ID2 = "ca-app-pub-3940256099942544/1033173712"; //NATIVE
-    private static final String REWARD_AD_UNIT_TURBO_TOKEN = "ca-app-pub-3940256099942544/5224354917"; //Reward
+    private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-3865008552851810/7331691260"; //NATIVE
+    private static final String AD_UNIT_ID2 = "ca-app-pub-3865008552851810/3056532195"; //Interstitial
+    private static final String REWARD_AD_UNIT_TURBO_TOKEN = "ca-app-pub-3865008552851810/7505620460"; //Reward
     private NativeAd nativeAd;
     private RewardedAd rewardedAd;
     AdRequest adRequest;
@@ -211,8 +225,32 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_home);
+
+        //Check for update
+        AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(context);
+        Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+
+        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
+            if(appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+                appUpdateManager.startUpdateFlowForResult(
+                        appUpdateInfo,
+                        registerForActivityResult(
+                                new ActivityResultContracts.StartIntentSenderForResult(),
+                                result -> {
+                                    if (result.getResultCode() != RESULT_OK) {
+                                        Toast.makeText(getApplicationContext(), "Update failed!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }), AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE)
+                                .setAllowAssetPackDeletion(true)
+                                .build());
+            }
+        });
+
+
         global_class = new Global(this);
         context = this;
+        netUtility = new NetUtility(this);
         inflater = LayoutInflater.from(context);
         super.onCreate(savedInstanceState);
         adRequest = new AdRequest.Builder().build();
@@ -233,8 +271,8 @@ public class Home extends AppCompatActivity {
         String install_timestamp = dbHandler.get_settings("install_timestamp");
         if(null == install_timestamp){
             //New user
-            //GIVE 1 Turbo token for free
-            String turbo_token = global_class.encrypt("1", global_class.getDeviceEncryptionKey());
+            //GIVE 4 Turbo token for free
+            String turbo_token = global_class.encrypt("4", global_class.getDeviceEncryptionKey());
             //Save it
             dbHandler.add_setting("turbo_token", turbo_token);
             //Daily timer
@@ -333,6 +371,7 @@ public class Home extends AppCompatActivity {
         all_permission_once();
         if(receive_prompt){
             scan_network();
+            return;
         }
         if(sender_prompt){
             if(direct_to_sender){
@@ -353,17 +392,6 @@ public class Home extends AppCompatActivity {
             nativeAd.destroy();
         }
         super.onDestroy();
-    }
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //tab reload latest
-        if(null != current_tab && current_tab.equals("music")){
-            music.performClick();
-        }
-        if(null != current_tab && current_tab.equals("home")){
-            home.performClick();
-        }
     }
 
     private void update_user_pic_view() {
@@ -429,7 +457,10 @@ public class Home extends AppCompatActivity {
                 //Check ip
                 showInterstitial(context);
                 direct_to_sender = false;
-                if(global_class.getIpAddress() == null){
+                //If hotspot on, or has 5GHz wifi connected -- or, prompt
+                if((!netUtility.isWiFiConnected() && !netUtility.isHotspotEnabled())
+                        || (netUtility.isWiFiConnected() &&
+                        !netUtility.getWifiFrequency().equals("5"))){
                     //Redirect to sender steps
                     sender_prompt();
                     return;
@@ -437,13 +468,7 @@ public class Home extends AppCompatActivity {
                 sender_prompt = false;
                 //Setup activity -- Should go to select files first
                 //Check if already a portal open
-                String portal_open_already = dbHandler.get_settings("portal_open");
-                if(null != portal_open_already && portal_open_already.equals("true")){
-                    startActivity(new Intent(Home.this, Send.class));
-                }
-                else {
-                    startActivity(new Intent(Home.this, File_selection.class));
-                }
+                goto_sender();
                 break;
             case R.id.scan_button:
                 scan_network();
@@ -467,7 +492,7 @@ public class Home extends AppCompatActivity {
                         net_name = d_window.findViewById(R.id.user_net);
                 ImageView user_image = d_window.findViewById(R.id.user_photo);
                 Button change_image = d_window.findViewById(R.id.change_photo),
-                       change_name = d_window.findViewById(R.id.change_name);
+                        change_name = d_window.findViewById(R.id.change_name);
                 Boolean reset_need = false;
 
                 File photo = new File(user_image_path);
@@ -476,17 +501,6 @@ public class Home extends AppCompatActivity {
                     new Thread(()-> runOnUiThread(()-> Picasso.get().load(photo).memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE).placeholder(R.drawable.ic_baseline_supervised_user_circle_24).resize(250, 250).centerCrop().into(user_image))).start();
                     change_image.setText(R.string.change_photo);
                     reset_need = true;
-                    user_image.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Bundle b = new Bundle();
-                            b.putString("pre_name", "Profile picture");
-                            Intent intent = new Intent(context, Photo_view.class);
-                            intent.putExtras(b);
-                            store_as_file("Image_last.txt", user_image_path, context);
-                            context.startActivity(intent);
-                        }
-                    });
                 }
 
                 String user_name = dbHandler.get_profile_data("user_name");
@@ -514,15 +528,18 @@ public class Home extends AppCompatActivity {
                             String m_Text = input.getText().toString();
                             if(m_Text.isEmpty()){
                                 change_name.performClick();
-                                Toast.makeText(context, "Please enter name!", Toast.LENGTH_SHORT).show();
+                                runOnUiThread(()->Toast.makeText(context, "Please enter name!", Toast.LENGTH_SHORT).show());
                                 return;
                             }
                             if(m_Text.length() > 32) {
                                 m_Text = m_Text.substring(0, 32);
                             }
                             dbHandler.add_profile_data("user_name", m_Text);
-                            user.setText(m_Text);
-                            Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
+                            String finalM_Text = m_Text;
+                            runOnUiThread(()-> {
+                                        user.setText(finalM_Text);
+                                        Toast.makeText(context, "Saved", Toast.LENGTH_SHORT).show();
+                                    });
                             reset_button.setVisibility(View.VISIBLE);
                         });
                         builder.setNegativeButton("Cancel", (dialog1, which) -> dialog1.cancel());
@@ -533,24 +550,28 @@ public class Home extends AppCompatActivity {
                     reset_button.setVisibility(View.VISIBLE);
                 }
 
-                 reset_button.setOnClickListener(new View.OnClickListener() {
-                     @Override
-                     public void onClick(View v) {
-                         dbHandler.delete_profile_data("user_name");
-                         if(photo.exists()){
-                             if(!photo.delete()){
-                                 Toast.makeText(Home.this, "Can't remove old photo!", Toast.LENGTH_SHORT).show();
-                             }
-                             user_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_supervised_user_circle_24));
-                             update_user_pic_view();
-                         }
-                         change_name.setText(R.string.set_name);
-                         change_image.setText(R.string.set_photo);
-                         user.setText(default_username);
-                         Toast.makeText(context, "Profile reset", Toast.LENGTH_SHORT).show();
-                         reset_button.setVisibility(View.GONE);
-                     }
-                 });
+                reset_button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dbHandler.delete_profile_data("user_name");
+                        if(photo.exists()){
+                            runOnUiThread(()-> {
+                                if (!photo.delete()) {
+                                    Toast.makeText(Home.this, "Can't remove old photo!", Toast.LENGTH_SHORT).show();
+                                }
+                                user_image.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_baseline_supervised_user_circle_24));
+                                update_user_pic_view();
+                            });
+                        }
+                        runOnUiThread(()-> {
+                            change_name.setText(R.string.set_name);
+                            change_image.setText(R.string.set_photo);
+                            user.setText(default_username);
+                            Toast.makeText(context, "Profile reset", Toast.LENGTH_SHORT).show();
+                            reset_button.setVisibility(View.GONE);
+                        });
+                    }
+                });
 
                 //Get wifi data
                 if(null != global_class.getIpAddress()){
@@ -602,6 +623,16 @@ public class Home extends AppCompatActivity {
         }
     };
 
+    private void goto_sender() {
+        String portal_open_already = dbHandler.get_settings("portal_open");
+        if(null != portal_open_already && portal_open_already.equals("true")){
+            startActivity(new Intent(Home.this, Send.class));
+        }
+        else {
+            startActivity(new Intent(Home.this, File_selection.class));
+        }
+    }
+
     Boolean sender_prompt = false;
     @SuppressLint({"SetTextI18n", "UseCompatLoadingForDrawables"})
     private void sender_prompt() {
@@ -613,29 +644,53 @@ public class Home extends AppCompatActivity {
         d_window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         Button wifi = d_window.findViewById(R.id.btn_wifi), hotspot = d_window.findViewById(R.id.btn_hotspot);
         TextView dis = d_window.findViewById(R.id.description);
-        dis.setText("Make sure all the receivers are on the same wifi network! (Use your own hotspot for better speed and faster discovery)");
+        Button use_slow = d_window.findViewById(R.id.use_slow);
+
+        use_slow.setOnClickListener(v-> {
+            sender_prompt = false;
+            goto_sender();
+            dialog.dismiss();
+        });
+
+        View.OnClickListener hotspot_go = v -> {
+            {
+                final Intent intent = new Intent(Intent.ACTION_MAIN, null);
+                intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                final ComponentName cn = new ComponentName("com.android.settings", "com.android.settings.TetherSettings");
+                intent.setComponent(cn);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                runOnUiThread(()-> Toast.makeText(context, "Turn on hotspot and ask the receiver to join.", Toast.LENGTH_LONG).show());
+                dialog.dismiss();
+                startActivity(intent);
+            }
+        };
+
+        if(netUtility.isWiFiConnected()) {
+            dis.setText("You are using a slow Wifi ("+netUtility.getCurrentWiFiName()+"). Please connect to a 5GHz Wifi. Or, setup your own Hotspot with 5GHz AP band.");
+            use_slow.setVisibility(View.VISIBLE);
+        }
+        else {
+            dis.setText("For better speed turn on your Hotspot with 5Ghz AP band and connect the receiver.");
+            use_slow.setText("Turn on Hotspot");
+            use_slow.setOnClickListener(hotspot_go);
+        }
+
+        //Buttons
         wifi.setOnClickListener(v -> {
             final Intent intent2 = new Intent(Intent.ACTION_MAIN, null);
             intent2.addCategory(Intent.CATEGORY_LAUNCHER);
             final ComponentName cn2 = new ComponentName("com.android.settings", "com.android.settings.wifi.WifiSettings");
             intent2.setComponent(cn2);
             intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Toast.makeText(context, "Join the wifi network same as the receiver.", Toast.LENGTH_LONG).show();
+            runOnUiThread(()->Toast.makeText(context, "Join the wifi network same as the receiver.", Toast.LENGTH_LONG).show());
             dialog.dismiss();
             startActivity(intent2);
         });
-        hotspot.setOnClickListener(v -> {
-            final Intent intent = new Intent(Intent.ACTION_MAIN, null);
-            intent.addCategory(Intent.CATEGORY_LAUNCHER);
-            final ComponentName cn = new ComponentName("com.android.settings", "com.android.settings.TetherSettings");
-            intent.setComponent(cn);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Toast.makeText(context, "Turn on hotspot and ask the receiver to join.", Toast.LENGTH_LONG).show();
-            dialog.dismiss();
-            startActivity(intent);
-        });
+        hotspot.setOnClickListener(hotspot_go);
+
         sender_prompt = true;
         dialog.show();
+
     }
 
     //Home code of sender
@@ -647,17 +702,24 @@ public class Home extends AppCompatActivity {
         if (null != cache_thread && cache_thread.isAlive()) {
             cache_thread.interrupt();
         }
-        String main_ip = global_class.getIpAddress();
-        if (main_ip == null) {
+        if(!netUtility.isWiFiConnected() && !netUtility.isHotspotEnabled()) {
             Dialog dialog = new Dialog(context);
             dialog.setContentView(R.layout.network_notice);
             dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.confirm_dialog_background));
             dialog.setCanceledOnTouchOutside(false);
             Window d_window = dialog.getWindow();
             d_window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            Button wifi = d_window.findViewById(R.id.btn_wifi), hotspot = d_window.findViewById(R.id.btn_hotspot);
+            Button wifi = d_window.findViewById(R.id.btn_wifi),
+                    join_wifi = d_window.findViewById(R.id.use_slow),
+                    hotspot = d_window.findViewById(R.id.btn_hotspot);
 
-            wifi.setOnClickListener(v -> {
+            TextView title = d_window.findViewById(R.id.title),
+                    des = d_window.findViewById(R.id.description);
+
+            title.setText(R.string.connect_wifi_or_turn_on_hotspot);
+            des.setText(R.string.connect_to_the_senders_wifi_or_turn_on_your_hotspot);
+
+            View.OnClickListener open_wifi = v -> {
                 final Intent intent2 = new Intent(Intent.ACTION_MAIN, null);
                 intent2.addCategory(Intent.CATEGORY_LAUNCHER);
                 final ComponentName cn2 = new ComponentName("com.android.settings", "com.android.settings.wifi.WifiSettings");
@@ -666,7 +728,11 @@ public class Home extends AppCompatActivity {
                 Toast.makeText(context, "Join the wifi network same as the sender.", Toast.LENGTH_LONG).show();
                 dialog.dismiss();
                 startActivity(intent2);
-            });
+            };
+
+            wifi.setOnClickListener(open_wifi);
+            join_wifi.setText(R.string.join_wifi);
+            join_wifi.setOnClickListener(open_wifi);
 
             hotspot.setOnClickListener(v -> {
                 final Intent intent = new Intent(Intent.ACTION_MAIN, null);
@@ -712,10 +778,13 @@ public class Home extends AppCompatActivity {
             }
         }
 
+        String main_ip = global_class.getIpAddress();
+
         //Scan now
         Thread thread = start_scan(main_ip, loading, empty, ssid1, main_table, sub_loader);
         thread.start();
         cache_thread = thread;
+
         empty.setOnClickListener(v -> {
             dialog.dismiss();
             findViewById(R.id.scan_button).performClick();
@@ -731,66 +800,102 @@ public class Home extends AppCompatActivity {
             dialog.dismiss();
         });
         dialog.show();
-        new Thread(()->process_host("192.168.245.84", "Test", main_table, sub_loader)).start();
     }
     private Thread start_scan(String main_ip, LinearLayout loading, LinearLayout empty, String ssid, TableLayout main_table, LinearLayout sub_loader) {
+
+        //IP SET
         String x = main_ip.substring(main_ip.indexOf(".") + 1),
                 y = x.substring(x.indexOf(".")),
                 main_net_2 = main_ip.replace(y, ""),
                 z = main_ip.substring(main_net_2.length()),
                 main_net_1 = main_net_2+z.substring(0, z.lastIndexOf("."));
-        //Separate thread
+
+        //Separate thread -- OF RANDOM SCAN
         return new Thread(() -> {
             //Scan from main_net_1, then main_net_2
-            //1 - from 0 to 225
-            int c = 225;
-            for (int i = 1; i <= 255; i++) {
-                String host = main_net_1 + "." + i;
-                if(!host.equals(main_ip)) {
-                    try {
-                        if (InetAddress.getByName(host).isReachable(20)) {
-                            //Host alive
-                            process_host(host, ssid, main_table, sub_loader);
+            int size_k = 0;
+            //Known ips
+            List<String> knownIps = dbHandler.get_knownIp();
+            if(null != knownIps){
+                for (String ip:knownIps){
+                    if(!ip.equals(main_ip)) {
+                        try {
+
+                            ////FLIPPED TO FALSE FOR TEST PURPOSE !!!!!!!
+                            //Should be if (InetAddress.getByName(ip).isReach
+                            if (!InetAddress.getByName(ip).isReachable(150)) {
+                                //Host alive
+                                process_host(ip, ssid, main_table, sub_loader);
+                            }
+                        } catch (IOException e) {
+                            //Do nothing
                         }
-                    } catch (IOException e) {
-                        //Do nothing
+
+
                     }
                 }
-                if(c > 0) {
-                    String host2 = main_net_1 + "." + c;
+                size_k = knownIps.size();
+            }
+
+            Handler handler = new Handler(Looper.getMainLooper());
+
+            long delay = 150*(long) size_k;
+
+            handler.postDelayed(()-> new Thread(()-> {
+                //1 - from 0 to 225 - Common
+                int c = 225;
+                for (int i = 1; i <= 255; i++) {
+                    String host = main_net_1 + "." + i;
                     if (!host.equals(main_ip)) {
                         try {
-                            if (InetAddress.getByName(host2).isReachable(20)) {
+                            if (InetAddress.getByName(host).isReachable(30)) {
                                 //Host alive
-                                process_host(host2, ssid, main_table, sub_loader);
+                                process_host(host, ssid, main_table, sub_loader);
+                            }
+                        } catch (IOException e) {
+                            //Do nothing
+                        }
+                    }
+                    //Also from backwards
+                    if (c > 0) {
+                        String host2 = main_net_1 + "." + c;
+                        if (!host.equals(main_ip)) {
+                            try {
+                                if (InetAddress.getByName(host2).isReachable(30)) {
+                                    //Host alive
+                                    process_host(host2, ssid, main_table, sub_loader);
+                                }
+                            } catch (IOException e) {
+                                //Do nothing
+                            }
+                        }
+                    }
+                    c--;
+                }
+
+                //2(Deep) - unlikely happens
+                for (int i = 1; i <= 255; i++) {
+                    for (int j = 1; j <= 255; j++) {
+                        String host = main_net_2 + "." + i + "." + j;
+                        if (host.equals(main_ip)) {
+                            continue;
+                        }
+                        try {
+                            if (InetAddress.getByName(host).isReachable(30)) {
+                                //Host alive
+                                process_host(host, ssid, main_table, sub_loader);
                             }
                         } catch (IOException e) {
                             //Do nothing
                         }
                     }
                 }
-                c--;
-            }
-            //2(Deep) - unlikely
-            for (int i = 1; i <= 255; i++) {
-                for (int j = 1; j <= 255; j++) {
-                    String host = main_net_2 + "." + i + "." + j;
-                    if (host.equals(main_ip)) {
-                        continue;
-                    }
-                    try {
-                        if (InetAddress.getByName(host).isReachable(20)) {
-                            //Host alive
-                            process_host(host, ssid, main_table, sub_loader);
-                        }
-                    } catch (IOException e) {
-                        //Do nothing
-                    }
-                }
-            }
-            done_scanning(empty, loading, sub_loader);
+                done_scanning(empty, loading, sub_loader);
+            }).start(), delay);
         });
+
     }
+
     private void done_scanning(LinearLayout empty, LinearLayout loading, LinearLayout sub_loader) {
         if(processed.size() == 0){
             runOnUiThread(()-> {
@@ -804,7 +909,13 @@ public class Home extends AppCompatActivity {
         if(processed.contains(host)){
             return;
         }
-        String a = "http://"+host+":7394"; //Port is set as default
+        String a = "http://"+host+":5693"; //Port is set as default
+        load_host(a, main_table, ssid, sub_loader, host);
+    }
+
+    private void load_host(String a, TableLayout main_table,
+                           String ssid, LinearLayout sub_loader, String host) {
+        HttpsTrustManager.allowAllSSL();
         URL url;
         try {
             url = new URL(a);
@@ -818,22 +929,21 @@ public class Home extends AppCompatActivity {
                     textBuilder.append((char) c);
                 }
             }
-            //Run mapping
-            String p = textBuilder.toString();
-            String user_name, payload_main, image;
-            user_name = p.substring(p.indexOf("user: ")+6, p.indexOf("photo: ")).replace(System.lineSeparator(), "");
-            image = p.substring(p.indexOf("photo: ")+7, p.indexOf("payload: ")).replace(System.lineSeparator(), "");
-            payload_main = p.substring(p.indexOf("payload: ")+9).replace(System.lineSeparator(), "");
 
-            @SuppressLint("InflateParams") View child = inflater.inflate(R.layout.sender_child, null);
+            //Run mapping
+            String data = textBuilder.toString();
+            Gson gson = new Gson();
+            ScannedPeer scannedPeer = gson.fromJson(data, ScannedPeer.class);
+
+            View child = inflater.inflate(R.layout.sender_child, null);
             ImageView imageView = child.findViewById(R.id.user_image);
             TextView user = child.findViewById(R.id.user_name), net_name = child.findViewById(R.id.net_info);
 
             net_name.setText(ssid);
-            user.setText(user_name);
+            user.setText(scannedPeer.getUser());
 
-            if (!image.equals("null")) {
-                URL url2 = new URL(image);
+            if(scannedPeer.getPhoto() != null){
+                URL url2 = new URL(scannedPeer.getPhoto());
                 Bitmap bmp = BitmapFactory.decodeStream(url2.openConnection().getInputStream());
                 imageView.setImageBitmap(bmp);
             }
@@ -844,23 +954,32 @@ public class Home extends AppCompatActivity {
                     sub_loader.setVisibility(View.VISIBLE);
                 });
             }
+
             child.setOnClickListener(v -> {
-                String payload = null;
+                String payload = global_class.decrypt(scannedPeer.getPayload(), PAYLOAD_DECODER_KEY);
                 if(null != payload){
-                    runOnUiThread(()-> {
-                        Intent intent = new Intent(context, Receiver_initiator.class);
-                        intent.putExtra("payload", payload);
-                        context.startActivity(intent);
-                    });
-                }
-                else {
-                    runOnUiThread(()-> Toast.makeText(context, "Tempered connection!", Toast.LENGTH_SHORT).show());
+                    String[] variables = payload.split("-");
+                    String main_server = variables[2]+variables[1]+":"+variables[0];
+                    String main_pin = variables[3];
+                    if(null == main_pin){
+                        Toast.makeText(global_class.getContext(), "Can not connect!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    startActivity(new Intent(Home.this, Receiver_initiator.class)
+                            .putExtra("server", main_server)
+                            .putExtra("pin", variables[3]));
                 }
             });
+
             processed.add(host);
+            dbHandler.add_knownIp(host); // Save as known
             runOnUiThread(() -> main_table.addView(child));
         } catch (IOException e) {
             //Do nothing
+            //Try https
+            if(!a.equals("https://"+host+":5693")) {
+                load_host("https://" + host + ":5693", main_table, ssid, sub_loader, host);
+            }
         }
     }
 
@@ -923,7 +1042,7 @@ public class Home extends AppCompatActivity {
         music_adapter.set_dimen(display_height, display_width);
         tabs_view.setAdapter(music_adapter);
         TextView lib_button = music_view.findViewById(R.id.music_lib),
-                 fav_button = music_view.findViewById(R.id.music_fav);
+                fav_button = music_view.findViewById(R.id.music_fav);
 
         //Search
         ScrollView search_scroll = music_view.findViewById(R.id.search_scroll);
@@ -937,28 +1056,28 @@ public class Home extends AppCompatActivity {
 
         //Search panel
         LinearLayout main_panel = music_view.findViewById(R.id.main_panel),
-                     search_panel = music_view.findViewById(R.id.search_panel);
+                search_panel = music_view.findViewById(R.id.search_panel);
         TextView search_button = music_view.findViewById(R.id.search_open),
-                 search_close = music_view.findViewById(R.id.search_close);
+                search_close = music_view.findViewById(R.id.search_close);
         EditText search_input = music_view.findViewById(R.id.search_input);
 
-            search_button.setOnClickListener(v->{
-                if(null != search_thread && !search_thread.isInterrupted()){
-                    search_thread.interrupt();
-                }
-                main_panel.setVisibility(View.GONE);
-                search_panel.setVisibility(View.VISIBLE);
-                search_input.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(search_input, InputMethodManager.SHOW_IMPLICIT);
-                //Ready the table - hide tab
-                tabs_view.setVisibility(View.GONE);
-                search_scroll.setVisibility(View.VISIBLE);
-                search_table.removeAllViews();
-                search_table.addView(no_result);
-            });
+        search_button.setOnClickListener(v->{
+            if(null != search_thread && !search_thread.isInterrupted()){
+                search_thread.interrupt();
+            }
+            main_panel.setVisibility(View.GONE);
+            search_panel.setVisibility(View.VISIBLE);
+            search_input.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(search_input, InputMethodManager.SHOW_IMPLICIT);
+            //Ready the table - hide tab
+            tabs_view.setVisibility(View.GONE);
+            search_scroll.setVisibility(View.VISIBLE);
+            search_table.removeAllViews();
+            search_table.addView(no_result);
+        });
 
-            final TextWatcher search_watcher = new TextWatcher() {
+        final TextWatcher search_watcher = new TextWatcher() {
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
             @SuppressLint("SetTextI18n")
@@ -1045,28 +1164,28 @@ public class Home extends AppCompatActivity {
             }
             public void afterTextChanged(Editable s) {
             }
-         };
-         search_input.addTextChangedListener(search_watcher);
+        };
+        search_input.addTextChangedListener(search_watcher);
 
-            search_close.setOnClickListener(v->{
-                if(null != search_thread && !search_thread.isInterrupted()){
-                    search_thread.interrupt();
-                }
-                main_panel.setVisibility(View.VISIBLE);
-                search_panel.setVisibility(View.GONE);
-                search_input.setText("");
-                hide_keyboard(search_input, context);
-                //Get old view back, all normal
-                search_scroll.setVisibility(View.GONE);
-                tabs_view.setVisibility(View.VISIBLE);
-                search_table.removeAllViews();
-            });
+        search_close.setOnClickListener(v->{
+            if(null != search_thread && !search_thread.isInterrupted()){
+                search_thread.interrupt();
+            }
+            main_panel.setVisibility(View.VISIBLE);
+            search_panel.setVisibility(View.GONE);
+            search_input.setText("");
+            hide_keyboard(search_input, context);
+            //Get old view back, all normal
+            search_scroll.setVisibility(View.GONE);
+            tabs_view.setVisibility(View.VISIBLE);
+            search_table.removeAllViews();
+        });
 
         //Music card
         LinearLayout music_card = music_view.findViewById(R.id.music_card);
         LinearLayout music_shuffle = music_view.findViewById(R.id.music_shuffle);
         TextView music_name = music_view.findViewById(R.id.track_name),
-                 album_name = music_view.findViewById(R.id.album_name);
+                album_name = music_view.findViewById(R.id.album_name);
         ImageView album_art = music_view.findViewById(R.id.album_art);
 
         String last_played = dbHandler.get_settings("last_music_path");
@@ -1086,7 +1205,7 @@ public class Home extends AppCompatActivity {
                     }
                 }
                 catch (Exception e){
-                       //Do nothing
+                    //Do nothing
                 }
             }
             music_card.setOnClickListener(v-> startActivity(new Intent(this, Music_player.class)));
@@ -1303,7 +1422,7 @@ public class Home extends AppCompatActivity {
                             }
                             history_table.addView(child);
                             loading_state.setProgress(Math.round(p));
-                    });
+                        });
                     }
                     //Multiple file
                     else {
@@ -1767,18 +1886,16 @@ public class Home extends AppCompatActivity {
 
         //CARD 3 - Turbo mode
         TextView main_title = home_view.findViewById(R.id.tm_s),
+                active_text = home_view.findViewById(R.id.active_text),
                 main_dialogue = home_view.findViewById(R.id.tm_d);
 
         //Views
         LinearLayout location_needed = home_view.findViewById(R.id.location_needed),
                 hotspot_needed = home_view.findViewById(R.id.own_hotspot_needed),
-                band_needed = home_view.findViewById(R.id.band_need),
                 turbo_active = home_view.findViewById(R.id.turbo_active);
 
         //Buttons
-        Button gh_done = home_view.findViewById(R.id.ghz_done),
-                gh_open = home_view.findViewById(R.id.Hotspot_setup),
-                hotspot_open = home_view.findViewById(R.id.Hotspot_open),
+        Button hotspot_open = home_view.findViewById(R.id.Hotspot_open),
                 location_perm = home_view.findViewById(R.id.Location_permission);
 
         View.OnClickListener open_hotspot = v -> {
@@ -1803,52 +1920,27 @@ public class Home extends AppCompatActivity {
         if(location_granted()) {
             //GRANTED -- goto step 2
             location_needed.setVisibility(View.GONE);
-            //Check if own hotspot
-            WifiInfo wifi = get_wifi_info(this);
-            if(global_class.getIpAddress() != null && wifi.getBSSID() == null){
-                //Not wifi means hotspot
-                //Check if 5GHz band - Can not check this anymore! - JUST advice it
+            boolean wifi5g = netUtility.isWiFiConnected() && netUtility.getWifiFrequency().equals("5");
+            //Check if own hotspot or, wifi has 5GHz
+            if(netUtility.isHotspotEnabled() || wifi5g){
                 hotspot_needed.setVisibility(View.GONE);
-                String band_check = dbHandler.get_settings("gh_5");
-                if(null == band_check || !band_check.equals("true")){
-                    band_needed.setVisibility(View.VISIBLE);
-                    gh_open.setOnClickListener(open_hotspot);
-                    gh_done.setOnClickListener(v -> {
-                        //Need to show an alert
-                        AlertDialog.Builder alert = new AlertDialog.Builder(context);
-                        alert.setTitle("Save 5GHz band?");
-                        alert.setMessage("Sharlet will remember 5GHz band for your hotspot. If you change it, Turbo mode will show active but will not work.");
-                        alert.setPositiveButton("Save", (dialog, whichButton) -> {
-                            dbHandler.add_setting("gh_5", "true");
-                        });
-                        alert.setNegativeButton(R.string.don_t_save,
-                                (dialog, whichButton) -> {
-                                    //Do nothing
-                                });
-                        alert.show();
-                        band_needed.setVisibility(View.GONE);
-                        turbo_active.setVisibility(View.VISIBLE);
-                        dbHandler.add_setting("turbo_active", "true");
-                    });
+                main_title.setText(R.string.turbo_mode_active);
+                main_dialogue.setText(R.string.speed_boosted_up_to_32mb_s);
+                if(wifi5g){
+                    active_text.setText(R.string.turbo_mode_is_ready);
                 }
-                else {
-                    main_title.setText(R.string.turbo_mode_active);
-                    main_dialogue.setText(R.string.speed_boosted_up_to_32mb_s);
-                    band_needed.setVisibility(View.GONE);
-                    turbo_active.setVisibility(View.VISIBLE);
-                    dbHandler.add_setting("turbo_active", "true");
-                }
+                turbo_active.setVisibility(View.VISIBLE);
+                dbHandler.add_setting("turbo_active", "true");
             }
             else {
-                if(global_class.getIpAddress() != null ){
+                if(!netUtility.isWiFiConnected() && !netUtility.isHotspotEnabled()){
                     TextView tv = home_view.findViewById(R.id.tv_on_h);
-                    tv.setText(String.format("%s%s%s", getString(R.string.hint_tow), System.lineSeparator(), getString(R.string.turn_on_your_own_hotspot_set_password_recommended)));
+                    tv.setText(String.format("%s", getString(R.string.set_up_hotspot_with_5ghz_ap_band_turn_wifi_off_first)));
                 }
                 //Need hotspot
                 hotspot_open.setOnClickListener(open_hotspot);
                 hotspot_needed.setVisibility(View.VISIBLE);
             }
-
         }
         else {
             //SET LOCATION BUTTON
@@ -1888,7 +1980,7 @@ public class Home extends AppCompatActivity {
 
         //CART 4, TURBO COUNT
         TextView turbo_count = home_view.findViewById(R.id.token_count),
-        turbo_info = home_view.findViewById(R.id.turbo_token_info);
+                turbo_info = home_view.findViewById(R.id.turbo_token_info);
         String token = dbHandler.get_settings("turbo_token");
         int count_token = 0;
         if(null != token) {
@@ -1908,7 +2000,7 @@ public class Home extends AppCompatActivity {
         ad_icon = home_view.findViewById(R.id.ad_icon);
         ad_loading = home_view.findViewById(R.id.ad_loading);
         home_view.findViewById(R.id.watch_ad).setOnClickListener(v-> {
-            if(global_class.getIpAddress() == null){
+            if(!netUtility.isInternetConnected()){
                 Toast.makeText(context, "No internet!", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -1919,7 +2011,7 @@ public class Home extends AppCompatActivity {
         TextView timer = home_view.findViewById(R.id.timer);
 
         LinearLayout watch_ad = home_view.findViewById(R.id.l3),
-                    claim_daily = home_view.findViewById(R.id.l4);
+                claim_daily = home_view.findViewById(R.id.l4);
 
         long startTime = System.currentTimeMillis();
         String turbo_last = dbHandler.get_settings("last_turbo_daily");
@@ -2163,16 +2255,16 @@ public class Home extends AppCompatActivity {
         }
         //READ - WRITE PERMISSION
         if(this.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) < 0
-        || this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) < 0
-        || this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) < 0
-        || this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) < 0)
-        ActivityCompat.requestPermissions(this, new String[]{
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-                },
-                0);
+                || this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) < 0
+                || this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) < 0
+                || this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) < 0)
+            ActivityCompat.requestPermissions(this, new String[]{
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            android.Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                    },
+                    0);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if(this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) < 0) {
                 ActivityCompat.requestPermissions(this, new String[]{
@@ -2181,7 +2273,7 @@ public class Home extends AppCompatActivity {
                         1);
             }
         }
-            return true;
+        return true;
     }
 
     public static void copy_file(File src, File dst, Context context) {
@@ -2259,8 +2351,8 @@ public class Home extends AppCompatActivity {
         return context.getFilesDir().getAbsolutePath();
     }
     public static void clean_bundle_and_data(){
-                String dir_1 = ".Transfer_data";
-                dir_clean(dir_1);
+        String dir_1 = ".Transfer_data";
+        dir_clean(dir_1);
     }
 
     public static Integer create_notification(Context context, String title, String body, int id, int priority, Boolean ongoing){
@@ -2293,34 +2385,34 @@ public class Home extends AppCompatActivity {
     public static void setup_http_plugin(Context context){
         String main_path = get_appdata_location_root(context)+"/http";
         File test = new File(main_path);
-        if(test.isDirectory() && test.length() > 0){
-           return;
+        if(false && test.isDirectory() && test.length() > 0){
+            return;
         }
         new Thread(()-> {
-                //DON'T CHANGE THIS PASSWORD
-                String zip_password = "p9gd72bb-c3q73bc7q3b3fg7bfq9nec023@#$%%^&fwp8b";
-                String plugin_temp = get_appdata_location_root(context) + "/http_plugin.zip";
-        try {
-            byte[] buff = new byte[1024];
-            int read;
-            try (InputStream in = context.getResources().openRawResource(R.raw.http_plugin); FileOutputStream out = new FileOutputStream(plugin_temp)) {
-                while ((read = in.read(buff)) > 0) {
-                    out.write(buff, 0, read);
+            //DON'T CHANGE THIS PASSWORD
+            String zip_password = "p9gd72bb-c3q73bc7q3b3fg7bfq9nec023@#$%%^&fwp8b";
+            String plugin_temp = get_appdata_location_root(context) + "/http_plugin.zip";
+            try {
+                byte[] buff = new byte[1024];
+                int read;
+                try (InputStream in = context.getResources().openRawResource(R.raw.http_plugin); FileOutputStream out = new FileOutputStream(plugin_temp)) {
+                    while ((read = in.read(buff)) > 0) {
+                        out.write(buff, 0, read);
+                    }
+                }
+                new ZipFile(plugin_temp, zip_password.toCharArray()).extractAll(main_path);
+                store_as_file("http_plugin.txt", "available", context);
+                File temp = new File(plugin_temp);
+                if(temp.exists()){
+                    temp.delete();
+                }
+            } catch (Exception e) {
+                store_as_file("http_plugin.txt", "unavailable", context);
+                File temp = new File(plugin_temp);
+                if(temp.exists()){
+                    temp.delete();
                 }
             }
-            new ZipFile(plugin_temp, zip_password.toCharArray()).extractAll(main_path);
-            store_as_file("http_plugin.txt", "available", context);
-            File temp = new File(plugin_temp);
-            if(temp.exists()){
-                temp.delete();
-            }
-        } catch (Exception e) {
-            store_as_file("http_plugin.txt", "unavailable", context);
-            File temp = new File(plugin_temp);
-            if(temp.exists()){
-                temp.delete();
-            }
-        }
         }).start();
     }
     public static Boolean is_http_ready(Context context){
@@ -2427,8 +2519,8 @@ public class Home extends AppCompatActivity {
         return output;
     }
     public static String file_type(String file_name){
-            String type = "file";
-            String File_extension = FilenameUtils.getExtension(file_name).toLowerCase(Locale.ROOT);
+        String type = "file";
+        String File_extension = FilenameUtils.getExtension(file_name).toLowerCase(Locale.ROOT);
         switch (File_extension) {
             case "png":
             case "jpg":
@@ -2508,7 +2600,7 @@ public class Home extends AppCompatActivity {
                             }
                         });
                     }
-        });
+                });
     }
     public static void showInterstitial(Context context) {
         //show ad per 10 clicks
@@ -2547,6 +2639,9 @@ public class Home extends AppCompatActivity {
     }
 
     public static boolean done_selection(Context context, Boolean from_home){
+        //Turbo check
+        Global global = new Global(context);
+        global.isTurboReady();
         //Get bucket count
         //Read the bucket
         String location = Home.get_app_home_bundle_data_store()+"/Selection_bucket.txt";
@@ -2821,7 +2916,7 @@ public class Home extends AppCompatActivity {
         }
         String turbo_token = global_class.encrypt(String.valueOf(count_token), global_class.getDeviceEncryptionKey());
         dbHandler.add_setting("turbo_token", turbo_token);
-        Toast.makeText(Home.this, d, Toast.LENGTH_SHORT).show();
+        runOnUiThread(()-> Toast.makeText(Home.this, d, Toast.LENGTH_SHORT).show());
         load_home();
     }
 }

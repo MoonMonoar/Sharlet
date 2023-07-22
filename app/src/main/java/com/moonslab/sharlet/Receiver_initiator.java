@@ -19,6 +19,8 @@ import androidx.core.content.ContextCompat;
 
 import com.google.gson.Gson;
 import com.moonslab.sharlet.custom.Net;
+import com.moonslab.sharlet.custom.Receiver;
+import com.moonslab.sharlet.objects.deviceConnection;
 import com.moonslab.sharlet.objects.fileOBJ;
 import com.squareup.picasso.Picasso;
 
@@ -55,7 +57,7 @@ public class Receiver_initiator extends AppCompatActivity {
         String server = extras.getString("server");
         String pin = extras.getString("pin");
         if(null == server || null == pin){
-            Toast.makeText(this, "Invalid QR", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid Connection", Toast.LENGTH_SHORT).show();
             this.finish();
             return;
         }
@@ -66,30 +68,30 @@ public class Receiver_initiator extends AppCompatActivity {
                 log.setText(R.string.connected);
                 String data = msg.obj.toString();
                 //data is a json object
-                Pattern pattern = Pattern.compile("payload:'(.*?)',\\s*user:'(.*?)',\\s*photo:'(.*?)',\\s*ssid:'(.*?)',\\s*link_speed:'(.*?)'");
-                Matcher matcher = pattern.matcher(data);
-                if (matcher.find()) {
+                try {
+                    Gson gson = new Gson();
+                    deviceConnection deviceConnection = gson.fromJson(data, com.moonslab.sharlet.objects.deviceConnection.class);
+                    String user = deviceConnection.getUser(),
+                            photo = deviceConnection.getPhoto(),
+                            ssid = deviceConnection.getSsid(),
+                            link_speed = deviceConnection.getLink_speed();
                     TextView name = findViewById(R.id.user_name),
-                             net_info = findViewById(R.id.net_info);
+                            net_info = findViewById(R.id.net_info);
                     ImageView image = findViewById(R.id.user_image),
                             ph = findViewById(R.id.user_image_ph);
-                    String user = matcher.group(2),
-                            photo = matcher.group(3),
-                            ssid = matcher.group(4),
-                            link_speed = matcher.group(5);
                     name.setText(user);
                     if (null != photo && !photo.equals("null")) {
-                        new Thread(()-> {
+                        new Thread(() -> {
                             try {
                                 URL url = new URL(photo);
                                 Bitmap bm = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                                runOnUiThread(()-> {
+                                runOnUiThread(() -> {
                                     image.setImageBitmap(bm);
                                     ph.setVisibility(View.GONE);
                                     image.setVisibility(View.VISIBLE);
-                                    if(null != ssid && null != link_speed) {
+                                    if (null != ssid && null != link_speed) {
                                         String net_info_text = ssid;
-                                        net_info_text = link_speed+" - "+net_info_text;
+                                        net_info_text = link_speed + " - " + net_info_text;
                                         net_info.setText(net_info_text);
                                     }
                                 });
@@ -102,7 +104,7 @@ public class Receiver_initiator extends AppCompatActivity {
                     //Finally read the bucket now
                     load_selection(server, pin);
                 }
-                else {
+                catch (Exception e){
                     Toast.makeText(Receiver_initiator.this, "Device not found!", Toast.LENGTH_SHORT).show();
                     finish();
                 }
@@ -125,16 +127,22 @@ public class Receiver_initiator extends AppCompatActivity {
                 }
                 log.setText(R.string.starting);
                 //The bucket -- save it into the database
-                try{
+                try {
                     Gson gson = new Gson();
                     fileOBJ[] fileOBJS = gson.fromJson(data, fileOBJ[].class);
                     dbHandler.incomingPut(fileOBJS);
-                    Toast.makeText(Receiver_initiator.this, "Done", Toast.LENGTH_SHORT).show();
+                    runOnUiThread(()->{
+                        Intent intent = new Intent(getApplicationContext(), Receive.class);
+                        dbHandler.add_setting("sender_server_last", server);
+                        dbHandler.add_setting("sender_pin_last", pin);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    });
                 }
                 catch (Exception e){
-                    Log.d("MOON-ERR", e.toString());
                     finish();
-                    Toast.makeText(Receiver_initiator.this, "Invalid information!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Receiver_initiator.this, "Portal expired!", Toast.LENGTH_SHORT).show();
                 }
             }
         };

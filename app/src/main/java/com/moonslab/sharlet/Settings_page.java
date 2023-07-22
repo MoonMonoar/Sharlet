@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -19,6 +18,8 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.moonslab.sharlet.custom.Global;
 
 import java.io.File;
 
@@ -34,7 +35,30 @@ public class Settings_page extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         context = this;
         dbHandler = new DBHandler(this);
+        Global global = new Global(this);
         setContentView(R.layout.activity_settings_page);
+
+
+        //Dark mode
+        TextView dark_text = findViewById(R.id.dark_mode_text);
+        Switch dark_switch = findViewById(R.id.dark_switch);
+        dark_text.setOnClickListener(v-> dark_switch.toggle());
+
+        if(false && global.wasDarkModeOn()){
+            dark_switch.setChecked(true);
+        }
+
+        dark_switch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Toast.makeText(context, "Upcoming feature!", Toast.LENGTH_SHORT).show();
+            dark_switch.setChecked(false);
+            if(false) {
+                if (isChecked) {
+                    global.enableDarkMode();
+                } else {
+                    global.disableDarkMode();
+                }
+            }
+        });
 
         //Back
         TextView back = findViewById(R.id.back_button);
@@ -49,7 +73,7 @@ public class Settings_page extends AppCompatActivity {
         //Bottom links
         TextView link_privacy = findViewById(R.id.link_privacy);
         link_privacy.setOnClickListener(v -> {
-            Intent intent = new Intent(context, notice_viewer.class);
+            Intent intent = new Intent(context, Notice_viewer.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Bundle b = new Bundle();
             b.putString("notice_code", "privacy_v1");
@@ -59,7 +83,7 @@ public class Settings_page extends AppCompatActivity {
 
         TextView link_legal = findViewById(R.id.link_legal);
         link_legal.setOnClickListener(v -> {
-            Intent intent = new Intent(context, notice_viewer.class);
+            Intent intent = new Intent(context, Notice_viewer.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Bundle b = new Bundle();
             b.putString("notice_code", "legal_v1");
@@ -78,7 +102,7 @@ public class Settings_page extends AppCompatActivity {
 
         TextView link_disclaimer = findViewById(R.id.link_disclaimer);
         link_disclaimer.setOnClickListener(v -> {
-            Intent intent = new Intent(context, notice_viewer.class);
+            Intent intent = new Intent(context, Notice_viewer.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             Bundle b = new Bundle();
             b.putString("notice_code", "disclaimer_v1");
@@ -226,10 +250,8 @@ public class Settings_page extends AppCompatActivity {
         //Intro page
         findViewById(R.id.intro).setOnClickListener(v-> {
             Intent intent = new Intent(getApplicationContext(), Welcome.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             this.finish();
         });
-
     }
 }

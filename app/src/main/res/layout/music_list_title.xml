@@ -1,4 +1,4 @@
-<LinearLayout
+<LinearLayout xmlns:tools="http://schemas.android.com/tools"
     android:padding="10dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -25,7 +25,8 @@
         android:padding="10dp"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:text="Unknown album"/>
+        android:text="Unknown album"
+        tools:ignore="RtlHardcoded" />
 
     <TextView
         android:fontFamily="@font/trebuc"
