@@ -43,6 +43,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -226,26 +227,29 @@ public class Home extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_home);
 
-        //Check for update
-        AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(context);
-        Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
 
-        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
-            if(appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-                appUpdateManager.startUpdateFlowForResult(
-                        appUpdateInfo,
-                        registerForActivityResult(
-                                new ActivityResultContracts.StartIntentSenderForResult(),
-                                result -> {
-                                    if (result.getResultCode() != RESULT_OK) {
-                                        Toast.makeText(getApplicationContext(), "Update failed!", Toast.LENGTH_SHORT).show();
-                                    }
-                                }), AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE)
-                                .setAllowAssetPackDeletion(true)
-                                .build());
-            }
-        });
+        if(false) {
+            //Check for update
+            AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(context);
+            Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+
+            appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
+                if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                        && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+                    appUpdateManager.startUpdateFlowForResult(
+                            appUpdateInfo,
+                            registerForActivityResult(
+                                    new ActivityResultContracts.StartIntentSenderForResult(),
+                                    result -> {
+                                        if (result.getResultCode() != RESULT_OK) {
+                                            Toast.makeText(getApplicationContext(), "Update failed!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }), AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE)
+                                    .setAllowAssetPackDeletion(true)
+                                    .build());
+                }
+            });
+        }
 
 
         global_class = new Global(this);
@@ -820,18 +824,13 @@ public class Home extends AppCompatActivity {
                 for (String ip:knownIps){
                     if(!ip.equals(main_ip)) {
                         try {
-
-                            ////FLIPPED TO FALSE FOR TEST PURPOSE !!!!!!!
-                            //Should be if (InetAddress.getByName(ip).isReach
-                            if (!InetAddress.getByName(ip).isReachable(150)) {
+                            if(InetAddress.getByName(ip).isReachable(150)) {
                                 //Host alive
                                 process_host(ip, ssid, main_table, sub_loader);
                             }
                         } catch (IOException e) {
                             //Do nothing
                         }
-
-
                     }
                 }
                 size_k = knownIps.size();

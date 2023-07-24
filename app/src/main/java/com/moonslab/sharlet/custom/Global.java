@@ -22,6 +22,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -69,6 +71,17 @@ public class Global {
             return null;
         }
         return ip;
+    }
+
+    public String extractIPAddress(String server) {
+        // Regular expression to match the IP address part in the string
+        String regex = "(http|https)://([0-9\\.]+):\\d+";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(server);
+        if (matcher.find()) {
+            return matcher.group(2);
+        }
+        return server;
     }
 
     public String getENCRYPTION_KEY() {

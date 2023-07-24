@@ -74,6 +74,8 @@ public class Receive extends AppCompatActivity {
         // Acquire wake lock
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Sharlet:Receiver");
         wakeLock.acquire(20*60*1000L /*20 minutes*/);
+        Intent intent = new Intent(this, Receiver.class);
+        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
     }
 
     @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
@@ -172,7 +174,6 @@ public class Receive extends AppCompatActivity {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 Receiver.LocalBinder binder = (Receiver.LocalBinder) service;
-                Log.d("MOON-SER", "SERVICE CONNECTED");
                 //Full access to the service methods now
                 binder.setComponents(server, pin, fileOBJS, main_table,
                         current_file, total_progress, progress,
@@ -184,19 +185,6 @@ public class Receive extends AppCompatActivity {
                 finish();
             }
         };
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Intent intent = new Intent(this, Receiver.class);
-        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unbindService(serviceConnection);
     }
 
     //Events

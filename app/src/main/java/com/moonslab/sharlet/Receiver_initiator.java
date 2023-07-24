@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.google.gson.Gson;
+import com.moonslab.sharlet.custom.Global;
 import com.moonslab.sharlet.custom.Net;
 import com.moonslab.sharlet.custom.Receiver;
 import com.moonslab.sharlet.objects.deviceConnection;
@@ -44,10 +45,12 @@ import java.util.regex.Pattern;
 public class Receiver_initiator extends AppCompatActivity {
     private TextView log;
     private DBHandler dbHandler;
+    private Global global;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dbHandler = new DBHandler(this);
+        global = new Global(this);
         setContentView(R.layout.activity_receiver_initiator);
         log = findViewById(R.id.log);
         //Database
@@ -131,6 +134,7 @@ public class Receiver_initiator extends AppCompatActivity {
                     Gson gson = new Gson();
                     fileOBJ[] fileOBJS = gson.fromJson(data, fileOBJ[].class);
                     dbHandler.incomingPut(fileOBJS);
+                    dbHandler.add_knownIp(global.extractIPAddress(server));
                     runOnUiThread(()->{
                         Intent intent = new Intent(getApplicationContext(), Receive.class);
                         dbHandler.add_setting("sender_server_last", server);

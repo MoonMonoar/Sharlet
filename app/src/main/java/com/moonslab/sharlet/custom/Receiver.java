@@ -16,7 +16,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -40,8 +39,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import okhttp3.OkHttpClient;
@@ -53,9 +50,9 @@ public class Receiver extends Service {
     private boolean skip_binder = false, running = false, done = false;
     private static final List<Integer> notification_list = new ArrayList<>();
     Receive.Navigate navigate = new Receive.Navigate();
-    private static long total_bytes_received;
-    private static long total_carry;
-    private static long http_timestamp = 0, http_time_took = 0;
+    private long total_bytes_received;
+    private long total_carry;
+    private long http_timestamp = 0, http_time_took = 0;
     private TextView main_title, summery, current_file, pack_got, total_received;
     private ProgressBar total_progress, current_progress;
     private int run_download = 0;
@@ -95,6 +92,9 @@ public class Receiver extends Service {
                 .build();
 
         startForeground(2020, notification);
+
+        Toast.makeText(getApplicationContext(), "Started receiving", Toast.LENGTH_SHORT).show();
+
         running = true;
         return START_STICKY;
     }
@@ -343,7 +343,7 @@ public class Receiver extends Service {
                 success_list.add(fileOBJ);
                 //Notification update
                 notification_list.add(Home.create_notification(getApplicationContext(), "Incoming file",
-                        "✅ Last: Done - "+file.getName(), 2010, NotificationCompat.PRIORITY_DEFAULT, true));
+                        "✅ Last: Done - "+file.getName(), 2010, NotificationCompat.PRIORITY_DEFAULT, false));
                 //Next
                 run_download++;
                 if(run_download < fileOBJS.size() && null != fileOBJS.get(run_download)){
@@ -365,7 +365,7 @@ public class Receiver extends Service {
                 fail_list.add(fileOBJ);
                 //Notification update
                 notification_list.add(Home.create_notification(getApplicationContext(), "Incoming file",
-                        "❌ Last: Failed - "+file.getName(), 2010, NotificationCompat.PRIORITY_DEFAULT, true));
+                        "❌ Last: Failed - "+file.getName(), 2010, NotificationCompat.PRIORITY_DEFAULT, false));
                 //Next
                 run_download++;
                 if(run_download < fileOBJS.size() && null != fileOBJS.get(run_download)){
@@ -470,9 +470,10 @@ public class Receiver extends Service {
         mainHandler.post(()->summery.setText(s));
     }
     private void pack_size_update(){
+        String size2 = Receive.format_size(total_bytes_received+total_carry);
         mainHandler.post(()-> {
             pack_got.setText((run_download <= 1)?"Received: "+run_download+" file":"Received: "+run_download+" files");
-            total_received.setText(MessageFormat.format("Total: {0}", Receive.format_size(total_bytes_received+total_carry)));
+            total_received.setText(MessageFormat.format("Total: {0}", size2));
             if(done) {
                 current_file.setText(R.string.done);
                 main_title.setText(R.string.received);
