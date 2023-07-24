@@ -87,7 +87,7 @@ public class See_all_files extends AppCompatActivity {
                             || File_extension.equals("tiff")
                             || File_extension.equals("raw")) {
                         TextView info = view.findViewById(R.id.file_info);
-                        info.setText("🖼️ Image file");
+                        info.setText(String.format("%s - \uD83D\uDDBC️ Image file", Receive.format_size((long) target_file.length())));
                         if (!no_selection) {
                             view.setOnLongClickListener(v -> {
                                 Intent intent = new Intent(getApplicationContext(), Photo_view.class);
@@ -119,7 +119,7 @@ public class See_all_files extends AppCompatActivity {
                             || File_extension.equals("alac")
                             || File_extension.equals("aiff")) {
                         TextView info = view.findViewById(R.id.file_info);
-                        info.setText("🎵 Audio file");
+                        info.setText(String.format("%s -\uD83C\uDFB5 Audio file", Receive.format_size((long) target_file.length())));
                         if (!no_selection) {
                             view.setOnLongClickListener(v -> {
                                 Intent intent = new Intent(getApplicationContext(), Music_player.class);
@@ -147,7 +147,7 @@ public class See_all_files extends AppCompatActivity {
                             || File_extension.equals("mov")) {
 
                         TextView info = view.findViewById(R.id.file_info);
-                        info.setText("📽️ Video file");
+                        info.setText(String.format("%s - \uD83D\uDCFD️ Video file", Receive.format_size((long) target_file.length())));
                         if (!no_selection) {
                             view.setOnLongClickListener(v -> {
                                 Intent intent = new Intent(getApplicationContext(), Video_player.class);
@@ -177,7 +177,7 @@ public class See_all_files extends AppCompatActivity {
                         View view2 = inflater.inflate(R.layout.all_files_child_unknown, null);
 
                         TextView info = view.findViewById(R.id.file_info);
-                        info.setText("❔ " + File_extension.toUpperCase(Locale.ROOT) + " file");
+                        info.setText(String.format("%s -❔ %s file", Receive.format_size((long) target_file.length()), File_extension.toUpperCase(Locale.ROOT)));
 
                         TextView ext_holder = (TextView) view2.findViewById(R.id.unknown_file_text);
                         if (File_extension.length() > 3) {

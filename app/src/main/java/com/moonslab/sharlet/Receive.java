@@ -44,7 +44,6 @@ public class Receive extends AppCompatActivity {
     private ProgressBar progress, total_progress;
     //Page components
     private Dialog dialog;
-    private final String server_address = null;
     private List<fileOBJ> fileOBJS;
     private TextView current_file, total_received, pack_got, portal_summary, main_title;
     private TableLayout main_table;
@@ -74,8 +73,14 @@ public class Receive extends AppCompatActivity {
         // Acquire wake lock
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Sharlet:Receiver");
         wakeLock.acquire(20*60*1000L /*20 minutes*/);
+
+        //Bind service
+        Intent bindIntent = new Intent(this, Receiver.class);
+        bindService(bindIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+
+        //Start service
         Intent intent = new Intent(this, Receiver.class);
-        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+        startService(intent);
     }
 
     @SuppressLint({"UseCompatLoadingForDrawables", "SetTextI18n"})
@@ -87,7 +92,6 @@ public class Receive extends AppCompatActivity {
         powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
 
         setContentView(R.layout.activity_receive);
-
 
         if(!Home.create_app_folders()){
             Toast.makeText(this, "Storage unavailable, please reinstall Sharlet!", Toast.LENGTH_LONG).show();
@@ -132,7 +136,6 @@ public class Receive extends AppCompatActivity {
         main_title = findViewById(R.id.total_progress_title);
 
         TextView back_button = findViewById(R.id.back_button);
-        TextView portal_info = findViewById(R.id.portal_info);
 
         //Critical
         //Sharlet can allow all ssl
@@ -185,6 +188,7 @@ public class Receive extends AppCompatActivity {
                 finish();
             }
         };
+        dbHandler.add_setting("receiver_opened", "true");
     }
 
     //Events
@@ -223,6 +227,7 @@ public class Receive extends AppCompatActivity {
         public void playVideo(String path){
             Intent intent = new Intent(context, Video_player.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("FROM_RECEIVER", "1");
             store_as_file("Video_last.txt", path, context);
             context.startActivity(intent);
         }

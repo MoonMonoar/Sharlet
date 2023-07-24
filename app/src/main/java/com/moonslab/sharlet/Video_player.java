@@ -1,5 +1,7 @@
 package com.moonslab.sharlet;
 
+import static com.moonslab.sharlet.Home.store_as_file;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -28,11 +30,18 @@ import java.nio.charset.StandardCharsets;
 
 public class Video_player extends AppCompatActivity {
     RelativeLayout body, top;
+    boolean from_receiver = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_player);
-        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.black));
+
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("FROM_RECEIVER")) {
+            from_receiver = true;
+        }
+
+    getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.black));
         TextView back = findViewById(R.id.back_button);
         VideoView video = findViewById(R.id.main_video);
         TextView name = findViewById(R.id.video_name);
@@ -56,7 +65,9 @@ public class Video_player extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "No file to show!", Toast.LENGTH_SHORT).show();
             this.finish();
         }
-        back.setOnClickListener(v -> finish());
+        back.setOnClickListener(v -> {
+            go_back();
+        });
 
         int orientation = getApplicationContext().getResources().getConfiguration().orientation;
         if(orientation == Configuration.ORIENTATION_LANDSCAPE){
@@ -64,6 +75,17 @@ public class Video_player extends AppCompatActivity {
         }
         else {
             rotate_check(false);
+        }
+    }
+
+    private void go_back() {
+        if(!from_receiver) {
+            finish();
+        }
+        else {
+            Intent intent2 = new Intent(this, Receive.class);
+            intent2.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent2);
         }
     }
 
@@ -102,5 +124,11 @@ public class Video_player extends AppCompatActivity {
             p.setMargins(0, Home.convertDpToPixels(55, getApplicationContext()), 0, 0);
             this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        go_back();
     }
 }

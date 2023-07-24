@@ -112,6 +112,7 @@
                     android:layout_width="30dp"
                     android:layout_height="30dp"/>
                 <TextView
+                    android:textColor="@color/grey"
                     android:singleLine="true"
                     android:ellipsize="middle"
                     android:maxWidth="200dp"

@@ -172,10 +172,21 @@ public class Home extends AppCompatActivity {
     private String user_image_path;
     private TextView reset_l;
     private Dialog token_info;
-    //Ads -- native ad
+
+
+    /*Production ads
     private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-3865008552851810/7331691260"; //NATIVE
     private static final String AD_UNIT_ID2 = "ca-app-pub-3865008552851810/3056532195"; //Interstitial
     private static final String REWARD_AD_UNIT_TURBO_TOKEN = "ca-app-pub-3865008552851810/7505620460"; //Reward
+     */
+
+    /*Test ads*/
+    private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"; //NATIVE
+    private static final String AD_UNIT_ID2 = "ca-app-pub-3940256099942544/1033173712"; //Interstitial
+    private static final String REWARD_AD_UNIT_TURBO_TOKEN = "ca-app-pub-3940256099942544/5224354917"; //Reward
+
+
+
     private NativeAd nativeAd;
     private RewardedAd rewardedAd;
     AdRequest adRequest;
@@ -814,6 +825,12 @@ public class Home extends AppCompatActivity {
                 z = main_ip.substring(main_net_2.length()),
                 main_net_1 = main_net_2+z.substring(0, z.lastIndexOf("."));
 
+
+        //DEBUG ONLY CODE
+        new Thread(()->process_host("192.168.0.196", ssid, main_table, sub_loader)).start();
+
+
+
         //Separate thread -- OF RANDOM SCAN
         return new Thread(() -> {
             //Scan from main_net_1, then main_net_2
@@ -955,7 +972,15 @@ public class Home extends AppCompatActivity {
             }
 
             child.setOnClickListener(v -> {
-                String payload = global_class.decrypt(scannedPeer.getPayload(), PAYLOAD_DECODER_KEY);
+
+                //DEBUG ONLY CODE
+
+                //ORIGINAL
+                //String payload = global_class.decrypt(scannedPeer.getPayload(), PAYLOAD_DECODER_KEY);
+
+                //Test
+                String payload = scannedPeer.getPayload();
+
                 if(null != payload){
                     String[] variables = payload.split("-");
                     String main_server = variables[2]+variables[1]+":"+variables[0];
@@ -967,6 +992,9 @@ public class Home extends AppCompatActivity {
                     startActivity(new Intent(Home.this, Receiver_initiator.class)
                             .putExtra("server", main_server)
                             .putExtra("pin", variables[3]));
+                }
+                else {
+                    Toast.makeText(global_class.getContext(), "Tempered sender!", Toast.LENGTH_SHORT).show();
                 }
             });
 

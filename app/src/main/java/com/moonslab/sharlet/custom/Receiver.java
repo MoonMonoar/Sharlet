@@ -16,6 +16,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -27,6 +28,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.moonslab.sharlet.DBHandler;
 import com.moonslab.sharlet.Home;
 import com.moonslab.sharlet.R;
 import com.moonslab.sharlet.Receive;
@@ -44,21 +46,49 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import okhttp3.OkHttpClient;
 
 public class Receiver extends Service {
-    private static final HashMap<Integer, Boolean> done_list = new HashMap<>();
-    private static final List<fileOBJ> success_list = new ArrayList<>();
-    private static final List<fileOBJ> fail_list = new ArrayList<>();
+    private static HashMap<Integer, Boolean> done_list = new HashMap<>();
+    private static List<fileOBJ> success_list = new ArrayList<>();
+    private static List<fileOBJ> fail_list = new ArrayList<>();
     private boolean skip_binder = false, running = false, done = false;
-    private static final List<Integer> notification_list = new ArrayList<>();
+    private static List<Integer> notification_list = new ArrayList<>();
     Receive.Navigate navigate = new Receive.Navigate();
-    private long total_bytes_received;
-    private long total_carry;
-    private long http_timestamp = 0, http_time_took = 0;
+
+    //Static counters and cores
+    private static long total_bytes_received = 0;
+    private static long total_carry = 0;
+    private static long http_timestamp = 0, http_time_took = 0;
+    private static List<fileOBJ> fileOBJS;
+    private DBHandler dbHandler;
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //Service destroyed
+        for(Integer id : notification_list){
+            cancel_notification(id, getApplicationContext());
+        }
+        //ALSO THE MAIN NOTIFICATIONS
+        cancel_notification(2020, getApplicationContext());
+        client.dispatcher().cancelAll();
+        client.connectionPool().evictAll();
+        //RESET static vars
+        fileOBJS = new ArrayList<>();
+        done_list = new HashMap<>();
+        success_list = new ArrayList<>();
+        fail_list = new ArrayList<>();
+        notification_list = new ArrayList<>();
+        total_carry = 0;
+        total_bytes_received = 0;
+        http_timestamp = 0;
+        http_time_took = 0;
+        dbHandler.add_setting("receiver_opened", "false");
+    }
+
     private TextView main_title, summery, current_file, pack_got, total_received;
     private ProgressBar total_progress, current_progress;
     private int run_download = 0;
     private static String server, pin;
     private TableLayout files_table;
-    private static List<fileOBJ> fileOBJS;
     private static final ReceiveCore receiveCore = new ReceiveCore();
     OkHttpClient client = receiveCore.getClient();
     private static HashMap<Integer, View> fileViews = new HashMap<>();
@@ -66,6 +96,10 @@ public class Receiver extends Service {
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        navigate.setContext(getApplicationContext());
+        dbHandler = new DBHandler(getApplicationContext());
+
         if(running){
             makefileList(true);
             pack_size_update();
@@ -73,7 +107,6 @@ public class Receiver extends Service {
             success_list_reset();
             return START_STICKY;
         }
-        navigate.setContext(getApplicationContext());
         //Service start
         if(null != fileOBJS){
             //On resume the page - start download from there
@@ -92,8 +125,6 @@ public class Receiver extends Service {
                 .build();
 
         startForeground(2020, notification);
-
-        Toast.makeText(getApplicationContext(), "Started receiving", Toast.LENGTH_SHORT).show();
 
         running = true;
         return START_STICKY;
@@ -140,39 +171,24 @@ public class Receiver extends Service {
             switch (file_type){
                 case "app":
                     mainHandler.post(()->file_image.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_android_24)));
-                    //Action set
                     break;
                 case "photo":
                     mainHandler.post(()-> Picasso.get().load(file).placeholder(R.drawable.ic_baseline_photo_24).resize(250, 250).centerCrop().into(file_image));
-                    //Action set
                     break;
                 case "video":
                     mainHandler.post(()-> Glide.with(getApplicationContext())
                             .load(file)
                             .placeholder(R.drawable.ic_baseline_video_file_24)
                             .into(file_image));
-                    //Action set
                     break;
                 case "document":
                     mainHandler.post(()->file_image.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.book_file)));
                     break;
                 case "audio":
-                    try {
-                        android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-                        mmr.setDataSource(file.getPath());
-                        byte[] data = mmr.getEmbeddedPicture();
-                        if (data != null) {
-                            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                            mainHandler.post(()->file_image.setImageBitmap(bitmap));
-                        } else {
-                            mainHandler.post(()->file_image.setImageResource(R.drawable.ic_baseline_audio_file_24));
-                        }
-                    } catch (Exception e) {
-                        mainHandler.post(()->file_image.setImageResource(R.drawable.ic_baseline_audio_file_24));
-                    }
-                    //Action set
+                    mainHandler.post(()->file_image.setImageResource(R.drawable.ic_baseline_audio_file_24));
                     break;
             }
+            child.setOnClickListener(v-> Toast.makeText(getApplicationContext(), "Wait to finish!", Toast.LENGTH_SHORT).show());
 
             mainHandler.post(()->file_name.setText(name));
             //Set save location
@@ -201,18 +217,6 @@ public class Receiver extends Service {
     }
 
     //Events
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        //Service destroyed
-        for(Integer id : notification_list){
-            cancel_notification(id, getApplicationContext());
-        }
-        //ALSO THE MAIN NOTIFICATIONS
-        cancel_notification(2020, getApplicationContext());
-        client.dispatcher().cancelAll();
-        client.connectionPool().evictAll();
-    }
     //Service Binder
     private final IBinder binder = new LocalBinder();
     public class LocalBinder extends Binder {
@@ -321,7 +325,7 @@ public class Receiver extends Service {
                 http_time_took += time_dif;
 
                 if(progress == 100){
-                    total_carry+= totalSize;
+                    total_carry += totalSize;
                 }
                 else {
                     mainHandler.post(Receiver.this::update_total_received);
@@ -331,10 +335,7 @@ public class Receiver extends Service {
                 float downs = run_download+ratio;
 
                 int full_progress = (int) (((double) downs / fileOBJS.size()) * 100);
-                mainHandler.post(()->{
-                    total_received.setText(MessageFormat.format("Total: {0}", Receive.format_size(total_bytes_received+total_carry)));
-                    total_progress.setProgress(full_progress);
-                });
+                mainHandler.post(()-> total_progress.setProgress(full_progress));
 
                 http_timestamp = new Date().getTime();
             }
@@ -351,10 +352,10 @@ public class Receiver extends Service {
                 }
                 else {
                     mainHandler.post(()-> {
-                                current_file.setText(R.string.done);
-                                main_title.setText(R.string.received);
-                                done = true;
-                            });
+                        current_file.setText(R.string.done);
+                        main_title.setText(R.string.received);
+                        done = true;
+                    });
                 }
                 View child = fileViews.get(fileOBJ.getId());
                 successView(child, path, file_type);
@@ -406,31 +407,38 @@ public class Receiver extends Service {
     private void successView(View child, String path, String file_type){
         if(null != child) {
             TextView status = child.findViewById(R.id.file_sate);
+            TextView path_file = child.findViewById(R.id.file_path);
             mainHandler.post(()-> {
+
                 status.setText("\uf058");
                 status.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.light_green));
 
                 File file = new File(path);
+
+                path_file.setText(String.format("%s - %s", Receive.format_size((long) file.length()), path));
+
                 ImageView file_image = child.findViewById(R.id.file_image);
                 switch (file_type) {
                     case "app":
                         file_image.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_baseline_android_24));
-                        //child.setOnClickListener(v->navigate.openFile(path));
+                        child.setOnClickListener(v->{
+                            Toast.makeText(getApplicationContext(), "Upcoming feature!", Toast.LENGTH_SHORT).show();
+                        });
                         break;
                     case "photo":
                         Picasso.get().load(file).placeholder(R.drawable.ic_baseline_photo_24).resize(250, 250).centerCrop().into(file_image);
-                        //child.setOnClickListener(v->navigate.showImage(path));
+                        child.setOnClickListener(v->navigate.showImage(path));
                         break;
                     case "video":
                         Glide.with(getApplicationContext())
                                 .load(file)
                                 .placeholder(R.drawable.ic_baseline_video_file_24)
                                 .into(file_image);
-                        //child.setOnClickListener(v-> navigate.playVideo(path));
+                        child.setOnClickListener(v-> navigate.playVideo(path));
                         break;
                     case "document":
                         file_image.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.book_file));
-                        //child.setOnClickListener(v->navigate.openFile(path));
+                        child.setOnClickListener(v->navigate.openFile(path));
                         break;
                     case "audio":
                         try {
@@ -446,10 +454,10 @@ public class Receiver extends Service {
                         } catch (Exception e) {
                             file_image.setImageResource(R.drawable.ic_baseline_audio_file_24);
                         }
-                        //child.setOnClickListener(v-> navigate.playMusic(path));
+                        child.setOnClickListener(v-> navigate.playMusic(path));
                         break;
                     default:
-                        //child.setOnClickListener(v->navigate.openFile(path));
+                        child.setOnClickListener(v->navigate.openFile(path));
                         break;
                 }
             });
@@ -467,16 +475,20 @@ public class Receiver extends Service {
 
         String size2 = Receive.format_size(total_bytes_received+total_carry);
         String s = size2 + " received in " + in + " - " + speed;
-        mainHandler.post(()->summery.setText(s));
+        mainHandler.post(()->{
+            summery.setText(s);
+            total_received.setText(MessageFormat.format("Total: {0}", Receive.format_size(total_bytes_received+total_carry)));
+        });
     }
     private void pack_size_update(){
-        String size2 = Receive.format_size(total_bytes_received+total_carry);
         mainHandler.post(()-> {
             pack_got.setText((run_download <= 1)?"Received: "+run_download+" file":"Received: "+run_download+" files");
-            total_received.setText(MessageFormat.format("Total: {0}", size2));
+            total_received.setText(MessageFormat.format("Total: {0}", Receive.format_size(total_bytes_received+total_carry)));
             if(done) {
                 current_file.setText(R.string.done);
                 main_title.setText(R.string.received);
+                current_progress.setProgress(100);
+                total_progress.setProgress(100);
             }
         });
     }
