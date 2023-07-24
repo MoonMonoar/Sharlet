@@ -1005,7 +1005,7 @@ public class Sender extends Service {
 
                     mainHandler.post(()->file_name.setText(name));
                     String finalPath = path;
-                    mainHandler.post(()->file_path.setText(finalPath));
+                    mainHandler.post(()->file_path.setText(String.format("%s - %s", Receive.format_size((long) file.length()), finalPath)));
                     if(!first) {
                         portal_files_table.removeAllViews();
                         first = true;
