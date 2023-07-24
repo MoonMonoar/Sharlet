@@ -1002,7 +1002,6 @@ public class Sender extends Service {
                             mainHandler.post(()->file_image.setImageResource(R.drawable.ic_baseline_audio_file_24));
                         }
                     }
-
                     mainHandler.post(()->file_name.setText(name));
                     String finalPath = path;
                     mainHandler.post(()->file_path.setText(String.format("%s - %s", Receive.format_size((long) file.length()), finalPath)));
