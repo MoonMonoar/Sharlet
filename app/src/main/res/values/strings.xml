@@ -69,8 +69,8 @@
     <string name="sharlet_needs_to_access_your_files_to_be_able_to_send_and_receive_its_safe_and_sharlet_never_deletes_your_files">Sharlet needs to access your files to be able to send and receive. Its safe and Sharlet never deletes your files</string>
     <string name="_2_read_external_storage">2. Read external storage</string>
     <string name="sharlet_needs_this_permission_to_be_able_to_read_sd_card_files_similar_to_file_management">Sharlet needs this permission to be able to read SD Card files. Similar to file management</string>
-    <string name="_3_location">3. Location</string>
-    <string name="this_is_needed_to_know_your_wifi_hotspot_name_only_you_can_skip_this_permission_if_you_want">This is needed to know your wifi/hotspot name &amp; info only and never used for anything else. Turbo mode can not be used without this</string>
+    <string name="_3_location">3. Location(Optional)</string>
+    <string name="this_is_needed_to_know_your_wifi_hotspot_name_only_you_can_skip_this_permission_if_you_want">This is needed to know your wifi/hotspot name &amp; info only and never used for anything else. You can skip this if you want.</string>
     <string name="grant_permission">Grant permission</string>
     <string name="granted">Granted</string>
     <string name="no_need">No need</string>
@@ -160,4 +160,5 @@
     <string name="fa_arrow_down"></string>
     <string name="receiving_files">Receiving files...</string>
     <string name="receiver_is_receiving_files_from_a_portal_tap_to_open">📥 Receiver is receiving files from a portal. Tap to open.</string>
+    <string name="version_info">Sharlet(V2.0, 2.980-pub) - by MoonsLab</string>
 </resources>

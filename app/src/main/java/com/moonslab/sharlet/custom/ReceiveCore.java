@@ -77,7 +77,7 @@ public class ReceiveCore {
         };
     }
 
-    public void downloadFile(String url, String savePath, String parameterP, final DownloadCallback callback) {
+    public OkHttpClient downloadFile(String url, String savePath, String parameterP, final DownloadCallback callback) {
         RequestBody requestBody = new FormBody.Builder()
                 .add("p", parameterP)
                 .build();
@@ -125,6 +125,7 @@ public class ReceiveCore {
                 }
             }
         });
+        return client;
     }
 
     private void runOnUiThread(Runnable runnable) {

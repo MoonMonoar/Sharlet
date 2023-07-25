@@ -111,7 +111,7 @@
             android:textColor="@color/primary"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Pro tip: Connect to a wifi having 5Ghz or more band support to boost transfer speeds up to 30Mb/s.(The sender must support the same band)"/>
+            android:text="Pro tip: Connect to a wifi having 5Ghz or more band support to boost transfer speeds up to 32Mb/s.(The sender must support the same band)"/>
 
 
     </LinearLayout>

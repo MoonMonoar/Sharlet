@@ -13,8 +13,8 @@ android {
         applicationId "com.moonslab.sharlet"
         minSdk 26
         targetSdk 33
-        versionCode 1
-        versionName "1.980-pub"
+        versionCode 2
+        versionName "2.980-pub"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -35,7 +35,7 @@ android {
 
 dependencies {
     //Google
-    implementation 'com.google.android.play:app-update:2.1.0'
+    implementation 'com.github.SanojPunchihewa:InAppUpdater:1.0.5'
 
     //Maven
     annotationProcessor 'com.github.bumptech.glide:compiler:4.14.2'

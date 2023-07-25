@@ -43,7 +43,6 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,7 +64,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -94,18 +92,14 @@ import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
-import com.google.android.play.core.appupdate.AppUpdateInfo;
-import com.google.android.play.core.appupdate.AppUpdateManager;
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
-import com.google.android.play.core.appupdate.AppUpdateOptions;
-import com.google.android.play.core.install.model.AppUpdateType;
-import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.gson.Gson;
 import com.moonslab.sharlet.custom.Global;
 import com.moonslab.sharlet.custom.NetUtility;
 import com.moonslab.sharlet.custom.ScannedPeer;
 import com.moonslab.sharlet.custom.Sender;
 import com.moonslab.sharlet.musiclibrary.adapter;
+import com.sanojpunchihewa.updatemanager.UpdateManager;
+import com.sanojpunchihewa.updatemanager.UpdateManagerConstant;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 
@@ -174,17 +168,17 @@ public class Home extends AppCompatActivity {
     private Dialog token_info;
 
 
-    /*Production ads
+    /*Production ads*/
     private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-3865008552851810/7331691260"; //NATIVE
     private static final String AD_UNIT_ID2 = "ca-app-pub-3865008552851810/3056532195"; //Interstitial
     private static final String REWARD_AD_UNIT_TURBO_TOKEN = "ca-app-pub-3865008552851810/7505620460"; //Reward
-     */
 
-    /*Test ads*/
+
+    /*Test ads
     private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"; //NATIVE
     private static final String AD_UNIT_ID2 = "ca-app-pub-3940256099942544/1033173712"; //Interstitial
     private static final String REWARD_AD_UNIT_TURBO_TOKEN = "ca-app-pub-3940256099942544/5224354917"; //Reward
-
+    */
 
 
     private NativeAd nativeAd;
@@ -203,6 +197,8 @@ public class Home extends AppCompatActivity {
     //Ignorable filed leak
     @SuppressLint("StaticFieldLeak")
     public static RelativeLayout send_now = null;
+
+    public static boolean update_check = false;
 
     @Override
     public void onBackPressed() {
@@ -238,30 +234,10 @@ public class Home extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setContentView(R.layout.activity_home);
 
-
-        if(false) {
-            //Check for update
-            AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(context);
-            Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
-
-            appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
-                if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                        && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-                    appUpdateManager.startUpdateFlowForResult(
-                            appUpdateInfo,
-                            registerForActivityResult(
-                                    new ActivityResultContracts.StartIntentSenderForResult(),
-                                    result -> {
-                                        if (result.getResultCode() != RESULT_OK) {
-                                            Toast.makeText(getApplicationContext(), "Update failed!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }), AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE)
-                                    .setAllowAssetPackDeletion(true)
-                                    .build());
-                }
-            });
+        if(!update_check) {
+            UpdateManager.Builder(this).mode(UpdateManagerConstant.IMMEDIATE).start();
+            update_check = true;
         }
-
 
         global_class = new Global(this);
         context = this;
@@ -598,7 +574,7 @@ public class Home extends AppCompatActivity {
                         wifi_tip.setVisibility(View.VISIBLE);
                         String ssid = wifi.getSSID().replace("\"", "");
                         if(ssid.equals("<unknown ssid>")){
-                            ssid = "Network name is hidden";
+                            ssid = "Connected wifi/hotspot";
                         }
                         net_name.setText(ssid);
                         if(wifi.getFrequency() < 5925) {
@@ -783,7 +759,7 @@ public class Home extends AppCompatActivity {
         loading.setMinimumHeight(Math.round(h / 2));
         empty.setMinimumHeight(Math.round(h / 2));
         WifiInfo wifi = get_wifi_info(this);
-        String ssid1 = "Network name hidden";
+        String ssid1 = "Connected wifi";
         if (wifi.getBSSID() != null) {
             //Wifi
             String ssid = wifi.getSSID().replace("\"", "");
@@ -824,12 +800,6 @@ public class Home extends AppCompatActivity {
                 main_net_2 = main_ip.replace(y, ""),
                 z = main_ip.substring(main_net_2.length()),
                 main_net_1 = main_net_2+z.substring(0, z.lastIndexOf("."));
-
-
-        //DEBUG ONLY CODE
-        new Thread(()->process_host("192.168.0.196", ssid, main_table, sub_loader)).start();
-
-
 
         //Separate thread -- OF RANDOM SCAN
         return new Thread(() -> {
@@ -973,14 +943,7 @@ public class Home extends AppCompatActivity {
 
             child.setOnClickListener(v -> {
 
-                //DEBUG ONLY CODE
-
-                //ORIGINAL
-                //String payload = global_class.decrypt(scannedPeer.getPayload(), PAYLOAD_DECODER_KEY);
-
-                //Test
-                String payload = scannedPeer.getPayload();
-
+                String payload = global_class.decrypt(scannedPeer.getPayload(), PAYLOAD_DECODER_KEY);
                 if(null != payload){
                     String[] variables = payload.split("-");
                     String main_server = variables[2]+variables[1]+":"+variables[0];
@@ -1958,67 +1921,29 @@ public class Home extends AppCompatActivity {
 
         dbHandler.add_setting("turbo_active", "false");
 
-        if(location_granted()) {
-            //GRANTED -- goto step 2
-            location_needed.setVisibility(View.GONE);
-            boolean wifi5g = netUtility.isWiFiConnected() && netUtility.getWifiFrequency().equals("5");
-            //Check if own hotspot or, wifi has 5GHz
-            if(netUtility.isHotspotEnabled() || wifi5g){
-                hotspot_needed.setVisibility(View.GONE);
-                main_title.setText(R.string.turbo_mode_active);
-                main_dialogue.setText(R.string.speed_boosted_up_to_32mb_s);
-                if(wifi5g){
-                    active_text.setText(R.string.turbo_mode_is_ready);
-                }
-                turbo_active.setVisibility(View.VISIBLE);
-                dbHandler.add_setting("turbo_active", "true");
+        //GRANTED -- goto step 2
+        location_needed.setVisibility(View.GONE);
+        boolean wifi5g = netUtility.isWiFiConnected() && netUtility.getWifiFrequency().equals("5");
+        //Check if own hotspot or, wifi has 5GHz
+        if(netUtility.isHotspotEnabled() || wifi5g){
+            hotspot_needed.setVisibility(View.GONE);
+            main_title.setText(R.string.turbo_mode_active);
+            main_dialogue.setText(R.string.speed_boosted_up_to_32mb_s);
+            if(wifi5g){
+                active_text.setText(R.string.turbo_mode_is_ready);
             }
-            else {
-                if(!netUtility.isWiFiConnected() && !netUtility.isHotspotEnabled()){
-                    TextView tv = home_view.findViewById(R.id.tv_on_h);
-                    tv.setText(String.format("%s", getString(R.string.set_up_hotspot_with_5ghz_ap_band_turn_wifi_off_first)));
-                }
-                //Need hotspot
-                hotspot_open.setOnClickListener(open_hotspot);
-                hotspot_needed.setVisibility(View.VISIBLE);
-            }
+            turbo_active.setVisibility(View.VISIBLE);
+            dbHandler.add_setting("turbo_active", "true");
         }
         else {
-            //SET LOCATION BUTTON
-            location_perm.setOnClickListener(v-> {
-                //Check if granted
-                if(location_granted()){
-                    //Reload
-                    load_home();
-                    return;
-                }
-                if(!shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_FINE_LOCATION) ||
-                        ! shouldShowRequestPermissionRationale(android.Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                    location_perm.setText(R.string.open_settings);
-                    Toast.makeText(this, "Allow from settings", Toast.LENGTH_SHORT).show();
-                    location_perm.setOnClickListener(v2-> {
-                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        Uri uri = Uri.fromParts("package", getPackageName(), null);
-                        intent.setData(uri);
-                        startActivity(intent);
-                    });
-                    return;
-                }
-                if(this.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) < 0
-                        || this.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) < 0) {
-                    ActivityCompat.requestPermissions(this, new String[]{
-                                    android.Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_COARSE_LOCATION
-                            },
-                            0);
-                }
-                else {
-                    //Reload
-                    load_home();
-                }
-            });
+            if(!netUtility.isWiFiConnected() && !netUtility.isHotspotEnabled()){
+                TextView tv = home_view.findViewById(R.id.tv_on_h);
+                tv.setText(String.format("%s", getString(R.string.set_up_hotspot_with_5ghz_ap_band_turn_wifi_off_first)));
+            }
+            //Need hotspot
+            hotspot_open.setOnClickListener(open_hotspot);
+            hotspot_needed.setVisibility(View.VISIBLE);
         }
-
 
         //CART 4, TURBO COUNT
         TextView turbo_count = home_view.findViewById(R.id.token_count),
@@ -2911,10 +2836,6 @@ public class Home extends AppCompatActivity {
             }
         }
         File_selection.selection_update();
-    }
-    private boolean location_granted(){
-        return !(this.checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) < 0)
-                && !(this.checkSelfPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION) < 0);
     }
     private void Show_token_ad(){
         RewardedAd.load(this, REWARD_AD_UNIT_TURBO_TOKEN,

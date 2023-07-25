@@ -238,7 +238,7 @@ public class Sender extends Service {
         if (null != wifi) {
             ssid = wifi.getSSID();
             if (ssid.equals("<unknown ssid>")) {
-                ssid = "Personal hotspot";
+                ssid = "Personal wifi/hotspot";
             }
         } else {
             ssid = "Personal hotspot";

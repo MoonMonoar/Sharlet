@@ -485,7 +485,7 @@
                 android:gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
-                android:text="Sharlet(V1.0) - by MoonsLab"/>
+                android:text="@string/version_info"/>
 
         </TableLayout>
     </ScrollView>

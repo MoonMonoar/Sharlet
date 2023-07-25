@@ -58,6 +58,7 @@ public class Receiver extends Service {
     private static long cache_size = 0;
     private static long http_timestamp = 0, http_time_took = 0;
     private static List<fileOBJ> fileOBJS;
+    private static boolean killer = false;
     private DBHandler dbHandler;
 
     @Override
@@ -69,8 +70,11 @@ public class Receiver extends Service {
         }
         //ALSO THE MAIN NOTIFICATIONS
         cancel_notification(2020, getApplicationContext());
-        client.dispatcher().cancelAll();
-        client.connectionPool().evictAll();
+        if(null != client) {
+            client.dispatcher().cancelAll();
+            client.connectionPool().evictAll();
+        }
+        killer = true;
         //RESET static vars
         fileOBJS = new ArrayList<>();
         done_list = new HashMap<>();
@@ -91,7 +95,7 @@ public class Receiver extends Service {
     private static String server, pin;
     private TableLayout files_table;
     private static final ReceiveCore receiveCore = new ReceiveCore();
-    OkHttpClient client = receiveCore.getClient();
+    private OkHttpClient client;
     private static HashMap<Integer, View> fileViews = new HashMap<>();
     //Gives access to the main thread
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -100,6 +104,8 @@ public class Receiver extends Service {
 
         navigate.setContext(getApplicationContext());
         dbHandler = new DBHandler(getApplicationContext());
+
+        killer = false;
 
         if(running){
             makefileList(true);
@@ -222,9 +228,6 @@ public class Receiver extends Service {
     //Service Binder
     private final IBinder binder = new LocalBinder();
     public class LocalBinder extends Binder {
-        public Receiver getService() {
-            return Receiver.this;
-        }
         public void setComponents(String server_get,
                                   String pin_get,
                                   List<fileOBJ> fileOBJS_set,
@@ -313,7 +316,7 @@ public class Receiver extends Service {
         current_file.setText(file.getName());
         http_timestamp = new Date().getTime();
         done_list.put(fileOBJ.getId(), true);
-        receiveCore.downloadFile(file_link, path, password, new ReceiveCore.DownloadCallback() {
+        client = receiveCore.downloadFile(file_link, path, password, new ReceiveCore.DownloadCallback() {
             private final static int PROGRESS_UPDATE_THRESHOLD = 5;
             @Override
             public void onProgressUpdate(int progress, long totalBytesRead, long totalSize) {
@@ -343,10 +346,16 @@ public class Receiver extends Service {
             }
             @Override
             public void onSuccess() {
+
+                if(killer){
+                    return;
+                }
+
                 success_list.add(fileOBJ);
                 //Notification update
                 notification_list.add(Home.create_notification(getApplicationContext(), "Incoming file",
                         "✅ Last: Done - "+file.getName(), 2010, NotificationCompat.PRIORITY_DEFAULT, false));
+
                 //Next
                 run_download++;
                 if(run_download < fileOBJS.size() && null != fileOBJS.get(run_download)){
@@ -359,16 +368,23 @@ public class Receiver extends Service {
                         done = true;
                     });
                 }
+
                 View child = fileViews.get(fileOBJ.getId());
                 successView(child, path, file_type);
             }
 
             @Override
             public void onFailure(Exception e) {
+
+                if(killer){
+                    return;
+                }
+
                 fail_list.add(fileOBJ);
                 //Notification update
                 notification_list.add(Home.create_notification(getApplicationContext(), "Incoming file",
                         "❌ Last: Failed - "+file.getName(), 2010, NotificationCompat.PRIORITY_DEFAULT, false));
+
                 //Next
                 run_download++;
                 if(run_download < fileOBJS.size() && null != fileOBJS.get(run_download)){
@@ -381,6 +397,8 @@ public class Receiver extends Service {
                         current_file.setText(R.string.failed);
                     });
                 }
+
+
                 View child = fileViews.get(fileOBJ.getId());
                 if(null != child) {
                     failView(child);
