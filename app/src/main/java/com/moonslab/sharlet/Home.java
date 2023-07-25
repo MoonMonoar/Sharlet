@@ -2352,7 +2352,7 @@ public class Home extends AppCompatActivity {
     public static void setup_http_plugin(Context context){
         String main_path = get_appdata_location_root(context)+"/http";
         File test = new File(main_path);
-        if(false && test.isDirectory() && test.length() > 0){
+        if(test.isDirectory() && test.length() > 0){
             return;
         }
         new Thread(()-> {
