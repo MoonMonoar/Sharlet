@@ -31,6 +31,7 @@
     </queries>
 
     <application
+        android:networkSecurityConfig="@xml/network_security_config"
         android:name=".Music_application_class"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
@@ -70,8 +71,8 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3865008552851810~1284285529" />
-        <!--
- Test
+
+        <!--Test
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~2247696110" />

@@ -217,8 +217,6 @@ public class Receive extends AppCompatActivity {
         TextView back_button = findViewById(R.id.back_button);
 
         //Critical
-        //Sharlet can allow all ssl
-        HttpsTrustManager.allowAllSSL();
 
         //Confirm dialogue
         dialog = new Dialog(this);

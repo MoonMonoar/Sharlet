@@ -115,8 +115,6 @@ public class Receiver_initiator extends AppCompatActivity {
                 }
             }
         };
-        //Allowing all ssl(to allow SSL anyway - not much issue)
-        HttpsTrustManager.allowAllSSL();
         Net net = new Net(bucket_handler);
         //Discover server
         net.post(server+"/", "");
@@ -153,8 +151,6 @@ public class Receiver_initiator extends AppCompatActivity {
                 }
             }
         };
-        //Allowing all ssl(to allow SSL anyway - not much issue)
-        HttpsTrustManager.allowAllSSL();
         Net net = new Net(bucket_handler);
         net.post(server+"/bucket", "p="+pin);
     }

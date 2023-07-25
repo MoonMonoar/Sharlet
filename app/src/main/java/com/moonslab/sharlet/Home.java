@@ -901,7 +901,6 @@ public class Home extends AppCompatActivity {
 
     private void load_host(String a, TableLayout main_table,
                            String ssid, LinearLayout sub_loader, String host) {
-        HttpsTrustManager.allowAllSSL();
         URL url;
         try {
             url = new URL(a);
