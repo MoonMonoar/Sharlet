@@ -52,6 +52,75 @@
                 android:text="@string/fa_wifi"
                 android:textColor="@color/white"
                 android:textSize="22sp" />
+
+            <LinearLayout
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/button"
+                android:layout_marginEnd="122dp"
+                android:id="@+id/qr_prompt"
+                android:layout_alignParentEnd="true"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:singleLine="true"
+                    android:ellipsize="middle"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/trebuc"
+                    android:text="@string/qr"/>
+                <TextView
+                    android:textColor="@color/white"
+                    android:textSize="17sp"
+                    android:layout_marginStart="7dp"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:text="@string/qr_icon"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:gravity="center"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/button"
+                android:layout_marginEnd="15dp"
+                android:visibility="visible"
+                android:id="@+id/pc_button"
+                android:layout_alignParentEnd="true"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:singleLine="true"
+                    android:ellipsize="middle"
+                    android:textSize="16sp"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/trebuc"
+                    android:text="@string/pc_ios"/>
+                <TextView
+                    android:textColor="@color/white"
+                    android:textSize="17sp"
+                    android:layout_marginStart="7dp"
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:text="@string/pc_icon"/>
+            </LinearLayout>
+
         </RelativeLayout>
         <RelativeLayout
             android:id="@+id/rl0"

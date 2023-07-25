@@ -1892,8 +1892,6 @@ public class Home extends AppCompatActivity {
         home_view.<TextView>findViewById(R.id.send_button).setOnClickListener(Listener);
         home_view.<TextView>findViewById(R.id.scan_button).setOnClickListener(Listener);
 
-        ScrollView main_scroll = home_view.findViewById(R.id.main_scroll);
-
         //Card 2
         RelativeLayout already_sending = home_view.findViewById(R.id.already_sending);
         String portal_open_already = dbHandler.get_settings("portal_open");
@@ -1908,6 +1906,22 @@ public class Home extends AppCompatActivity {
                 startActivity(new Intent(Home.this, Send.class));
             });
             already_sending.setVisibility(View.VISIBLE);
+        }
+
+        //Card 2.1
+        RelativeLayout already_receiving = home_view.findViewById(R.id.already_receiving);
+        String rcv_open_already = dbHandler.get_settings("receiver_opened");
+        if(null != rcv_open_already && rcv_open_already.equals("true")){
+            already_receiving.setOnClickListener(v-> {
+                String test = dbHandler.get_settings("receiver_opened");
+                if(null != test && test.equals("false")){
+                    Toast.makeText(context, "Portal no longer exists", Toast.LENGTH_SHORT).show();
+                    already_receiving.setVisibility(View.GONE);
+                    return;
+                }
+                startActivity(new Intent(Home.this, Receive.class));
+            });
+            already_receiving.setVisibility(View.VISIBLE);
         }
 
 
@@ -2004,6 +2018,7 @@ public class Home extends AppCompatActivity {
                 }
             });
         }
+
 
         //CART 4, TURBO COUNT
         TextView turbo_count = home_view.findViewById(R.id.token_count),

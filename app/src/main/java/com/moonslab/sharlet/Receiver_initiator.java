@@ -46,6 +46,7 @@ public class Receiver_initiator extends AppCompatActivity {
     private TextView log;
     private DBHandler dbHandler;
     private Global global;
+    private String qr_raw;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +60,7 @@ public class Receiver_initiator extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         String server = extras.getString("server");
         String pin = extras.getString("pin");
+        qr_raw = extras.getString("qr_raw");
         if(null == server || null == pin){
             Toast.makeText(this, "Invalid Connection", Toast.LENGTH_SHORT).show();
             this.finish();
@@ -139,6 +141,7 @@ public class Receiver_initiator extends AppCompatActivity {
                         Intent intent = new Intent(getApplicationContext(), Receive.class);
                         dbHandler.add_setting("sender_server_last", server);
                         dbHandler.add_setting("sender_pin_last", pin);
+                        dbHandler.add_setting("sender_qr_last", qr_raw);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
                         finish();

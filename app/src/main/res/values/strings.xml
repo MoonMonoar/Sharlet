@@ -157,4 +157,7 @@
     <string name="make_sure_the_receiver_is_connected_to_your_wifi_hotspot">Make sure the receiver is connected to your Wifi/Hotspot</string>
     <string name="dark_mode_is_in_beta_stage_we_will_improve_it_in_the_next_updates">Dark mode is in beta stage. We will improve it in the next updates.</string>
     <string name="back_icon"></string>
+    <string name="fa_arrow_down"></string>
+    <string name="receiving_files">Receiving files...</string>
+    <string name="receiver_is_receiving_files_from_a_portal_tap_to_open">📥 Receiver is receiving files from a portal. Tap to open.</string>
 </resources>

@@ -5,12 +5,15 @@ import static com.moonslab.sharlet.Home.store_as_file;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,7 +23,10 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -36,6 +42,8 @@ import com.moonslab.sharlet.objects.fileOBJ;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 public class Receive extends AppCompatActivity {
@@ -48,8 +56,11 @@ public class Receive extends AppCompatActivity {
     private TextView current_file, total_received, pack_got, portal_summary, main_title;
     private TableLayout main_table;
 
-    private String server, pin;
+    private String server, pin, qr_data;
     private boolean self_destroy = false;
+
+    //Buttons
+    private LinearLayout qr, pc;
 
     private ServiceConnection serviceConnection;
 
@@ -93,6 +104,7 @@ public class Receive extends AppCompatActivity {
 
         setContentView(R.layout.activity_receive);
 
+
         if(!Home.create_app_folders()){
             Toast.makeText(this, "Storage unavailable, please reinstall Sharlet!", Toast.LENGTH_LONG).show();
             this.finish();
@@ -103,9 +115,15 @@ public class Receive extends AppCompatActivity {
 
         server = dbHandler.get_settings("sender_server_last");
         pin = dbHandler.get_settings("sender_pin_last");
+        qr_data = dbHandler.get_settings("sender_qr_last");
+
+        if(null == qr_data){
+            //MANUAL
+            qr_data = getPortFromUrl(server)+"-"+getIpAddressFromUrl(server)+"-"+(isHttpsLink(server)?"https://":"http://")+"-"+pin;
+        }
 
         if(null == server || null == pin){
-            Toast.makeText(this, "Invalid QR", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Invalid portal info!", Toast.LENGTH_SHORT).show();
             this.finish();
             return;
         }
@@ -134,6 +152,67 @@ public class Receive extends AppCompatActivity {
         main_table = findViewById(R.id.files_table);
         portal_summary = findViewById(R.id.portal_summary);
         main_title = findViewById(R.id.total_progress_title);
+
+        qr = findViewById(R.id.qr_prompt);
+        pc = findViewById(R.id.pc_button);
+
+        qr.setOnClickListener(v-> {
+            if(null == qr_data){
+                Toast.makeText(this, "QR not available!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Bitmap QR_bitmap = Home.make_qr_code(qr_data, 500, Color.WHITE, Color.parseColor("#000000"));
+            if (null == QR_bitmap) {
+                Toast.makeText(this, "QR code not ready!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Dialog dialog = new Dialog(this);
+            dialog.setContentView(R.layout.qr_button_popup);
+            dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.confirm_dialog_background));
+            dialog.setCanceledOnTouchOutside(false);
+            Window d_window = dialog.getWindow();
+            d_window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            ImageView qr_image = d_window.findViewById(R.id.qr_image);
+            qr_image.setImageBitmap(QR_bitmap);
+            dialog.show();
+        });
+
+        pc.setOnClickListener(v-> {
+            Dialog pc_dialogue = new Dialog(this);
+            pc_dialogue.setContentView(R.layout.pc_button_dialogue);
+            pc_dialogue.getWindow().setBackgroundDrawable(getDrawable(R.drawable.confirm_dialog_background));
+            pc_dialogue.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            pc_dialogue.setCanceledOnTouchOutside(false);
+            TextView d_des2 = pc_dialogue.getWindow().findViewById(R.id.description);
+
+            String link = server.replace(Integer.toString(getPortFromUrl(server)), "3250");
+
+            String body = "Link: " + link + System.lineSeparator() + "Pin: " + pin;
+            if (isHttpsLink(server)){
+                body += System.lineSeparator() + System.lineSeparator() + "Please note as a static certificate, the HTTPS connection may show insecure by the browser. Please ignore this warning and proceed if occurs.";
+            } else {
+                body += System.lineSeparator() + System.lineSeparator() + "⚡ Turbo mode: Please make sure you are using 5GHz band for your hotspot. With 2.4GHz band, Turbo mode is limited up to 8MB/S.";
+            }
+
+            d_des2.setText(body);
+
+            Button Copy = pc_dialogue.findViewById(R.id.btn_copy);
+            Button Cancel2 = pc_dialogue.findViewById(R.id.btn_got_it);
+            Copy.setText("Copy");
+
+            Copy.setOnClickListener(v2 -> {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("Sharlet link", link);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getApplicationContext(), "Link copied", Toast.LENGTH_SHORT).show();
+            });
+
+            Cancel2.setOnClickListener(v3 -> pc_dialogue.dismiss());
+
+            pc_dialogue.show();
+        });
+
 
         TextView back_button = findViewById(R.id.back_button);
 
@@ -188,7 +267,6 @@ public class Receive extends AppCompatActivity {
                 finish();
             }
         };
-        dbHandler.add_setting("receiver_opened", "true");
     }
 
     //Events
@@ -242,5 +320,33 @@ public class Receive extends AppCompatActivity {
             Home.openFile(context, new File(path));
             Toast.makeText(context, "Opening...", Toast.LENGTH_SHORT).show();
         }
+    }
+    public static boolean isHttpsLink(String url) {
+        return url != null && url.toLowerCase().startsWith("https://");
+    }
+    public static int getPortFromUrl(String urlString) {
+        int defaultPort = -1;
+        try {
+            URL url = new URL(urlString);
+            int port = url.getPort();
+            return (port == -1) ? url.getDefaultPort() : port;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return defaultPort;
+    }
+    public static String getIpAddressFromUrl(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            String host = url.getHost();
+            if (host.matches("\\d+\\.\\d+\\.\\d+\\.\\d+")) {
+                return host;
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

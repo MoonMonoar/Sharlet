@@ -16,7 +16,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -56,6 +55,7 @@ public class Receiver extends Service {
     //Static counters and cores
     private static long total_bytes_received = 0;
     private static long total_carry = 0;
+    private static long cache_size = 0;
     private static long http_timestamp = 0, http_time_took = 0;
     private static List<fileOBJ> fileOBJS;
     private DBHandler dbHandler;
@@ -81,6 +81,7 @@ public class Receiver extends Service {
         total_bytes_received = 0;
         http_timestamp = 0;
         http_time_took = 0;
+        cache_size = 0;
         dbHandler.add_setting("receiver_opened", "false");
     }
 
@@ -102,11 +103,11 @@ public class Receiver extends Service {
 
         if(running){
             makefileList(true);
-            pack_size_update();
-            update_total_received();
+            update_total_received(true);
             success_list_reset();
             return START_STICKY;
         }
+
         //Service start
         if(null != fileOBJS){
             //On resume the page - start download from there
@@ -127,6 +128,7 @@ public class Receiver extends Service {
         startForeground(2020, notification);
 
         running = true;
+        dbHandler.add_setting("receiver_opened", "true");
         return START_STICKY;
     }
 
@@ -328,7 +330,7 @@ public class Receiver extends Service {
                     total_carry += totalSize;
                 }
                 else {
-                    mainHandler.post(Receiver.this::update_total_received);
+                    mainHandler.post(() -> Receiver.this.update_total_received(false));
                 }
 
                 float ratio = (float)progress/100;
@@ -463,27 +465,32 @@ public class Receiver extends Service {
             });
         }
     }
-    private void update_total_received() {
+    private void update_total_received(boolean use_cache) {
         String in;
         in = Sender.get_time_span(http_time_took);
+
+        long sum = 0;
+        if(!use_cache) {
+            sum = total_bytes_received + total_carry;
+        }
+        else {
+            sum = cache_size;
+        }
+
         String speed;
         float time = (float) http_time_took / (float) 1000;
-        float ratio = (float) (total_bytes_received+total_carry)  / time;
+        float ratio = (float) (sum)  / time;
 
         speed = Receive.format_size((long) ratio);
         speed += "/s";
 
-        String size2 = Receive.format_size(total_bytes_received+total_carry);
+        String size2 = Receive.format_size(sum);
         String s = size2 + " received in " + in + " - " + speed;
+        long finalSum = sum;
         mainHandler.post(()->{
             summery.setText(s);
-            total_received.setText(MessageFormat.format("Total: {0}", Receive.format_size(total_bytes_received+total_carry)));
-        });
-    }
-    private void pack_size_update(){
-        mainHandler.post(()-> {
+            total_received.setText(MessageFormat.format("Total: {0}", Receive.format_size(finalSum)));
             pack_got.setText((run_download <= 1)?"Received: "+run_download+" file":"Received: "+run_download+" files");
-            total_received.setText(MessageFormat.format("Total: {0}", Receive.format_size(total_bytes_received+total_carry)));
             if(done) {
                 current_file.setText(R.string.done);
                 main_title.setText(R.string.received);
@@ -491,5 +498,6 @@ public class Receiver extends Service {
                 total_progress.setProgress(100);
             }
         });
+        cache_size = sum;
     }
 }

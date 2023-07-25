@@ -49,6 +49,7 @@ public class Scan extends AppCompatActivity {
                 return;
             }
             startActivity(new Intent(Scan.this, Receiver_initiator.class)
+                    .putExtra("qr_raw", connection_info)
                     .putExtra("server", main_server)
                     .putExtra("pin", variables[3]));
         }));

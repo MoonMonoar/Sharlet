@@ -780,7 +780,7 @@ public class Sender extends Service {
         portal_summary.setText(s);
         notification_list.add(
                 Home.create_notification(getApplicationContext(), "Sender is active",
-                        "💪 "+s+System.lineSeparator()+"⬆️ Last: "+last_file, 105, NotificationCompat.PRIORITY_DEFAULT, true)
+                        "💪 "+s+System.lineSeparator()+"⬆️ Last: "+last_file, 105, NotificationCompat.PRIORITY_DEFAULT, false)
         );
     }
     private HttpHandler load_bucket(Boolean is_main_server){
