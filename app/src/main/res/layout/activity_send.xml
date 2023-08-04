@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".Send">
 
-    <RelativeLayout
+    <LinearLayout
         android:elevation="5dp"
         android:background="@color/primary"
         android:id="@+id/relativeLayout2"
@@ -29,14 +29,13 @@
         <TextView
             android:fontFamily="@font/trebuc"
             android:id="@+id/top_title"
-            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="60dp"
-            android:layout_marginEnd="150dp"
-            android:gravity="center"
+            android:gravity="center|start"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="@string/waiting_for_receiver_dots"
+            android:text="@string/sending"
             android:textColor="@color/white"
             android:textStyle="bold"
             android:textSize="20sp"/>
@@ -48,12 +47,45 @@
             android:focusable="true"
             android:layout_marginTop="8dp"
             android:background="@drawable/button"
-            android:layout_marginEnd="122dp"
-            android:id="@+id/qr_prompt"
-            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="5dp"
+            android:id="@+id/receive"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:orientation="horizontal">
+            <TextView
+                android:singleLine="true"
+                android:ellipsize="middle"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/trebuc"
+                android:text="@string/_0"/>
+            <TextView
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                android:layout_marginStart="7dp"
+                android:gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/font_awesome_regular"
+                android:text="@string/fa_arrow_down"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:visibility="gone"
+            android:layout_marginEnd="5dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/button"
+            android:id="@+id/qr_prompt"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            tools:ignore="RelativeOverlap">
             <TextView
                 android:singleLine="true"
                 android:ellipsize="middle"
@@ -82,10 +114,9 @@
             android:focusable="true"
             android:layout_marginTop="8dp"
             android:background="@drawable/button"
-            android:layout_marginEnd="15dp"
+            android:layout_marginEnd="10dp"
             android:visibility="visible"
             android:id="@+id/pc_button1"
-            android:layout_alignParentEnd="true"
             android:layout_width="100dp"
             android:layout_height="40dp"
             android:orientation="horizontal">
@@ -110,7 +141,7 @@
                 android:text="@string/pc_icon"/>
         </LinearLayout>
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <RelativeLayout
         android:layout_marginTop="55dp"
@@ -197,130 +228,130 @@
             android:layout_height="30dp"/>
 </RelativeLayout>
 
-<RelativeLayout
-        android:visibility="gone"
-        android:id="@+id/sending_view"
-        android:layout_marginTop="55dp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-        <LinearLayout
-            android:background="@color/primary"
-            android:id="@+id/update_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:singleLine="true"
-                android:ellipsize="middle"
-                android:id="@+id/portal_summary"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:fontFamily="@font/trebuc"
-                android:textColor="@color/white"
-                android:padding="10dp"
-                android:gravity="center"
-                android:text="@string/measuring"
-                android:layout_width="match_parent"
-                android:layout_height="45dp">
-            </TextView>
-            <TextView
-                android:foreground="?android:attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:singleLine="true"
-                android:visibility="gone"
-                android:id="@+id/unusual"
-                android:layout_marginBottom="10dp"
-                android:textSize="15sp"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:fontFamily="@font/trebuc"
-                android:padding="5dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Receiver device requiring more data then usual!" />
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/l2"
-            android:gravity="center"
-            android:layout_below="@id/update_panel"
-            android:background="@drawable/line"
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="37dp">
-            <TextView
-                android:paddingStart="10dp"
-                android:textColor="@color/grey"
-                android:paddingTop="10dp"
-                android:text="\uf07c"
-                android:fontFamily="@font/font_awesome_regular"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
-            <TextView
-                android:id="@+id/total_bucket_size"
-                android:singleLine="true"
-                android:ellipsize="middle"
-                android:textSize="15sp"
-                android:fontFamily="@font/trebuc"
-                android:text="Total: 0B"
-                android:padding="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
-            <TextView
-                android:layout_marginStart="5dp"
-                android:id="@+id/total_packages"
-                android:textColor="@color/grey"
-                android:text="\uf058"
-                android:fontFamily="@font/font_awesome_regular"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
-            <TextView
-                android:id="@+id/pack_sent"
-                android:singleLine="true"
-                android:ellipsize="middle"
-                android:textSize="15sp"
-                android:fontFamily="@font/trebuc"
-                android:text="Sent: 0 file"
-                android:padding="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
-        </LinearLayout>
-        <ScrollView
-            android:layout_below="@id/l2"
+    <RelativeLayout
+            android:visibility="gone"
+            android:id="@+id/sending_view"
+            android:layout_marginTop="55dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <TableLayout
-                android:id="@+id/files_table"
+            <LinearLayout
+                android:background="@color/primary"
+                android:id="@+id/update_panel"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_marginTop="50dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:singleLine="true"
+                    android:ellipsize="middle"
+                    android:id="@+id/portal_summary"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:fontFamily="@font/trebuc"
+                    android:textColor="@color/white"
+                    android:padding="10dp"
                     android:gravity="center"
-                    tools:ignore="UselessParent">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="\uf07b"
-                        android:fontFamily="@font/font_awesome_regular"
-                        android:textColor="@color/grey_semi"
-                        android:textSize="18sp"/>
-                    <TextView
-                        android:id="@+id/text"
-                        android:layout_marginTop="2dp"
-                        android:textColor="@color/grey_semi"
-                        android:fontFamily="@font/trebuc"
-                        android:layout_marginLeft="10dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="15sp"
-                        android:text="Loading..."/>
-                </LinearLayout>
+                    android:text="@string/measuring"
+                    android:layout_width="match_parent"
+                    android:layout_height="45dp">
+                </TextView>
+                <TextView
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:singleLine="true"
+                    android:visibility="gone"
+                    android:id="@+id/unusual"
+                    android:layout_marginBottom="10dp"
+                    android:textSize="15sp"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:fontFamily="@font/trebuc"
+                    android:padding="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Receiver device requiring more data then usual!" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/l2"
+                android:gravity="center"
+                android:layout_below="@id/update_panel"
+                android:background="@drawable/line"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="37dp">
+                <TextView
+                    android:paddingStart="10dp"
+                    android:textColor="@color/grey"
+                    android:paddingTop="10dp"
+                    android:text="\uf07c"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"/>
+                <TextView
+                    android:id="@+id/total_bucket_size"
+                    android:singleLine="true"
+                    android:ellipsize="middle"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/trebuc"
+                    android:text="Total: 0B"
+                    android:padding="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"/>
+                <TextView
+                    android:layout_marginStart="5dp"
+                    android:id="@+id/total_packages"
+                    android:textColor="@color/grey"
+                    android:text="\uf058"
+                    android:fontFamily="@font/font_awesome_regular"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <TextView
+                    android:id="@+id/pack_sent"
+                    android:singleLine="true"
+                    android:ellipsize="middle"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/trebuc"
+                    android:text="Sent: 0 file"
+                    android:padding="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"/>
+            </LinearLayout>
+            <ScrollView
+                android:layout_below="@id/l2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TableLayout
+                    android:id="@+id/files_table"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-            </TableLayout>
-        </ScrollView>
+                    <LinearLayout
+                        android:layout_marginTop="50dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        tools:ignore="UselessParent">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="\uf07b"
+                            android:fontFamily="@font/font_awesome_regular"
+                            android:textColor="@color/grey_semi"
+                            android:textSize="18sp"/>
+                        <TextView
+                            android:id="@+id/text"
+                            android:layout_marginTop="2dp"
+                            android:textColor="@color/grey_semi"
+                            android:fontFamily="@font/trebuc"
+                            android:layout_marginLeft="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="15sp"
+                            android:text="Loading..."/>
+                    </LinearLayout>
 
-    </RelativeLayout>
+                </TableLayout>
+            </ScrollView>
+
+        </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

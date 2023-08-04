@@ -13,4 +13,9 @@ public class Music_notification_control extends BroadcastReceiver {
             context.startService(intent1);
         }
     }
+    public void pausePauseMusic(Context context){
+        Intent intent1 = new Intent(context, Music_player_service.class);
+        intent1.putExtra("Action", "PLAY");
+        context.startService(intent1);
+    }
 }

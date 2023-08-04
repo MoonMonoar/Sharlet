@@ -94,7 +94,7 @@ public class Sender extends Service {
     private final File bundle_file = new File(get_app_home_bundle_data_store() + "/Selection_bucket.txt");
     private boolean sending_mode_inited = false;
     private RelativeLayout waiting_view, sending_view;
-    private LinearLayout qr_button;
+    private LinearLayout qr_button, receiver_button;
     private static final List<Integer> notification_list = new ArrayList<>();
     public static WeakReference<Context> contextRef;
     static String ssid, link_speed;
@@ -854,6 +854,7 @@ public class Sender extends Service {
         //Init
         top_title.setText(R.string.sending);
         qr_button.setVisibility(View.VISIBLE);
+        receiver_button.setVisibility(View.VISIBLE);
         waiting_view.setVisibility(View.GONE);
         sending_view.setVisibility(View.VISIBLE);
         //Update sent files
@@ -1065,7 +1066,7 @@ public class Sender extends Service {
         }
         public void setComponents(TextView topTitle, RelativeLayout waitingView,
                                   RelativeLayout sendingView, TextView portalSummary, TextView bucketSizeText,
-                                  TextView packSize, TableLayout portalFilesTable, TextView unusual_view, LinearLayout qr_button_main){
+                                  TextView packSize, TableLayout portalFilesTable, TextView unusual_view, LinearLayout qr_button_main, LinearLayout receiver_button_main){
             top_title = topTitle;
             waiting_view = waitingView;
             sending_view = sendingView;
@@ -1075,6 +1076,7 @@ public class Sender extends Service {
             portal_files_table = portalFilesTable;
             unusual = unusual_view;
             qr_button = qr_button_main;
+            receiver_button = receiver_button_main;
 
             update_total_selection_size();
 

@@ -31,7 +31,6 @@
     </queries>
 
     <application
-        android:networkSecurityConfig="@xml/net_config"
         android:name=".Music_application_class"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
@@ -67,16 +66,19 @@
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
-        </activity> <!-- Production -->
+        </activity>
+
+        <!-- Production
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3865008552851810~1284285529" />
+        -->
 
-        <!--Test
+        <!--Test-->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-3940256099942544~2247696110" />
-        -->
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -88,6 +90,7 @@
         </provider>
 
         <activity
+            android:networkSecurityConfig="@xml/net_config"
             android:name=".Receive"
             android:exported="false"
             android:screenOrientation="portrait">
@@ -104,6 +107,7 @@
                 android:value="" />
         </activity>
         <activity
+            android:networkSecurityConfig="@xml/net_config"
             android:name=".Receiver_initiator"
             android:exported="false"
             android:screenOrientation="portrait">
@@ -173,6 +177,7 @@
                 android:value="" />
         </activity>
         <activity
+            android:networkSecurityConfig="@xml/net_config"
             android:name=".Home"
             android:exported="true"
             android:hardwareAccelerated="true"

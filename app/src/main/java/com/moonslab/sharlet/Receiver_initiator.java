@@ -58,6 +58,7 @@ public class Receiver_initiator extends AppCompatActivity {
         //Read and try to get the info
         getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.white));
         Bundle extras = getIntent().getExtras();
+        assert extras != null;
         String server = extras.getString("server");
         String pin = extras.getString("pin");
         qr_raw = extras.getString("qr_raw");

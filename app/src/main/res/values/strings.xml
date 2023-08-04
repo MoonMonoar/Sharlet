@@ -161,4 +161,5 @@
     <string name="receiving_files">Receiving files...</string>
     <string name="receiver_is_receiving_files_from_a_portal_tap_to_open">📥 Receiver is receiving files from a portal. Tap to open.</string>
     <string name="version_info">Sharlet(1.981-pub) - by MoonsLab</string>
+    <string name="_0">0</string>
 </resources>

@@ -6,6 +6,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
@@ -24,13 +25,16 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.moonslab.sharlet.custom.Sender;
+
+import java.util.Objects;
 
 public class Send extends AppCompatActivity implements ServiceConnection {
     private Dialog dialog, pc_dialogue, no_token;
     public Sender sender;
-    private LinearLayout qr_button;
+    private LinearLayout qr_button, receiver_button;
     private RelativeLayout waiting_view, sending_view;
     private TextView portal_summary, top_title, bucket_size_text, pack_size, unusual, file_update, payload_pin;
     private TableLayout portal_files_table;
@@ -62,6 +66,7 @@ public class Send extends AppCompatActivity implements ServiceConnection {
 
         //Sending mode
         qr_button = findViewById(R.id.qr_prompt);
+        receiver_button = findViewById(R.id.receive);
         top_title = findViewById(R.id.top_title);
         waiting_view = findViewById(R.id.waiting_view);
         sending_view = findViewById(R.id.sending_view);
@@ -92,7 +97,7 @@ public class Send extends AppCompatActivity implements ServiceConnection {
             }
             Dialog dialog = new Dialog(context);
             dialog.setContentView(R.layout.qr_button_popup);
-            dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.confirm_dialog_background));
+            Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(getDrawable(R.drawable.confirm_dialog_background));
             dialog.setCanceledOnTouchOutside(false);
             Window d_window = dialog.getWindow();
             d_window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -101,10 +106,21 @@ public class Send extends AppCompatActivity implements ServiceConnection {
             dialog.show();
         });
 
+        receiver_button.setOnClickListener(v -> {
+            Dialog dialog = new Dialog(context);
+            dialog.setContentView(R.layout.receiver_list);
+            Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(getDrawable(R.drawable.full_screen_dialogue_background));
+            dialog.setCanceledOnTouchOutside(false);
+            Window d_window = dialog.getWindow();
+            d_window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+
+            dialog.show();
+        });
+
         //Confirm dialogue
         dialog = new Dialog(this);
         dialog.setContentView(R.layout.confirm_dialog_layout);
-        dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.confirm_dialog_background));
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawable(getDrawable(R.drawable.confirm_dialog_background));
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         TextView d_title = dialog.getWindow().findViewById(R.id.title);
         TextView d_des = dialog.getWindow().findViewById(R.id.description);
@@ -192,7 +208,7 @@ public class Send extends AppCompatActivity implements ServiceConnection {
     public void onServiceConnected(ComponentName name, IBinder service) {
         Sender.LocalBinder binder = (Sender.LocalBinder) service;
         sender = binder.getService();
-        binder.setComponents(top_title, waiting_view, sending_view, portal_summary, bucket_size_text, pack_size, portal_files_table, unusual, qr_button);
+        binder.setComponents(top_title, waiting_view, sending_view, portal_summary, bucket_size_text, pack_size, portal_files_table, unusual, qr_button, receiver_button);
         //Check error
         if(sender.isError_overall()){
             Toast.makeText(this, "Something went wrong!", Toast.LENGTH_SHORT).show();

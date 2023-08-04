@@ -30,6 +30,8 @@
     <color name="gradient_1">#ff203f</color>
     <color name="gradient_2">#ffa800</color>
 
+    <color name="portal_buttons">#EC7829</color>
+
     <color name="slide2">#535353</color>
     <color name="slide3">#0E647C</color>
     <color name="slide4">#068A17</color>

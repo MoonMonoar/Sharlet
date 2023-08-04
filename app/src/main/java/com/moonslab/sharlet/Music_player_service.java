@@ -1,6 +1,5 @@
 package com.moonslab.sharlet;
 
-import static com.moonslab.sharlet.Music_application_class.CHANNEL_DEFAULT;
 import static com.moonslab.sharlet.Music_application_class.CHANNEL_MUSIC;
 
 import android.annotation.SuppressLint;

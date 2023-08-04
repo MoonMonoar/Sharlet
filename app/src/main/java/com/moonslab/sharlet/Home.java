@@ -168,18 +168,16 @@ public class Home extends AppCompatActivity {
     private Dialog token_info;
 
 
-    /*Production ads*/
+    /*Production ads
     private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-3865008552851810/7331691260"; //NATIVE
     private static final String AD_UNIT_ID2 = "ca-app-pub-3865008552851810/3056532195"; //Interstitial
     private static final String REWARD_AD_UNIT_TURBO_TOKEN = "ca-app-pub-3865008552851810/7505620460"; //Reward
+    */
 
-
-    /*Test ads
+    /*Test ads*/
     private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"; //NATIVE
     private static final String AD_UNIT_ID2 = "ca-app-pub-3940256099942544/1033173712"; //Interstitial
     private static final String REWARD_AD_UNIT_TURBO_TOKEN = "ca-app-pub-3940256099942544/5224354917"; //Reward
-    */
-
 
     private NativeAd nativeAd;
     private RewardedAd rewardedAd;
@@ -2351,7 +2349,7 @@ public class Home extends AppCompatActivity {
     public static void setup_http_plugin(Context context){
         String main_path = get_appdata_location_root(context)+"/http";
         File test = new File(main_path);
-        if(test.isDirectory() && test.length() > 0){
+        if(false && test.isDirectory() && test.length() > 0){
             return;
         }
         new Thread(()-> {

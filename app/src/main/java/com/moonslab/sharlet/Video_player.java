@@ -1,12 +1,5 @@
 package com.moonslab.sharlet;
 
-import static com.moonslab.sharlet.Home.store_as_file;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -14,13 +7,16 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.MediaController;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import org.apache.commons.io.FileUtils;
 
@@ -31,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 public class Video_player extends AppCompatActivity {
     RelativeLayout body, top;
     boolean from_receiver = false;
+    private VideoView video;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,9 +38,9 @@ public class Video_player extends AppCompatActivity {
             from_receiver = true;
         }
 
-    getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.black));
+        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.black));
         TextView back = findViewById(R.id.back_button);
-        VideoView video = findViewById(R.id.main_video);
+        video = findViewById(R.id.main_video);
         TextView name = findViewById(R.id.video_name);
         top = findViewById(R.id.relativeLayout2);
         body = findViewById(R.id.video_rel);
@@ -59,6 +56,7 @@ public class Video_player extends AppCompatActivity {
             MediaController mediaController = new MediaController(this);
             video.setMediaController(mediaController);
             mediaController.setAnchorView(video);
+            new Music_notification_control().pausePauseMusic(this);
             video.start();
         }
         else {
@@ -70,12 +68,7 @@ public class Video_player extends AppCompatActivity {
         });
 
         int orientation = getApplicationContext().getResources().getConfiguration().orientation;
-        if(orientation == Configuration.ORIENTATION_LANDSCAPE){
-            rotate_check(true);
-        }
-        else {
-            rotate_check(false);
-        }
+        rotate_check(orientation == Configuration.ORIENTATION_LANDSCAPE);
     }
 
     private void go_back() {
@@ -103,12 +96,7 @@ public class Video_player extends AppCompatActivity {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         int orientation = newConfig.orientation;
-        if(orientation == Configuration.ORIENTATION_LANDSCAPE){
-            rotate_check(true);
-        }
-        else {
-            rotate_check(false);
-        }
+        rotate_check(orientation == Configuration.ORIENTATION_LANDSCAPE);
     }
 
     private void rotate_check(Boolean rotated){
@@ -129,6 +117,7 @@ public class Video_player extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        video.stopPlayback();
         go_back();
     }
 }
