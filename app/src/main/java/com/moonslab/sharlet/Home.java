@@ -141,7 +141,6 @@ public class Home extends AppCompatActivity {
     private NetUtility netUtility;
     private boolean update_daily_token = false;
     private Global global_class;
-    public static int clicks = 0;
     private boolean direct_to_sender = false;
     private int total_child_history = 0;
     private LinearLayout send_now_button2 = null;
@@ -167,22 +166,6 @@ public class Home extends AppCompatActivity {
     private TextView reset_l;
     private Dialog token_info;
 
-
-    /*Production ads
-    private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-3865008552851810/7331691260"; //NATIVE
-    private static final String AD_UNIT_ID2 = "ca-app-pub-3865008552851810/3056532195"; //Interstitial
-    private static final String REWARD_AD_UNIT_TURBO_TOKEN = "ca-app-pub-3865008552851810/7505620460"; //Reward
-    */
-
-    /*Test ads*/
-    private static final String ADMOB_AD_UNIT_ID = "ca-app-pub-3940256099942544/2247696110"; //NATIVE
-    private static final String AD_UNIT_ID2 = "ca-app-pub-3940256099942544/1033173712"; //Interstitial
-    private static final String REWARD_AD_UNIT_TURBO_TOKEN = "ca-app-pub-3940256099942544/5224354917"; //Reward
-
-    private NativeAd nativeAd;
-    private RewardedAd rewardedAd;
-    AdRequest adRequest;
-    public static InterstitialAd interstitialAd;
     //Push screen dimens
     DisplayMetrics displayMetrics = new DisplayMetrics();
     private int display_height, display_width;
@@ -242,11 +225,8 @@ public class Home extends AppCompatActivity {
         netUtility = new NetUtility(this);
         inflater = LayoutInflater.from(context);
         super.onCreate(savedInstanceState);
-        adRequest = new AdRequest.Builder().build();
         user_image_path = get_appdata_location_root(context)+"/user_image.png";
         pm = context.getPackageManager();
-        //Ready ad
-        loadInterstitialAd(this);
 
         //Display
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -375,13 +355,6 @@ public class Home extends AppCompatActivity {
             }
         }
     }
-    @Override
-    protected void onDestroy() {
-        if (nativeAd != null) {
-            nativeAd.destroy();
-        }
-        super.onDestroy();
-    }
 
     private void update_user_pic_view() {
         File user_image_now = new File(user_image_path);
@@ -403,7 +376,6 @@ public class Home extends AppCompatActivity {
     private final View.OnClickListener Listener = v -> {
         switch (v.getId()) {
             case R.id.button_home:
-                showInterstitial(this);
                 home.setBackground(ContextCompat.getDrawable(context, R.color.dark_primary));
                 files.setBackground(ContextCompat.getDrawable(context, R.color.transparent));
                 history.setBackground(ContextCompat.getDrawable(context, R.color.transparent));
@@ -412,7 +384,6 @@ public class Home extends AppCompatActivity {
                 current_tab = "home";
                 break;
             case R.id.button_local:
-                showInterstitial(this);
                 home.setBackground(ContextCompat.getDrawable(context, R.color.transparent));
                 files.setBackground(ContextCompat.getDrawable(context, R.color.dark_primary));
                 history.setBackground(ContextCompat.getDrawable(context, R.color.transparent));
@@ -421,7 +392,6 @@ public class Home extends AppCompatActivity {
                 current_tab = "local";
                 break;
             case R.id.button_history:
-                showInterstitial(this);
                 home.setBackground(ContextCompat.getDrawable(context, R.color.transparent));
                 files.setBackground(ContextCompat.getDrawable(context, R.color.transparent));
                 history.setBackground(ContextCompat.getDrawable(context, R.color.dark_primary));
@@ -430,7 +400,6 @@ public class Home extends AppCompatActivity {
                 current_tab = "history";
                 break;
             case R.id.button_music:
-                showInterstitial(this);
                 home.setBackground(ContextCompat.getDrawable(context, R.color.transparent));
                 files.setBackground(ContextCompat.getDrawable(context, R.color.transparent));
                 history.setBackground(ContextCompat.getDrawable(context, R.color.transparent));
@@ -439,12 +408,10 @@ public class Home extends AppCompatActivity {
                 current_tab = "music";
                 break;
             case R.id.button_menu:
-                showInterstitial(this);
                 startActivity(new Intent(Home.this, Settings_page.class));
                 break;
             case R.id.send_button:
                 //Check ip
-                showInterstitial(context);
                 direct_to_sender = false;
                 //If hotspot on, or has 5GHz wifi connected -- or, prompt
                 if((!netUtility.isWiFiConnected() && !netUtility.isHotspotEnabled())
@@ -1822,7 +1789,6 @@ public class Home extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 selection_fragment_viewer.setCurrentItem(tab.getPosition());
-                showInterstitial(context);
             }
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
@@ -1964,13 +1930,14 @@ public class Home extends AppCompatActivity {
         ad_icon = home_view.findViewById(R.id.ad_icon);
         ad_loading = home_view.findViewById(R.id.ad_loading);
         home_view.findViewById(R.id.watch_ad).setOnClickListener(v-> {
-            if(!netUtility.isInternetConnected()){
-                Toast.makeText(context, "No internet!", Toast.LENGTH_SHORT).show();
-                return;
-            }
+            //if(!netUtility.isInternetConnected()){
+            //    Toast.makeText(context, "No internet!", Toast.LENGTH_SHORT).show();
+            //    return;
+            //}
             ad_icon.setVisibility(View.GONE);
             ad_loading.setVisibility(View.VISIBLE);
-            Show_token_ad();
+            Toast.makeText(context, "You got it free!", Toast.LENGTH_SHORT).show();
+            add_token(1);
         });
         TextView timer = home_view.findViewById(R.id.timer);
 
@@ -2026,160 +1993,11 @@ public class Home extends AppCompatActivity {
         }, 1000);
 
         replace_view(home_frame, home_view);
-
-        //Ads -- only in home view
-        refreshAd(home_view);
     }
 
     private void replace_view(FrameLayout main_frame, View view){
         main_frame.removeAllViews();
         main_frame.addView(view);
-    }
-
-    //Ads
-    private void refreshAd(View main_view){
-        AdLoader.Builder builder = new AdLoader.Builder(this, ADMOB_AD_UNIT_ID);
-        // OnLoadedListener implementation.
-        builder.forNativeAd(
-                nativeAd -> {
-                    // If this callback occurs after the activity is destroyed, you must call
-                    // destroy and return or you may get a memory leak.
-                    boolean isDestroyed;
-                    isDestroyed = isDestroyed();
-                    if (isDestroyed || isFinishing() || isChangingConfigurations()) {
-                        nativeAd.destroy();
-                        return;
-                    }
-                    // You must call destroy on old ads when you are done with them,
-                    // otherwise you will have a memory leak.
-                    if (Home.this.nativeAd != null) {
-                        Home.this.nativeAd.destroy();
-                    }
-                    Home.this.nativeAd = nativeAd;
-                    FrameLayout frameLayout = main_view.findViewById(R.id.ad_frame_1);
-                    NativeAdView adView =
-                            (NativeAdView) getLayoutInflater().inflate(R.layout.ad_native_home, frameLayout, false);
-                    populateNativeAdView(nativeAd, adView);
-                    frameLayout.removeAllViews();
-                    frameLayout.addView(adView);
-                });
-
-        //Muted
-        VideoOptions videoOptions =
-                new VideoOptions.Builder().setStartMuted(true).build();
-
-        NativeAdOptions adOptions =
-                new NativeAdOptions.Builder().setVideoOptions(videoOptions).build();
-
-        builder.withNativeAdOptions(adOptions);
-
-        AdLoader adLoader =
-                builder
-                        .withAdListener(
-                                new AdListener() {
-                                    @Override
-                                    public void onAdFailedToLoad(LoadAdError loadAdError) {
-                                        //Do nothing for now
-                                    }
-                                })
-                        .build();
-
-        adLoader.loadAd(new AdRequest.Builder().build());
-    }
-    private void populateNativeAdView(NativeAd nativeAd, NativeAdView adView) {
-        // Set the media view.
-        adView.setMediaView(adView.findViewById(R.id.ad_media));
-
-        // Set other ad assets.
-        adView.setHeadlineView(adView.findViewById(R.id.ad_headline));
-        adView.setBodyView(adView.findViewById(R.id.ad_body));
-        adView.setCallToActionView(adView.findViewById(R.id.ad_call_to_action));
-        adView.setIconView(adView.findViewById(R.id.ad_app_icon));
-        adView.setPriceView(adView.findViewById(R.id.ad_price));
-        adView.setStarRatingView(adView.findViewById(R.id.ad_stars));
-        adView.setStoreView(adView.findViewById(R.id.ad_store));
-        adView.setAdvertiserView(adView.findViewById(R.id.ad_advertiser));
-
-        // The headline and mediaContent are guaranteed to be in every NativeAd.
-        ((TextView) adView.getHeadlineView()).setText(nativeAd.getHeadline());
-        adView.getMediaView().setMediaContent(nativeAd.getMediaContent());
-
-        // These assets aren't guaranteed to be in every NativeAd, so it's important to
-        // check before trying to display them.
-        if (nativeAd.getBody() == null) {
-            adView.getBodyView().setVisibility(View.INVISIBLE);
-        } else {
-            adView.getBodyView().setVisibility(View.VISIBLE);
-            ((TextView) adView.getBodyView()).setText(nativeAd.getBody());
-        }
-
-        if (nativeAd.getCallToAction() == null) {
-            adView.getCallToActionView().setVisibility(View.INVISIBLE);
-        } else {
-            adView.getCallToActionView().setVisibility(View.VISIBLE);
-            ((Button) adView.getCallToActionView()).setText(nativeAd.getCallToAction());
-        }
-
-        if (nativeAd.getIcon() == null) {
-            adView.getIconView().setVisibility(View.GONE);
-        } else {
-            ((ImageView) adView.getIconView()).setImageDrawable(
-                    nativeAd.getIcon().getDrawable());
-            adView.getIconView().setVisibility(View.VISIBLE);
-        }
-
-        if (nativeAd.getPrice() == null) {
-            adView.getPriceView().setVisibility(View.INVISIBLE);
-        } else {
-            adView.getPriceView().setVisibility(View.VISIBLE);
-            ((TextView) adView.getPriceView()).setText(nativeAd.getPrice());
-        }
-
-        if (nativeAd.getStore() == null) {
-            adView.getStoreView().setVisibility(View.INVISIBLE);
-        } else {
-            adView.getStoreView().setVisibility(View.VISIBLE);
-            ((TextView) adView.getStoreView()).setText(nativeAd.getStore());
-        }
-
-        if (nativeAd.getStarRating() == null) {
-            adView.getStarRatingView().setVisibility(View.INVISIBLE);
-        } else {
-            ((RatingBar) adView.getStarRatingView())
-                    .setRating(nativeAd.getStarRating().floatValue());
-            adView.getStarRatingView().setVisibility(View.VISIBLE);
-        }
-
-        if (nativeAd.getAdvertiser() == null) {
-            adView.getAdvertiserView().setVisibility(View.INVISIBLE);
-        } else {
-            ((TextView) adView.getAdvertiserView()).setText(nativeAd.getAdvertiser());
-            adView.getAdvertiserView().setVisibility(View.VISIBLE);
-        }
-
-        // This method tells the Google Mobile Ads SDK that you have finished populating your
-        // native ad view with this native ad.
-        adView.setNativeAd(nativeAd);
-
-        // Get the video controller for the ad. One will always be provided, even if the ad doesn't
-        // have a video asset.
-        VideoController vc = nativeAd.getMediaContent().getVideoController();
-
-        // Updates the UI to say whether or not this ad has a video asset.
-        if (nativeAd.getMediaContent() != null && nativeAd.getMediaContent().hasVideoContent()) {
-
-            // Create a new VideoLifecycleCallbacks object and pass it to the VideoController. The
-            // VideoController will call methods on this object when events occur in the video
-            // lifecycle.
-            vc.setVideoLifecycleCallbacks(new VideoController.VideoLifecycleCallbacks() {
-                @Override
-                public void onVideoEnd() {
-                    // Publishers should allow native ads to complete video playback before
-                    // refreshing or replacing them with another ad in the same UI location.
-                    super.onVideoEnd();
-                }
-            });
-        }
     }
 
     //Read the ip of wifi, not internet - self
@@ -2531,56 +2349,6 @@ public class Home extends AppCompatActivity {
         }
         return type;
     }
-    //Ad2
-    private static void loadInterstitialAd(Context context) {
-        AdRequest adRequest = new AdRequest.Builder().build();
-        InterstitialAd.load(context, AD_UNIT_ID2, adRequest,
-                new InterstitialAdLoadCallback() {
-                    @Override
-                    public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                        Home.interstitialAd = interstitialAd;
-                        interstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
-                            //Methods...
-                            @Override
-                            public void onAdDismissedFullScreenContent() {
-                                // Called when fullscreen content is dismissed.
-                                // Make sure to set your reference to null so you don't
-                                // show it a second time.
-                                Home.interstitialAd = null;
-                                loadInterstitialAd(context);
-                            }
-                            @Override
-                            public void onAdFailedToShowFullScreenContent(AdError adError) {
-                                // Called when fullscreen content failed to show.
-                                // Make sure to set your reference to null so you don't
-                                // show it a second time.
-                                Home.interstitialAd = null;
-                                loadInterstitialAd(context);
-                            }
-                            @Override
-                            public void onAdShowedFullScreenContent() {
-                                // Called when fullscreen content is shown.
-                                loadInterstitialAd(context);
-                            }
-                        });
-                    }
-                });
-    }
-    public static void showInterstitial(Context context) {
-        //show ad per 10 clicks
-        if(clicks < 9){
-            clicks++;
-            return;
-        }
-        Activity activity = (Activity) context;
-        if (Home.interstitialAd != null) {
-            Home.interstitialAd.show(activity);
-            clicks = 0;
-        }
-        else {
-            loadInterstitialAd(context);
-        }
-    }
     public static String convertTime(long time){
         Date date = new Date(time);
         @SuppressLint("SimpleDateFormat") Format format = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -2833,28 +2601,6 @@ public class Home extends AppCompatActivity {
             }
         }
         File_selection.selection_update();
-    }
-    private void Show_token_ad(){
-        RewardedAd.load(this, REWARD_AD_UNIT_TURBO_TOKEN,
-                adRequest, new RewardedAdLoadCallback() {
-                    @Override
-                    public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                        // Handle the error.
-                        Toast.makeText(Home.this, "Error loading ad!", Toast.LENGTH_LONG).show();
-                        ad_loading.setVisibility(View.GONE);
-                        ad_icon.setVisibility(View.VISIBLE);
-                        rewardedAd = null;
-                    }
-                    @Override
-                    public void onAdLoaded(@NonNull RewardedAd ad) {
-                        rewardedAd = ad;
-                        Activity activityContext = Home.this;
-                        rewardedAd.show(activityContext, rewardItem -> {
-                            // Handle the reward.
-                            add_token(1);
-                        });
-                    }
-                });
     }
     private void add_token(Integer add){
         update_daily_token = true;
